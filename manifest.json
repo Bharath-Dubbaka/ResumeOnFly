@@ -1,0 +1,20 @@
+
+{
+   "manifest_version": 3,
+   "name": "Text Selection Extension",
+   "version": "1.0.0",
+   "description": "Select text and send to extension popup",
+   "permissions": ["contextMenus", "storage"],
+   "action": {
+      "default_popup": "index.html"
+   },
+   "background": {
+      "service_worker": "background.js",
+      "type": "module"
+   },
+   "icons": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+   }
+}
