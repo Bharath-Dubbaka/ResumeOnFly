@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-// import nlp from "compromise";
+import nlp from "compromise";
 
 function App() {
    const [selectedText, setSelectedText] = useState<string>("");
-   // const [skills, setSkills] = useState<string[]>([]);
-   // const [experience, setExperience] = useState<
-   //    { skill: string; years: string }[]
-   // >([]);
+   const [skills, setSkills] = useState<string[]>([]);
+   const [experience, setExperience] = useState<
+      { skill: string; years: string }[]
+   >([]);
 
    useEffect(() => {
       chrome.storage.local.get(["selectedText"], (result) => {
@@ -15,11 +15,11 @@ function App() {
             setSelectedText(text);
 
             // Analyze text
-            // const extractedSkills = extractSkills(text);
-            // const extractedExperience = extractExperience(text);
+            const extractedSkills = extractSkills(text);
+            const extractedExperience = extractExperience(text);
 
-            // setSkills(extractedSkills);
-            // setExperience(extractedExperience);
+            setSkills(extractedSkills);
+            setExperience(extractedExperience);
 
             // Clear the storage after retrieving
             // chrome.storage.local.remove("selectedText");
@@ -28,32 +28,32 @@ function App() {
    }, []);
 
    // Skill extraction using Compromise.js
-   // function extractSkills(text: string): string[] {
-   //    const doc = nlp(text);
-   //    return doc.match("#Noun").toLowerCase().unique().out("array");
-   // }
+   function extractSkills(text: string): string[] {
+      const doc = nlp(text);
+      return doc.match("#Noun").toLowerCase().unique().out("array");
+   }
 
    // Experience extraction using Compromise.js
-   // function extractExperience(
-   //    text: string
-   // ): { skill: string; years: string }[] {
-   //    const doc = nlp(text);
-   //    const experiencePhrases = doc
-   //       .match("/[0-9]+[+]? (years|yrs) of experience in [#Noun|#NounPhrase]/")
-   //       .out("array");
+   function extractExperience(
+      text: string
+   ): { skill: string; years: string }[] {
+      const doc = nlp(text);
+      const experiencePhrases = doc
+         .match("/[0-9]+[+]? (years|yrs) of experience in [#Noun|#NounPhrase]/")
+         .out("array");
 
-   //    return experiencePhrases
-   //       .map((phrase: string) => {
-   //          const match = phrase.match(
-   //             /([0-9]+[+]?) (years|yrs) of experience in ([^,.\n]+)/
-   //          );
-   //          return match ? { skill: match[3].trim(), years: match[1] } : null;
-   //       })
-   //       .filter(
-   //          (result: any): result is { skill: string; years: string } =>
-   //             result !== null
-   //       );
-   // }
+      return experiencePhrases
+         .map((phrase: string) => {
+            const match = phrase.match(
+               /([0-9]+[+]?) (years|yrs) of experience in ([^,.\n]+)/
+            );
+            return match ? { skill: match[3].trim(), years: match[1] } : null;
+         })
+         .filter(
+            (result: any): result is { skill: string; years: string } =>
+               result !== null
+         );
+   }
 
    return (
       <div className="p-4 min-w-[300px] min-h-[300px]">
@@ -62,7 +62,7 @@ function App() {
             <h2 className="text-lg font-semibold">Selected Text</h2>
             <p>{selectedText || "No text selected"}</p>
          </div>
-         {/* <div className="p-2 border rounded bg-gray-50 mb-4">
+         <div className="p-2 border rounded bg-gray-50 mb-4">
             <h2 className="text-lg font-semibold">Skills</h2>
             <ul>
                {skills.length ? (
@@ -71,8 +71,8 @@ function App() {
                   <li>No skills detected</li>
                )}
             </ul>
-         </div> */}
-         {/* <div className="p-2 border rounded bg-gray-50">
+         </div>
+         <div className="p-2 border rounded bg-gray-50">
             <h2 className="text-lg font-semibold">Experience</h2>
             <ul>
                {experience.length ? (
@@ -85,7 +85,7 @@ function App() {
                   <li>No experience phrases detected</li>
                )}
             </ul>
-         </div> */}
+         </div>
       </div>
    );
 }
