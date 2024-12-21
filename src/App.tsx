@@ -157,76 +157,91 @@ function App() {
    // }
 
    return (
-      <div className="p-4 min-w-[300px] min-h-[300px]">
-         <h1 className="text-xl font-bold mb-4">Job Description Analyzer</h1>
-         <div className="p-2 border rounded bg-gray-50 mb-4">
-            <h2 className="text-lg font-semibold">Selected Text</h2>
-            <p>{selectedText || "No text selected"}</p>
+      <div className="w-[500px] max-h-[800px] overflow-y-auto bg-white p-4">
+         {/* Compact Header */}
+         <div className="mb-4 bg-slate-300 p-4 rounded-lg">
+            <h1 className="text-xl font-bold text-slate-800">ResumeOnFly🚀</h1>
+            <div>Job Description Analyser</div>
          </div>
 
-         {/* Add loading state */}
+         {/* Selected Text - Collapsible */}
+         <div className="mb-4">
+            <details className="bg-slate-200 rounded-lg">
+               <summary className="cursor-pointer p-2 text-sm font-semibold text-slate-700">
+                  View Selected Job-Description
+               </summary>
+               <div className="p-2 text-sm text-slate-600 max-h-[100px] overflow-y-auto">
+                  {selectedText || "No text selected"}
+               </div>
+            </details>
+         </div>
+
+         {/* Loading State */}
          {loading && (
-            <div className="p-2 text-center text-blue-600">
-               Analyzing job description...
+            <div className="flex justify-center p-2">
+               <div className="animate-pulse-slow flex space-x-2">
+                  <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                  <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                  <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+               </div>
             </div>
          )}
 
-         {/* Add error state */}
+         {/* Error State */}
          {error && (
-            <div className="p-2 text-center text-red-600">Error: {error}</div>
+            <div className="bg-red-50 border-l-4 border-red-400 p-2 mb-4 text-xs text-red-700">
+               {error}
+            </div>
          )}
 
-         {/* Add analysis results */}
+         {/* Analysis Results */}
          {analysisResult && (
-            <>
-               <div className="p-2 border rounded bg-gray-50 mb-4">
-                  <h2 className="text-lg font-semibold">Required Experience</h2>
-                  <p>{analysisResult.yearsOfExperience} years</p>
+            <div className="space-y-4">
+               {/* Experience Badge */}
+               <div className="flex items-center bg-green-50 p-2 rounded-lg">
+                  <span className="text-sm font-semibold text-slate-700">
+                     Experience Required:
+                  </span>
+                  <span className="ml-auto font-bold text-green-600">
+                     {analysisResult.yearsOfExperience} years
+                  </span>
                </div>
 
-               <div className="p-2 border rounded bg-gray-50 mb-4">
-                  <h2 className="text-lg font-semibold">Technical Skills</h2>
-                  <ul className="list-disc pl-4">
+               {/* Technical Skills */}
+               <div>
+                  <h3 className="text-sm font-medium text-slate-700 mb-2">
+                     Technical Skills
+                  </h3>
+                  <div className="flex flex-wrap gap-1 font-semibold">
                      {analysisResult.technicalSkills.map((skill, index) => (
-                        <li key={index}>{skill}</li>
+                        <span
+                           key={index}
+                           className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs"
+                        >
+                           {skill}
+                        </span>
                      ))}
-                  </ul>
+                  </div>
                </div>
 
-               <div className="p-2 border rounded bg-gray-50">
-                  <h2 className="text-lg font-semibold">Soft Skills</h2>
-                  <ul className="list-disc pl-4">
+               {/* Soft Skills */}
+               <div>
+                  <h3 className="text-sm font-medium text-slate-700 mb-2">
+                     Soft Skills
+                  </h3>
+                  <div className="flex flex-wrap gap-1 font-semibold">
                      {analysisResult.softSkills.map((skill, index) => (
-                        <li key={index}>{skill}</li>
+                        <span
+                           key={index}
+                           className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs"
+                        >
+                           {skill}
+                        </span>
                      ))}
-                  </ul>
+                  </div>
                </div>
-            </>
+            </div>
          )}
-         {/* <div className="p-2 border rounded bg-gray-50 mb-4">
-            <h2 className="text-lg font-semibold">Skills</h2>
-            <ul>
-               {skills.length ? (
-                  skills.map((skill, index) => <li key={index}>{skill}</li>)
-               ) : (
-                  <li>No skills detected</li>
-               )}
-            </ul>
-         </div> */}
-         {/* <div className="p-2 border rounded bg-gray-50">
-            <h2 className="text-lg font-semibold">Experience</h2>
-            <ul>
-               {experience.length ? (
-                  experience.map((exp, index) => (
-                     <li key={index}>
-                        {exp.years} years in {exp.skill}
-                     </li>
-                  ))
-               ) : (
-                  <li>No experience phrases detected</li>
-               )}
-            </ul>
-         </div> */}
       </div>
    );
 }
