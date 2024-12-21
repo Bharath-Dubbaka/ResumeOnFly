@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
    chrome.contextMenus.create({
       id: "sendToExtension",
-      title: "Send to Extension",
+      title: "Send to ResumeOnFly",
       contexts: ["selection"],
    });
 });
