@@ -5,6 +5,8 @@ interface AnalysisResult {
    technicalSkills: string[];
    yearsOfExperience: number;
    softSkills: string[];
+   text: string;
+   analysis: AnalysisResult;
 }
 
 function App() {
@@ -30,7 +32,7 @@ function App() {
          "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 
       // Modified prompt to ensure clean JSON response
-      const prompt = `Analyze this job description and return only a JSON object with these exact keys:
+      const prompt = `Analyze this job description indetail and return only a JSON object with these exact keys:
         {
           "technicalSkills": [array of strings],
           "yearsOfExperience": number,
@@ -79,25 +81,47 @@ function App() {
 
    useEffect(() => {
       const analyzeText = async () => {
-         chrome.storage.local.get(["selectedText"], async (result) => {
-            if (result.selectedText) {
-               const text = result.selectedText;
-               setSelectedText(text);
+         chrome.storage.local.get(
+            ["selectedText", "storedAnalysis"],
+            async (result) => {
+               if (result.selectedText) {
+                  const text = result.selectedText;
+                  setSelectedText(text);
 
-               setLoading(true);
-               setError(null);
-               try {
-                  const analysis = await analyzeWithGemini(text);
-                  setAnalysisResult(analysis);
-               } catch (err) {
-                  setError(
-                     err instanceof Error ? err.message : "An error occurred"
-                  );
-               } finally {
-                  setLoading(false);
+                  // Check if we have stored analysis for this exact text
+                  if (
+                     result.storedAnalysis &&
+                     result.storedAnalysis.text === text
+                  ) {
+                     // Use stored analysis if text matches
+                     setAnalysisResult(result.storedAnalysis.analysis);
+                  } else {
+                     // Only analyze if we don't have stored results for this text
+                     setLoading(true);
+                     setError(null);
+                     try {
+                        const analysis = await analyzeWithGemini(text);
+                        setAnalysisResult(analysis);
+                        // Store both text and its analysis
+                        chrome.storage.local.set({
+                           storedAnalysis: {
+                              text: text,
+                              analysis: analysis,
+                           },
+                        });
+                     } catch (err) {
+                        setError(
+                           err instanceof Error
+                              ? err.message
+                              : "An error occurred"
+                        );
+                     } finally {
+                        setLoading(false);
+                     }
+                  }
                }
             }
-         });
+         );
       };
 
       // Call the async function
