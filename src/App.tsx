@@ -128,49 +128,29 @@ function App() {
       analyzeText();
    }, []);
 
-   // Skill extraction using Compromise.js
-   // function extractSkills(text: string): string[] {
-   //    const doc = nlp(text);
-   //    return doc.match("#Noun").toLowerCase().unique().out("array");
-   // }
-
-   // Experience extraction using Compromise.js
-   // function extractExperience(
-   //    text: string
-   // ): { skill: string; years: string }[] {
-   //    const doc = nlp(text);
-   //    const experiencePhrases = doc
-   //       .match("/[0-9]+[+]? (years|yrs) of experience in [#Noun|#NounPhrase]/")
-   //       .out("array");
-
-   //    return experiencePhrases
-   //       .map((phrase: string) => {
-   //          const match = phrase.match(
-   //             /([0-9]+[+]?) (years|yrs) of experience in ([^,.\n]+)/
-   //          );
-   //          return match ? { skill: match[3].trim(), years: match[1] } : null;
-   //       })
-   //       .filter(
-   //          (result: any): result is { skill: string; years: string } =>
-   //             result !== null
-   //       );
-   // }
-
    return (
-      <div className="w-[500px] max-h-[800px] overflow-y-auto bg-white p-4">
-         {/* Compact Header */}
-         <div className="mb-4 bg-slate-300 p-4 rounded-lg">
-            <h1 className="text-xl font-bold text-slate-800">ResumeOnFly🚀</h1>
-            <div>Job Description Analyser</div>
+      <div
+         className="w-[500px] max-h-[800px] overflow-y-auto bg-gradient-to-b from-[#370c3e] to-[#243465] p-6 text-white rounded-lg shadow-xl"
+         style={{ fontFamily: "Arial, sans-serif" }}
+      >
+         {/* Header */}
+         <div className="mb-6 flex items-center justify-between">
+            <div>
+               <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
+               <p className="text-sm opacity-75">Job Description Analyser</p>
+            </div>
+            <button className="bg-red-600 px-4 py-2 text-sm font-bold rounded-lg hover:bg-red-700">
+               Try the Enterprise Edition
+            </button>
          </div>
 
          {/* Selected Text - Collapsible */}
          <div className="mb-4">
-            <details className="bg-slate-200 rounded-lg">
-               <summary className="cursor-pointer p-2 text-sm font-semibold text-slate-700">
+            <details className="bg-blue-800 rounded-lg">
+               <summary className="cursor-pointer p-2 text-sm font-semibold">
                   View Selected Job-Description
                </summary>
-               <div className="p-2 text-sm text-slate-600 max-h-[100px] overflow-y-auto">
+               <div className="p-2 text-sm text-blue-200 max-h-[100px] overflow-y-auto">
                   {selectedText || "No text selected"}
                </div>
             </details>
@@ -198,25 +178,23 @@ function App() {
          {analysisResult && (
             <div className="space-y-4">
                {/* Experience Badge */}
-               <div className="flex items-center bg-green-50 p-2 rounded-lg">
-                  <span className="text-sm font-semibold text-slate-700">
+               <div className="flex items-center bg-green-800 p-2 rounded-lg">
+                  <span className="text-sm font-semibold">
                      Experience Required:
                   </span>
-                  <span className="ml-auto font-bold text-green-600">
+                  <span className="ml-auto font-bold text-green-300">
                      {analysisResult.yearsOfExperience} years
                   </span>
                </div>
 
                {/* Technical Skills */}
                <div>
-                  <h3 className="text-sm font-medium text-slate-700 mb-2">
-                     Technical Skills
-                  </h3>
+                  <h3 className="text-sm font-bold mb-2">Technical Skills</h3>
                   <div className="flex flex-wrap gap-1 font-semibold">
                      {analysisResult.technicalSkills.map((skill, index) => (
                         <span
                            key={index}
-                           className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs"
+                           className="px-2 py-1 bg-purple-800 text-purple-200 rounded text-xs"
                         >
                            {skill}
                         </span>
@@ -226,14 +204,12 @@ function App() {
 
                {/* Soft Skills */}
                <div>
-                  <h3 className="text-sm font-medium text-slate-700 mb-2">
-                     Soft Skills
-                  </h3>
+                  <h3 className="text-sm font-bold mb-2">Soft Skills</h3>
                   <div className="flex flex-wrap gap-1 font-semibold">
                      {analysisResult.softSkills.map((skill, index) => (
                         <span
                            key={index}
-                           className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs"
+                           className="px-2 py-1 bg-blue-800 text-blue-200 rounded text-xs"
                         >
                            {skill}
                         </span>
