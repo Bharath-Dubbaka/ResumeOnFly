@@ -1,9 +1,8 @@
-
 {
    "manifest_version": 3,
-   "name": "Text Selection Extension",
-   "version": "1.0.0",
-   "description": "Select text and send to extension popup",
+   "name": "ResumeOnFly",
+   "version": "1.0.3",
+   "description": "Job Description Analyzer",
    "permissions": ["contextMenus", "storage"],
    "action": {
       "default_popup": "index.html"
