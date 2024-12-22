@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 // import nlp from "compromise";
+import ResumeGenerator from "./ResumeGenerator";
 
 interface AnalysisResult {
    technicalSkills: string[];
@@ -33,6 +34,7 @@ function App() {
    const [error, setError] = useState<string | null>(null);
    const [user, setUser] = useState<UserData | null>(null);
    const [loginLoading, setLoginLoading] = useState<boolean>(false);
+   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
    //below for compromise.js analysis of text
    // const [skills, setSkills] = useState<string[]>([]);
@@ -99,7 +101,7 @@ function App() {
    async function analyzeWithGemini(
       jobDescription: string
    ): Promise<AnalysisResult> {
-      const API_KEY = "AIzaSyBPlS5eHVy7xgWEarXqaKOkw1GHWowF2X8"; // Replace with your Gemini API key
+      const API_KEY = apiKey; // Replace with your Gemini API key
       const API_URL =
          "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 
@@ -319,7 +321,6 @@ function App() {
                   </div>
                </details>
             </div>
-
             {/* Loading State */}
             {loading && (
                <div className="flex justify-center p-2">
@@ -330,7 +331,6 @@ function App() {
                   </div>
                </div>
             )}
-
             {/* Analysis Results */}
             {analysisResult && (
                <div className="space-y-4">
@@ -376,6 +376,16 @@ function App() {
                      </div>
                   </div>
                </div>
+            )}
+            {/* Inside your ProtectedContent component, after the analysis
+            results: */}
+            {analysisResult && (
+               <ResumeGenerator
+                  technicalSkills={analysisResult.technicalSkills}
+                  softSkills={analysisResult.softSkills}
+                  yearsOfExperience={analysisResult.yearsOfExperience}
+                  jobDescription={selectedText}
+               />
             )}
          </>
       );

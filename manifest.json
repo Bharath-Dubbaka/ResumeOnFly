@@ -3,7 +3,7 @@
    "name": "ResumeOnFly",
    "version": "1.0.3",
    "description": "Job Description Analyzer",
-   "permissions": ["contextMenus", "storage", "identity"],
+   "permissions": ["contextMenus", "storage", "identity", "downloads"],
    "action": {
       "default_popup": "index.html"
    },
@@ -24,3 +24,5 @@
       "128": "icon.png"
    }
 }
+
+
