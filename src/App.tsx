@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 // import nlp from "compromise";
 import ResumeGenerator from "./ResumeGenerator";
+import UserDetailsForm from "./UserDetailsForm";
 
 interface AnalysisResult {
    technicalSkills: string[];
@@ -24,6 +25,15 @@ interface CustomManifest {
       scopes: string[];
    };
 }
+interface UserDetails {
+   fullName: string;
+   email: string;
+   phone: string;
+   experience: { title: string; startDate: string; endDate: string }[];
+   education: { degree: string; institution: string; year: string }[];
+   certifications: string[];
+   projects: { name: string; description: string }[];
+}
 
 function App() {
    const [selectedText, setSelectedText] = useState<string>("");
@@ -34,6 +44,7 @@ function App() {
    const [error, setError] = useState<string | null>(null);
    const [user, setUser] = useState<UserData | null>(null);
    const [loginLoading, setLoginLoading] = useState<boolean>(false);
+   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
    //below for compromise.js analysis of text
@@ -93,9 +104,40 @@ function App() {
          }
       });
 
+      //Check if user details are already stored... if not then show the UserDetailsForm.
+      chrome.storage.local.get("userDetails", (result) => {
+         if (result.userDetails) {
+            setUserDetails(result.userDetails);
+         }
+      });
+
       // Call the async function
       analyzeText();
+
+      // Check login status
+      chrome.storage.local.get("isLoggedIn", (result) => {
+         if (result.isLoggedIn) {
+            chrome.storage.local.get("userData", (userResult) => {
+               if (userResult.userData) {
+                  setUser(userResult.userData);
+               }
+            });
+         }
+      });
+
+      // Check if user details are already stored
+      chrome.storage.local.get("userDetails", (result) => {
+         if (result.userDetails) {
+            setUserDetails(result.userDetails);
+         }
+      });
    }, []);
+
+   // Handle saving the user details
+   // const handleSaveUserDetails = (details: UserDetails) => {
+   //    setUserDetails(details); // Save the user details to state
+   //    chrome.storage.local.set({ userDetails: details });
+   // };
 
    // Function to analyze text with Gemini API
    async function analyzeWithGemini(
@@ -136,7 +178,7 @@ function App() {
       });
 
       if (!response.ok) {
-         throw new Error("Failed to analyze job description");
+         throw new Error("Please try again..Failed to analyze job description");
       }
 
       const data = await response.json();
@@ -238,6 +280,22 @@ function App() {
                picture: userData.picture,
             },
          });
+
+         // // Save login status in chrome storage
+         // chrome.storage.local.set({ isLoggedIn: true }, () => {
+         //    console.log("User logged in");
+         // });
+
+         // // Save user data if needed
+         // chrome.storage.local.set(
+         //    { userData: JSON.stringify(userData) },
+         //    () => {
+         //       console.log("User data saved");
+         //    }
+         // );
+
+         // // Notify other parts of your extension if necessary (e.g., popup)
+         // chrome.runtime.sendMessage({ type: "userLoggedIn" });
       } catch (err) {
          setLoginLoading(false);
          setError(err instanceof Error ? err.message : "Login failed");
@@ -254,16 +312,24 @@ function App() {
       setSelectedText("");
       setError(null);
       setLoading(false);
-
+      setUserDetails(null);
       // Clear all relevant data from chrome storage
       chrome.storage.local.remove(
-         ["userData", "selectedText", "storedAnalysis"],
+         [
+            "userData",
+            "selectedText",
+            "storedAnalysis",
+            "userDetails",
+            // "isLoggedIn",
+         ],
          () => {
             if (chrome.runtime.lastError) {
                console.error(
                   "Error clearing storage:",
                   chrome.runtime.lastError
                );
+            } else {
+               console.log("Logged out and storage cleared.");
             }
          }
       );
@@ -379,14 +445,23 @@ function App() {
             )}
             {/* Inside your ProtectedContent component, after the analysis
             results: */}
-            {analysisResult && (
-               <ResumeGenerator
-                  technicalSkills={analysisResult.technicalSkills}
-                  softSkills={analysisResult.softSkills}
-                  yearsOfExperience={analysisResult.yearsOfExperience}
-                  jobDescription={selectedText}
-               />
-            )}
+            <div>
+               {/* Render UserDetailsForm if userDetails is not set */}
+               {/* {!userDetails && (
+                  <UserDetailsForm onSave={handleSaveUserDetails} />
+               )} */}
+
+               {/* Render ResumeGenerator only if userDetails is available */}
+               {userDetails && analysisResult && (
+                  <ResumeGenerator
+                     userDetails={userDetails} // Pass userDetails here
+                     technicalSkills={analysisResult.technicalSkills}
+                     softSkills={analysisResult.softSkills}
+                     yearsOfExperience={analysisResult.yearsOfExperience}
+                     jobDescription={selectedText}
+                  />
+               )}
+            </div>
          </>
       );
    };
@@ -454,7 +529,11 @@ function App() {
          )}
 
          {/* Protected Content */}
-         <ProtectedContent />
+         {!userDetails ? (
+            <UserDetailsForm onSave={setUserDetails} />
+         ) : (
+            <ProtectedContent />
+         )}
       </div>
    );
 }

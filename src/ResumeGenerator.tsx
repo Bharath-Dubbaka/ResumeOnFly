@@ -2,11 +2,22 @@ import React, { useState } from "react";
 import { Download } from "lucide-react";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 
+interface UserDetails {
+   fullName: string;
+   email: string;
+   phone: string;
+   experience: { title: string; startDate: string; endDate: string }[];
+   education: { degree: string; institution: string; year: string }[];
+   certifications: string[];
+   projects: { name: string; description: string }[];
+}
+
 interface ResumeGeneratorProps {
    technicalSkills: string[];
    softSkills: string[];
    yearsOfExperience: number;
    jobDescription: string;
+   userDetails: UserDetails; // Accept userDetails as prop
 }
 
 const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
@@ -14,6 +25,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    softSkills,
    yearsOfExperience,
    jobDescription,
+   userDetails,
 }) => {
    const [resumeContent, setResumeContent] = useState<string>("");
    const [loading, setLoading] = useState(false);
@@ -35,20 +47,23 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
          const prompt = `Generate a JSON object (with no markdown formatting) containing the following resume sections:
       {
-        "fullName": "John Doe",
-        "contactInformation": "email@example.com | (555) 123-4567 | City, State",
+        "fullName": "${userDetails.fullName}",
+        "contactInformation": "${userDetails.email} | ${
+            userDetails.phone
+         } | Location", // Replace Location as needed
         "professionalSummary": "Brief summary based on experience and job description",
-        "technicalSkills": "List of relevant technical skills",
-        "softSkills": "List of relevant soft skills",
-        "professionalExperience": ["experience1", "experience2"],
-        "education": "Education details"
+        "technicalSkills": "${technicalSkills.join(", ")}",
+        "softSkills": "${softSkills.join(", ")}",
+        "professionalExperience": ${JSON.stringify(userDetails.experience)},
+        "education": ${JSON.stringify(userDetails.education)},
+        "certifications": ${JSON.stringify(userDetails.certifications)},
+        "projects": ${JSON.stringify(userDetails.projects)}
       }
 
       Use this information to populate the JSON:
       Job Description: ${jobDescription}
-      Technical Skills: ${technicalSkills.join(", ")}
-      Soft Skills: ${softSkills.join(", ")}
       Years of Experience: ${yearsOfExperience}
+
 
       Return only the JSON object with no additional text or formatting.`;
 

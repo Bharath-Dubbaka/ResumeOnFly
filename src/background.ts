@@ -17,3 +17,13 @@ chrome.contextMenus.onClicked.addListener((info) => {
       });
    }
 });
+
+// chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+//    if (message.type === "checkLoginStatus") {
+//       chrome.storage.local.get("isLoggedIn", (result) => {
+//          const isLoggedIn = result.isLoggedIn;
+//          sendResponse({ isLoggedIn: !!isLoggedIn });
+//       });
+//       return true; // Keep the message channel open for async response
+//    }
+// });
