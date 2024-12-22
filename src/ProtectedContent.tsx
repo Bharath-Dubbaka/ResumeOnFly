@@ -1,12 +1,34 @@
 import ResumeGenerator from "./ResumeGenerator";
-import { UserData, UserDetails, AnalysisResult } from "./types";
+import { UserData, UserDetails, AnalysisResult } from "./types/types";
+// import UserDetailsForm from "./UserDetailsForm";
 
 interface ProtectedContentProps {
    user: UserData;
    userDetails: UserDetails;
+   selectedText: string;
+   setSelectedText: React.Dispatch<React.SetStateAction<string>>;
+   analysisResult: AnalysisResult | null;
+   setAnalysisResult: React.Dispatch<
+      React.SetStateAction<AnalysisResult | null>
+   >;
+   loading: boolean;
+   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+   // handleSaveUserDetails: (details: UserDetails) => void;
+   loginLoading: boolean;
+   setLoginLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ProtectedContent = ({ user, userDetails }: ProtectedContentProps) => {
+const ProtectedContent = ({
+   user,
+   userDetails,
+   selectedText,
+   // setSelectedText,
+   analysisResult,
+   // setAnalysisResult,
+   loading,
+   // setLoginLoading,
+   loginLoading,
+}: ProtectedContentProps) => {
    if (!user) {
       return (
          <div className="flex flex-col items-center justify-center p-8 space-y-4 bg-blue-900/30 rounded-lg">
@@ -16,7 +38,7 @@ const ProtectedContent = ({ user, userDetails }: ProtectedContentProps) => {
                   Please sign in to analyze job descriptions
                </p>
                <button
-                  onClick={handleGoogleLogin}
+                  // onClick={handleGoogleLogin}
                   disabled={loginLoading}
                   className="bg-blue-600 px-6 py-2 text-sm font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2 mx-auto"
                >
@@ -41,7 +63,6 @@ const ProtectedContent = ({ user, userDetails }: ProtectedContentProps) => {
          </div>
       );
    }
-
    return (
       <>
          {/* Selected Text - Collapsible */}
@@ -79,7 +100,6 @@ const ProtectedContent = ({ user, userDetails }: ProtectedContentProps) => {
                      {analysisResult.yearsOfExperience} years
                   </span>
                </div>
-
                {/* Technical Skills */}
                <div>
                   <h3 className="text-sm font-bold mb-2">Technical Skills</h3>
@@ -94,7 +114,6 @@ const ProtectedContent = ({ user, userDetails }: ProtectedContentProps) => {
                      ))}
                   </div>
                </div>
-
                {/* Soft Skills */}
                <div>
                   <h3 className="text-sm font-bold mb-2">Soft Skills</h3>
@@ -112,15 +131,16 @@ const ProtectedContent = ({ user, userDetails }: ProtectedContentProps) => {
             </div>
          )}
          {/* Inside your ProtectedContent component, after the analysis
-           results: */}
+      results: */}
          <div>
             {/* Render UserDetailsForm if userDetails is not set */}
-            {!userDetails && <UserDetailsForm onSave={handleSaveUserDetails} />}
-
+            {/* {!userDetails && (
+            <UserDetailsForm onSave={handleSaveUserDetails} />
+         )} */}
             {/* Render ResumeGenerator only if userDetails is available */}
             {userDetails && analysisResult && (
                <ResumeGenerator
-                  userDetails={userDetails}
+                  userDetails={userDetails} // Pass userDetails here
                   technicalSkills={analysisResult.technicalSkills}
                   softSkills={analysisResult.softSkills}
                   yearsOfExperience={analysisResult.yearsOfExperience}
