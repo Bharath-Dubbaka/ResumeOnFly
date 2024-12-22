@@ -13,6 +13,7 @@
    "dependencies": {
       "@types/chrome": "^0.0.287",
       "compromise": "^14.14.3",
+      "docx": "^9.1.0",
       "html2canvas": "^1.4.1",
       "html2pdf.js": "^0.10.2",
       "jspdf": "^2.5.2",
