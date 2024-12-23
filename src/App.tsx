@@ -47,7 +47,22 @@ function App() {
                      setLoading(true);
                      setError(null);
                      try {
-                        const analysis = await analyzeWithGemini(text);
+                        const workExperiences = [
+                           {
+                              title: "Frontend Developer",
+                              organization: "XYZ Corp",
+                              duration: "12/12/2023 - Present",
+                           },
+                           {
+                              title: "Junior Web Developer",
+                              organization: "ABC Ltd",
+                              duration: "12/12/2020 - 12/12/2023",
+                           },
+                        ];
+                        const analysis = await analyzeWithGemini(
+                           text,
+                           workExperiences
+                        );
                         setAnalysisResult(analysis);
                         // Store both text and its analysis
                         chrome.storage.local.set({
@@ -114,23 +129,37 @@ function App() {
 
    // Function to analyze text with Gemini API
    async function analyzeWithGemini(
-      jobDescription: string
+      jobDescription: string,
+      workExperiences: {
+         title: string;
+         organization: string;
+         duration: string;
+      }[]
    ): Promise<AnalysisResult> {
       const API_KEY = apiKey; // Replace with your Gemini API key
       const API_URL =
          "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 
       // Modified prompt to ensure clean JSON response
-      const prompt = `Analyze this job description indetail and return only a JSON object with these exact keys:
-        {
-          "technicalSkills": [array of strings],
-          "yearsOfExperience": number,
-          "softSkills": [array of strings]
-        }
-    
-        Job Description: ${jobDescription}
-    
-        Return only the JSON object, no additional text or formatting.`;
+      const prompt = `Analyze the following job description and work experiences in detail. Return only a JSON object with these exact keys:
+      {
+         "technicalSkills": [array of strings],
+         "yearsOfExperience": number,
+         "softSkills": [array of strings],
+         "roleDescriptions": [
+            {
+               "title": string,
+               "organization": string,
+               "description": string
+            }
+         ]
+      }
+      Job Description: ${jobDescription}
+      Work Experiences: ${JSON.stringify(workExperiences)}
+   
+      For each role in work experiences, generate a "description" field explaining key responsibilities and achievements based on the job description's context and the skills listed.
+   
+      Return only the JSON object, no additional text or formatting.`;
 
       const response = await fetch(`${API_URL}?key=${API_KEY}`, {
          method: "POST",
@@ -310,7 +339,7 @@ function App() {
 
    return (
       <div
-         className="w-[500px] max-h-[800px] overflow-y-auto bg-gradient-to-b from-[#370c3e] to-[#243465] p-6 text-white rounded-lg shadow-xl"
+         className="w-[800px] max-h-[800px] overflow-y-auto bg-gradient-to-b from-[#370c3e] to-[#243465] p-6 text-white rounded-lg shadow-xl"
          style={{ fontFamily: "Arial, sans-serif" }}
       >
          {/* Header */}

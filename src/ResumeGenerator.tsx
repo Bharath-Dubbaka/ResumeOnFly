@@ -6,7 +6,12 @@ interface UserDetails {
    fullName: string;
    email: string;
    phone: string;
-   experience: { title: string; startDate: string; endDate: string }[];
+   experience: {
+      title: string;
+      startDate: string;
+      endDate: string;
+      responsibilities?: string[]; // Added responsibilities
+   }[];
    education: { degree: string; institution: string; year: string }[];
    certifications: string[];
    projects: { name: string; description: string }[];
@@ -17,7 +22,7 @@ interface ResumeGeneratorProps {
    softSkills: string[];
    yearsOfExperience: number;
    jobDescription: string;
-   userDetails: UserDetails; // Accept userDetails as prop
+   userDetails: UserDetails;
 }
 
 const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
@@ -32,7 +37,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
    const cleanJsonResponse = (text: string) => {
-      // Remove markdown code block syntax and any surrounding whitespace
       return text
          .replace(/^```json\s*/, "")
          .replace(/```$/, "")
@@ -45,16 +49,23 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          const API_KEY = apiKey;
          const API_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
-         const prompt = `Generate a JSON object (with no markdown formatting) containing the following resume sections:
+         const prompt = `Generate a JSON object (with no markdown formatting) containing the following resume sections. For each work experience, generate 3-4 detailed responsibilities based on the job description and technical skills:
       {
         "fullName": "${userDetails.fullName}",
         "contactInformation": "${userDetails.email} | ${
             userDetails.phone
-         } | Location", // Replace Location as needed
+         } | Location",
         "professionalSummary": "Brief summary based on experience and job description",
         "technicalSkills": "${technicalSkills.join(", ")}",
         "softSkills": "${softSkills.join(", ")}",
-        "professionalExperience": ${JSON.stringify(userDetails.experience)},
+        "professionalExperience": [
+          {
+            "title": string,
+            "startDate": string,
+            "endDate": string,
+            "responsibilities": string[] // Array of 8 detailed responsibilities
+          }
+        ],
         "education": ${JSON.stringify(userDetails.education)},
         "certifications": ${JSON.stringify(userDetails.certifications)},
         "projects": ${JSON.stringify(userDetails.projects)}
@@ -63,7 +74,12 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
       Use this information to populate the JSON:
       Job Description: ${jobDescription}
       Years of Experience: ${yearsOfExperience}
+      Work Experience: ${JSON.stringify(userDetails.experience)}
 
+      For each role in professional experience:
+      1. Keep the original title, startDate, and endDate
+      2. Generate detailed, specific responsibilities that align with the job description and skills irrespective of the title
+      4. Focus on quantifiable achievements and technical contributions
 
       Return only the JSON object with no additional text or formatting.`;
 
@@ -90,7 +106,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 
    const downloadAsWord = async () => {
       try {
-         // Clean and parse the JSON content
          const cleanedContent = cleanJsonResponse(resumeContent);
          const resumeData = JSON.parse(cleanedContent);
 
@@ -194,12 +209,33 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                            }),
                         ],
                      }),
-                     ...resumeData.professionalExperience.map(
-                        (exp: string) =>
+                     ...resumeData.professionalExperience.flatMap(
+                        (exp: any) => [
                            new Paragraph({
-                              children: [new TextRun({ text: exp, size: 24 })],
-                              spacing: { before: 200 },
-                           })
+                              children: [
+                                 new TextRun({
+                                    text: `${exp.title} (${exp.startDate} - ${exp.endDate})`,
+                                    bold: true,
+                                    size: 24,
+                                 }),
+                              ],
+                           }),
+                           // Add responsibilities as bullet points
+                           ...(exp.responsibilities || []).map(
+                              (responsibility: string) =>
+                                 new Paragraph({
+                                    bullet: {
+                                       level: 0,
+                                    },
+                                    children: [
+                                       new TextRun({
+                                          text: responsibility,
+                                          size: 24,
+                                       }),
+                                    ],
+                                 })
+                           ),
+                        ]
                      ),
 
                      // Education
@@ -214,14 +250,65 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                            }),
                         ],
                      }),
+                     ...resumeData.education.map(
+                        (edu: any) =>
+                           new Paragraph({
+                              children: [
+                                 new TextRun({
+                                    text: `${edu.degree}, ${edu.institution} (${edu.year})`,
+                                    size: 24,
+                                 }),
+                              ],
+                           })
+                     ),
+
+                     // Certifications
                      new Paragraph({
+                        heading: HeadingLevel.HEADING_1,
+                        spacing: { before: 400 },
                         children: [
                            new TextRun({
-                              text: resumeData.education,
-                              size: 24,
+                              text: "Certifications",
+                              bold: true,
+                              size: 28,
                            }),
                         ],
                      }),
+                     ...resumeData.certifications.map(
+                        (cert: string) =>
+                           new Paragraph({
+                              children: [
+                                 new TextRun({
+                                    text: cert,
+                                    size: 24,
+                                 }),
+                              ],
+                           })
+                     ),
+
+                     // Projects
+                     new Paragraph({
+                        heading: HeadingLevel.HEADING_1,
+                        spacing: { before: 400 },
+                        children: [
+                           new TextRun({
+                              text: "Projects",
+                              bold: true,
+                              size: 28,
+                           }),
+                        ],
+                     }),
+                     ...resumeData.projects.map(
+                        (project: any) =>
+                           new Paragraph({
+                              children: [
+                                 new TextRun({
+                                    text: `${project.name}: ${project.description}`,
+                                    size: 24,
+                                 }),
+                              ],
+                           })
+                     ),
                   ],
                },
             ],
