@@ -4,7 +4,13 @@ interface UserDetails {
    fullName: string;
    email: string;
    phone: string;
-   experience: { title: string; startDate: string; endDate: string }[];
+   experience: {
+      title: string;
+      employer: string;
+      startDate: string;
+      endDate: string;
+      location: string;
+   }[];
    education: { degree: string; institution: string; year: string }[];
    certifications: string[];
    projects: { name: string; description: string }[];
@@ -90,12 +96,25 @@ const UserDetailsForm = ({
                   <div key={index} className="space-y-2">
                      <input
                         type="text"
-                        placeholder="Title"
+                        placeholder="Job Title"
                         value={exp.title}
                         onChange={(e) =>
                            handleChange("experience", [
                               ...userDetails.experience.slice(0, index),
                               { ...exp, title: e.target.value },
+                              ...userDetails.experience.slice(index + 1),
+                           ])
+                        }
+                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                     />
+                     <input
+                        type="text"
+                        placeholder="Employer"
+                        value={exp.employer}
+                        onChange={(e) =>
+                           handleChange("experience", [
+                              ...userDetails.experience.slice(0, index),
+                              { ...exp, employer: e.target.value },
                               ...userDetails.experience.slice(index + 1),
                            ])
                         }
@@ -127,6 +146,19 @@ const UserDetailsForm = ({
                         }
                         className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
                      />
+                     <input
+                        type="text"
+                        placeholder="Location (Optional)"
+                        value={exp.location}
+                        onChange={(e) =>
+                           handleChange("experience", [
+                              ...userDetails.experience.slice(0, index),
+                              { ...exp, location: e.target.value },
+                              ...userDetails.experience.slice(index + 1),
+                           ])
+                        }
+                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                     />
                      <button
                         className="text-red-500 text-sm"
                         onClick={() => handleRemoveField("experience", index)}
@@ -142,6 +174,8 @@ const UserDetailsForm = ({
                         title: "",
                         startDate: "",
                         endDate: "",
+                        employer: "",
+                        location: "",
                      })
                   }
                >

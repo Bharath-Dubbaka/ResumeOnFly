@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { Download } from "lucide-react";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
+import {
+   Document,
+   Packer,
+   Paragraph,
+   TextRun,
+   HeadingLevel,
+   TabStopType,
+} from "docx";
 
 interface UserDetails {
    fullName: string;
@@ -8,8 +15,10 @@ interface UserDetails {
    phone: string;
    experience: {
       title: string;
+      employer: string;
       startDate: string;
       endDate: string;
+      location: string;
       responsibilities?: string[]; // Added responsibilities
    }[];
    education: { degree: string; institution: string; year: string }[];
@@ -49,24 +58,26 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          const API_KEY = apiKey;
          const API_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
-         const prompt = `Generate a JSON object (with no markdown formatting) containing the following resume sections. For each work experience, generate 3-4 detailed responsibilities based on the job description and technical skills:
+         const prompt = `Generate a JSON object (with no markdown formatting) containing the following resume sections. For each work experience, generate 8 detailed responsibilities based on the job description and technical skills only, NOT of title or employer:
       {
         "fullName": "${userDetails.fullName}",
         "contactInformation": "${userDetails.email} | ${
             userDetails.phone
          } | Location",
-        "professionalSummary": "Brief summary based on experience and job description",
+        "professionalSummary": "Brief summary based on experience and job description and skills minimum of 6 sentences",
         "technicalSkills": "${technicalSkills.join(", ")}",
-        "softSkills": "${softSkills.join(", ")}",
         "professionalExperience": [
           {
             "title": string,
+            "employer";string,
             "startDate": string,
             "endDate": string,
-            "responsibilities": string[] // Array of 8 detailed responsibilities
+            "location":string;
+            "responsibilities": string[] // Array of 8 detailed responsibilities based on the job description and technical skills only, NOT of title or employer
           }
         ],
         "education": ${JSON.stringify(userDetails.education)},
+        "softSkills": "${softSkills.join(", ")}",
         "certifications": ${JSON.stringify(userDetails.certifications)},
         "projects": ${JSON.stringify(userDetails.projects)}
       }
@@ -74,12 +85,14 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
       Use this information to populate the JSON:
       Job Description: ${jobDescription}
       Years of Experience: ${yearsOfExperience}
-      Work Experience: ${JSON.stringify(userDetails.experience)}
+      Work Experience: ${JSON.stringify(
+         userDetails.experience
+      )}, but do use this to generate responsibilities
 
       For each role in professional experience:
-      1. Keep the original title, startDate, and endDate
-      2. Generate detailed, specific responsibilities that align with the job description and skills irrespective of the title
-      4. Focus on quantifiable achievements and technical contributions
+      1. Keep the original title, employer, startDate, and endDate
+      2. Generate detailed, specific responsibilities that align with the job description and skills only, NOT of the title or employer
+      3. Focus on quantifiable achievements and technical contributions
 
       Return only the JSON object with no additional text or formatting.`;
 
@@ -154,7 +167,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                            }),
                         ],
                      }),
-
                      // Technical Skills
                      new Paragraph({
                         heading: HeadingLevel.HEADING_1,
@@ -175,28 +187,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                            }),
                         ],
                      }),
-
-                     // Soft Skills
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Soft Skills",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     new Paragraph({
-                        children: [
-                           new TextRun({
-                              text: resumeData.softSkills,
-                              size: 24,
-                           }),
-                        ],
-                     }),
-
                      // Professional Experience
                      new Paragraph({
                         heading: HeadingLevel.HEADING_1,
@@ -214,7 +204,32 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                            new Paragraph({
                               children: [
                                  new TextRun({
-                                    text: `${exp.title} (${exp.startDate} - ${exp.endDate})`,
+                                    text: `Job Title: ${exp.title}`,
+                                    bold: true,
+                                    size: 24,
+                                 }),
+                                 new TextRun({
+                                    text: `\tDuration: (${exp.startDate} - ${exp.endDate})`,
+                                    bold: true,
+                                    size: 24,
+                                 }),
+                              ],
+                              tabStops: [
+                                 {
+                                    type: TabStopType.RIGHT,
+                                    position: 9000, // Adjust the position based on your document width
+                                 },
+                              ],
+                           }),
+                           new Paragraph({
+                              children: [
+                                 new TextRun({
+                                    text: `Employer: ${exp.employer}`,
+                                    bold: true,
+                                    size: 24,
+                                 }),
+                                 new TextRun({
+                                    text: `, ${exp.location}`,
                                     bold: true,
                                     size: 24,
                                  }),
@@ -261,6 +276,27 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               ],
                            })
                      ),
+
+                     // Soft Skills
+                     new Paragraph({
+                        heading: HeadingLevel.HEADING_1,
+                        spacing: { before: 400 },
+                        children: [
+                           new TextRun({
+                              text: "Soft Skills",
+                              bold: true,
+                              size: 28,
+                           }),
+                        ],
+                     }),
+                     new Paragraph({
+                        children: [
+                           new TextRun({
+                              text: resumeData.softSkills,
+                              size: 24,
+                           }),
+                        ],
+                     }),
 
                      // Certifications
                      new Paragraph({

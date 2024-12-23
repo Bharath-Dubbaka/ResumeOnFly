@@ -8,7 +8,13 @@ export interface UserDetails {
    fullName: string;
    email: string;
    phone: string;
-   experience: { title: string; startDate: string; endDate: string }[];
+   experience: {
+      title: string;
+      employer: string;
+      startDate: string;
+      endDate: string;
+      location: string;
+   }[];
    education: { degree: string; institution: string; year: string }[];
    certifications: string[];
    projects: { name: string; description: string }[];
