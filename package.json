@@ -12,6 +12,7 @@
    },
    "dependencies": {
       "@types/chrome": "^0.0.287",
+      "axios": "^1.7.9",
       "compromise": "^14.14.3",
       "docx": "^9.1.0",
       "html2canvas": "^1.4.1",

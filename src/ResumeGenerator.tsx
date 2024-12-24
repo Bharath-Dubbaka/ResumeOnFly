@@ -8,6 +8,7 @@ import {
    HeadingLevel,
    TabStopType,
 } from "docx";
+import axios from "axios";
 
 interface UserDetails {
    fullName: string;
@@ -43,72 +44,83 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 }) => {
    const [resumeContent, setResumeContent] = useState<string>("");
    const [loading, setLoading] = useState(false);
-   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+   const apiKey = import.meta.env.VITE_HUGGINGFACE_API_KEY;
 
+   // Function to clean the response and remove any extra data
    const cleanJsonResponse = (text: string) => {
-      return text
-         .replace(/^```json\s*/, "")
-         .replace(/```$/, "")
-         .trim();
+      try {
+         // Regex to extract the JSON from the response if there is extra text before or after
+         const match = text.match(/({.*})/);
+         if (match && match[1]) {
+            return match[1].trim(); // Return only the JSON part
+         } else {
+            console.error("Failed to extract valid JSON");
+            return null;
+         }
+      } catch (error) {
+         console.error("Error parsing JSON:", error);
+         return null;
+      }
    };
 
+   // Generate the resume content from the API
    const generateResume = async () => {
       setLoading(true);
       try {
-         const API_KEY = apiKey;
-         const API_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
-         const prompt = `Generate a JSON object (with no markdown formatting) containing the following resume sections. For each work experience, generate 8 detailed responsibilities based on the job description and technical skills only, NOT of title or employer:
-      {
+         const experience = userDetails.experience || [];
+
+         // Map over the experience to format it
+         const formattedExperience = experience.map((exp) => ({
+            title: exp.title || "N/A",
+            employer: exp.employer || "N/A",
+            startDate: exp.startDate || "N/A",
+            endDate: exp.endDate || "N/A",
+            location: exp.location || "N/A",
+            responsibilities: ["No responsibilities listed"], // Example fallback
+         }));
+
+         const prompt = `{
         "fullName": "${userDetails.fullName}",
-        "contactInformation": "${userDetails.email} | ${
-            userDetails.phone
-         } | Location",
-        "professionalSummary": "Brief summary based on experience and job description and skills minimum of 6 sentences",
+        "contactInformation": {
+          "email": "${userDetails.email}",
+          "phone": "${userDetails.phone}",
+          "location": "Location"
+        },
+        "professionalSummary": "Brief summary based on ${yearsOfExperience} and ${jobDescription} and ${technicalSkills.join(
+            ", "
+         )}",
         "technicalSkills": "${technicalSkills.join(", ")}",
-        "professionalExperience": [
-          {
-            "title": string,
-            "employer";string,
-            "startDate": string,
-            "endDate": string,
-            "location":string;
-            "responsibilities": string[] // Array of 8 detailed responsibilities based on the job description and technical skills only, NOT of title or employer
-          }
-        ],
+        "experience": ${JSON.stringify(formattedExperience)},
         "education": ${JSON.stringify(userDetails.education)},
         "softSkills": "${softSkills.join(", ")}",
         "certifications": ${JSON.stringify(userDetails.certifications)},
         "projects": ${JSON.stringify(userDetails.projects)}
-      }
+      }`;
 
-      Use this information to populate the JSON:
-      Job Description: ${jobDescription}
-      Years of Experience: ${yearsOfExperience}
-      Work Experience: ${JSON.stringify(
-         userDetails.experience
-      )}, but do use this to generate responsibilities
+         console.log("Generated JSON Prompt: ", prompt);
 
-      For each role in professional experience:
-      1. Keep the original title, employer, startDate, and endDate
-      2. Generate detailed, specific responsibilities that align with the job description and skills only, NOT of the title or employer
-      3. Focus on quantifiable achievements and technical contributions
+         // Parse and log to ensure it's valid
+         const validJson = JSON.parse(prompt); // This ensures the prompt is well-formed
+         console.log(validJson);
 
-      Return only the JSON object with no additional text or formatting.`;
+         const response = await axios.post(
+            "https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-2.7B",
+            { inputs: prompt },
+            { headers: { Authorization: `Bearer ${apiKey}` } }
+         );
 
-         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
-            method: "POST",
-            headers: {
-               "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-               contents: [{ parts: [{ text: prompt }] }],
-            }),
-         });
+         const generatedContent = response.data[0].generated_text;
 
-         const data = await response.json();
-         const generatedContent = data.candidates[0].content.parts[0].text;
-         setResumeContent(generatedContent);
+         // Clean the generated content (remove extra data)
+         const cleanedContent = cleanJsonResponse(generatedContent);
+
+         if (cleanedContent) {
+            // Set the cleaned content as the final resume content
+            setResumeContent(cleanedContent);
+         } else {
+            console.error("Error: Invalid or malformed generated content.");
+            alert("Error generating resume content. Please try again.");
+         }
       } catch (error) {
          console.error("Error generating resume:", error);
          alert("Error generating resume content. Please try again.");
@@ -117,253 +129,261 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
       }
    };
 
+   // Download the resume as a Word document
    const downloadAsWord = async () => {
       try {
          const cleanedContent = cleanJsonResponse(resumeContent);
-         const resumeData = JSON.parse(cleanedContent);
 
-         const doc = new Document({
-            sections: [
-               {
-                  properties: {},
-                  children: [
-                     // Header with name and contact
-                     new Paragraph({
-                        heading: HeadingLevel.TITLE,
-                        children: [
-                           new TextRun({
-                              text: resumeData.fullName,
-                              bold: true,
-                              size: 32,
-                           }),
-                        ],
-                     }),
-                     new Paragraph({
-                        children: [
-                           new TextRun({
-                              text: resumeData.contactInformation,
-                              size: 24,
-                           }),
-                        ],
-                     }),
+         if (cleanedContent) {
+            // Ensure the content is valid before proceeding
+            const resumeData = JSON.parse(cleanedContent);
 
-                     // Professional Summary
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Professional Summary",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     new Paragraph({
-                        children: [
-                           new TextRun({
-                              text: resumeData.professionalSummary,
-                              size: 24,
-                           }),
-                        ],
-                     }),
-                     // Technical Skills
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Technical Skills",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     new Paragraph({
-                        children: [
-                           new TextRun({
-                              text: resumeData.technicalSkills,
-                              size: 24,
-                           }),
-                        ],
-                     }),
-                     // Professional Experience
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Professional Experience",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     ...resumeData.professionalExperience.flatMap(
-                        (exp: any) => [
-                           new Paragraph({
-                              children: [
-                                 new TextRun({
-                                    text: `Job Title: ${exp.title}`,
-                                    bold: true,
-                                    size: 24,
-                                 }),
-                                 new TextRun({
-                                    text: `\tDuration: (${exp.startDate} - ${exp.endDate})`,
-                                    bold: true,
-                                    size: 24,
-                                 }),
-                              ],
-                              tabStops: [
-                                 {
-                                    type: TabStopType.RIGHT,
-                                    position: 9000, // Adjust the position based on your document width
-                                 },
-                              ],
-                           }),
-                           new Paragraph({
-                              children: [
-                                 new TextRun({
-                                    text: `Employer: ${exp.employer}`,
-                                    bold: true,
-                                    size: 24,
-                                 }),
-                                 new TextRun({
-                                    text: `, ${exp.location}`,
-                                    bold: true,
-                                    size: 24,
-                                 }),
-                              ],
-                           }),
-                           // Add responsibilities as bullet points
-                           ...(exp.responsibilities || []).map(
-                              (responsibility: string) =>
-                                 new Paragraph({
-                                    bullet: {
-                                       level: 0,
+            const doc = new Document({
+               sections: [
+                  {
+                     properties: {},
+                     children: [
+                        // Header with name and contact
+                        new Paragraph({
+                           heading: HeadingLevel.TITLE,
+                           children: [
+                              new TextRun({
+                                 text: resumeData.fullName,
+                                 bold: true,
+                                 size: 32,
+                              }),
+                           ],
+                        }),
+                        new Paragraph({
+                           children: [
+                              new TextRun({
+                                 text: `${resumeData.contactInformation.email}, ${resumeData.contactInformation.phone}`,
+                                 size: 24,
+                              }),
+                           ],
+                        }),
+
+                        // Professional Summary
+                        new Paragraph({
+                           heading: HeadingLevel.HEADING_1,
+                           spacing: { before: 400 },
+                           children: [
+                              new TextRun({
+                                 text: "Professional Summary",
+                                 bold: true,
+                                 size: 28,
+                              }),
+                           ],
+                        }),
+                        new Paragraph({
+                           children: [
+                              new TextRun({
+                                 text: resumeData.professionalSummary,
+                                 size: 24,
+                              }),
+                           ],
+                        }),
+
+                        // Technical Skills
+                        new Paragraph({
+                           heading: HeadingLevel.HEADING_1,
+                           spacing: { before: 400 },
+                           children: [
+                              new TextRun({
+                                 text: "Technical Skills",
+                                 bold: true,
+                                 size: 28,
+                              }),
+                           ],
+                        }),
+                        new Paragraph({
+                           children: [
+                              new TextRun({
+                                 text: resumeData.technicalSkills,
+                                 size: 24,
+                              }),
+                           ],
+                        }),
+
+                        // Experience, Education, and other sections...
+                        // Professional Experience
+                        new Paragraph({
+                           heading: HeadingLevel.HEADING_1,
+                           spacing: { before: 400 },
+                           children: [
+                              new TextRun({
+                                 text: "Professional Experience",
+                                 bold: true,
+                                 size: 28,
+                              }),
+                           ],
+                        }),
+                        ...resumeData.professionalExperience.flatMap(
+                           (exp: any) => [
+                              new Paragraph({
+                                 children: [
+                                    new TextRun({
+                                       text: `Job Title: ${exp.title}`,
+                                       bold: true,
+                                       size: 24,
+                                    }),
+                                    new TextRun({
+                                       text: `\tDuration: (${exp.startDate} - ${exp.endDate})`,
+                                       bold: true,
+                                       size: 24,
+                                    }),
+                                 ],
+                                 tabStops: [
+                                    {
+                                       type: TabStopType.RIGHT,
+                                       position: 9000, // Adjust the position based on your document width
                                     },
-                                    children: [
-                                       new TextRun({
-                                          text: responsibility,
-                                          size: 24,
-                                       }),
-                                    ],
-                                 })
-                           ),
-                        ]
-                     ),
+                                 ],
+                              }),
+                              new Paragraph({
+                                 children: [
+                                    new TextRun({
+                                       text: `Employer: ${exp.employer}`,
+                                       bold: true,
+                                       size: 24,
+                                    }),
+                                    new TextRun({
+                                       text: `, ${exp.location}`,
+                                       bold: true,
+                                       size: 24,
+                                    }),
+                                 ],
+                              }),
+                              // Add responsibilities as bullet points
+                              ...(exp.responsibilities || []).map(
+                                 (responsibility: string) =>
+                                    new Paragraph({
+                                       bullet: {
+                                          level: 0,
+                                       },
+                                       children: [
+                                          new TextRun({
+                                             text: responsibility,
+                                             size: 24,
+                                          }),
+                                       ],
+                                    })
+                              ),
+                           ]
+                        ),
 
-                     // Education
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Education",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     ...resumeData.education.map(
-                        (edu: any) =>
-                           new Paragraph({
-                              children: [
-                                 new TextRun({
-                                    text: `${edu.degree}, ${edu.institution} (${edu.year})`,
-                                    size: 24,
-                                 }),
-                              ],
-                           })
-                     ),
+                        // Education
+                        new Paragraph({
+                           heading: HeadingLevel.HEADING_1,
+                           spacing: { before: 400 },
+                           children: [
+                              new TextRun({
+                                 text: "Education",
+                                 bold: true,
+                                 size: 28,
+                              }),
+                           ],
+                        }),
+                        ...resumeData.education.map(
+                           (edu: any) =>
+                              new Paragraph({
+                                 children: [
+                                    new TextRun({
+                                       text: `${edu.degree}, ${edu.institution} (${edu.year})`,
+                                       size: 24,
+                                    }),
+                                 ],
+                              })
+                        ),
 
-                     // Soft Skills
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Soft Skills",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     new Paragraph({
-                        children: [
-                           new TextRun({
-                              text: resumeData.softSkills,
-                              size: 24,
-                           }),
-                        ],
-                     }),
+                        // Soft Skills
+                        new Paragraph({
+                           heading: HeadingLevel.HEADING_1,
+                           spacing: { before: 400 },
+                           children: [
+                              new TextRun({
+                                 text: "Soft Skills",
+                                 bold: true,
+                                 size: 28,
+                              }),
+                           ],
+                        }),
+                        new Paragraph({
+                           children: [
+                              new TextRun({
+                                 text: resumeData.softSkills,
+                                 size: 24,
+                              }),
+                           ],
+                        }),
 
-                     // Certifications
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Certifications",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     ...resumeData.certifications.map(
-                        (cert: string) =>
-                           new Paragraph({
-                              children: [
-                                 new TextRun({
-                                    text: cert,
-                                    size: 24,
-                                 }),
-                              ],
-                           })
-                     ),
+                        // Certifications
+                        new Paragraph({
+                           heading: HeadingLevel.HEADING_1,
+                           spacing: { before: 400 },
+                           children: [
+                              new TextRun({
+                                 text: "Certifications",
+                                 bold: true,
+                                 size: 28,
+                              }),
+                           ],
+                        }),
+                        ...resumeData.certifications.map(
+                           (cert: string) =>
+                              new Paragraph({
+                                 children: [
+                                    new TextRun({
+                                       text: cert,
+                                       size: 24,
+                                    }),
+                                 ],
+                              })
+                        ),
 
-                     // Projects
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Projects",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     ...resumeData.projects.map(
-                        (project: any) =>
-                           new Paragraph({
-                              children: [
-                                 new TextRun({
-                                    text: `${project.name}: ${project.description}`,
-                                    size: 24,
-                                 }),
-                              ],
-                           })
-                     ),
-                  ],
-               },
-            ],
-         });
+                        // Projects
+                        new Paragraph({
+                           heading: HeadingLevel.HEADING_1,
+                           spacing: { before: 400 },
+                           children: [
+                              new TextRun({
+                                 text: "Projects",
+                                 bold: true,
+                                 size: 28,
+                              }),
+                           ],
+                        }),
+                        ...resumeData.projects.map(
+                           (project: any) =>
+                              new Paragraph({
+                                 children: [
+                                    new TextRun({
+                                       text: `${project.name}: ${project.description}`,
+                                       size: 24,
+                                    }),
+                                 ],
+                              })
+                        ),
+                     ],
+                  },
+               ],
+            });
 
-         Packer.toBlob(doc).then((blob) => {
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "resume.docx";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-         });
+            Packer.toBlob(doc).then((blob) => {
+               const url = window.URL.createObjectURL(blob);
+               const link = document.createElement("a");
+               link.href = url;
+               link.download = "resume.docx";
+               document.body.appendChild(link);
+               link.click();
+               document.body.removeChild(link);
+            });
+         } else {
+            alert("Error: Invalid resume content.");
+         }
       } catch (error) {
          console.error("Error generating Word document:", error);
-         alert(
-            "Error generating document. Please check the console for details and try again."
-         );
+         alert("Error generating document. Please try again.");
       }
    };
 
