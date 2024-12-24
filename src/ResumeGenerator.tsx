@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Download } from "lucide-react";
 import {
    Document,
    Packer,
@@ -8,6 +7,7 @@ import {
    HeadingLevel,
    TabStopType,
 } from "docx";
+import ResumePreview from "./ResumePreview";
 
 interface UserDetails {
    fullName: string;
@@ -407,7 +407,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 
          {resumeContent && (
             <div className="space-y-4">
-               <div className="bg-white text-black p-8 rounded-lg max-h-[500px] overflow-y-auto">
+               {/* <div className="bg-white text-black p-8 rounded-lg max-h-[500px] overflow-y-auto">
                   <pre className="whitespace-pre-wrap">{resumeContent}</pre>
                </div>
 
@@ -417,7 +417,17 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                >
                   <Download size={16} />
                   Download as Word Document
-               </button>
+               </button> */}
+               <ResumePreview
+                  initialResumeContent={resumeContent}
+                  onUpdate={(cleanedJson: string) => {
+                     // Handle the updated resume JSON data here
+                     setResumeContent(cleanedJson);
+                  }}
+                  generateResume={generateResume}
+                  downloadAsWord={downloadAsWord}
+                  loading={loading}
+               />
             </div>
          )}
       </div>
