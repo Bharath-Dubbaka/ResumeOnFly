@@ -359,10 +359,11 @@ function App() {
                      <p className="font-semibold">{user.name}</p>
                      <button
                         onClick={handleLogout}
-                        className="text-xs text-red-300 hover:text-red-400"
+                        className="text-sm font-semibold text-red-300 hover:text-red-400"
                      >
                         Logout
                      </button>
+                     <p className="font-semibold">{user.email}</p>
                   </div>
                </div>
             ) : (

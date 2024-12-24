@@ -24,11 +24,59 @@ const ProtectedContent = ({
    selectedText,
    // setSelectedText,
    analysisResult,
-   // setAnalysisResult,
+   setAnalysisResult,
    loading,
    // setLoginLoading,
    loginLoading,
 }: ProtectedContentProps) => {
+   const handleAddSkill = (type: "technical" | "soft") => {
+      setAnalysisResult((prev) => {
+         if (!prev) return null;
+         const updatedSkills = [
+            ...prev[type === "technical" ? "technicalSkills" : "softSkills"],
+            "",
+         ];
+         return {
+            ...prev,
+            [type === "technical" ? "technicalSkills" : "softSkills"]:
+               updatedSkills,
+         };
+      });
+   };
+
+   const handleRemoveSkill = (index: number, type: "technical" | "soft") => {
+      setAnalysisResult((prev) => {
+         if (!prev) return null;
+         const updatedSkills = prev[
+            type === "technical" ? "technicalSkills" : "softSkills"
+         ].filter((_, i) => i !== index);
+         return {
+            ...prev,
+            [type === "technical" ? "technicalSkills" : "softSkills"]:
+               updatedSkills,
+         };
+      });
+   };
+
+   const handleSkillChange = (
+      value: string,
+      index: number,
+      type: "technical" | "soft"
+   ) => {
+      setAnalysisResult((prev) => {
+         if (!prev) return null;
+         const updatedSkills = [
+            ...prev[type === "technical" ? "technicalSkills" : "softSkills"],
+         ];
+         updatedSkills[index] = value;
+         return {
+            ...prev,
+            [type === "technical" ? "technicalSkills" : "softSkills"]:
+               updatedSkills,
+         };
+      });
+   };
+
    if (!user) {
       return (
          <div className="flex flex-col items-center justify-center p-8 space-y-4 bg-blue-900/30 rounded-lg">
@@ -102,32 +150,63 @@ const ProtectedContent = ({
                </div>
                {/* Technical Skills */}
                <div>
-                  <h3 className="text-sm font-bold mb-2">Technical Skills</h3>
-                  <div className="flex flex-wrap gap-1 font-semibold">
+                  <h3 className="text-sm font-bold mb-2 text-blue-300">
+                     Technical Skills
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
                      {analysisResult.technicalSkills.map((skill, index) => (
-                        <span
+                        <div
                            key={index}
-                           className="px-2 py-1 bg-purple-800 text-purple-200 rounded text-xs"
+                           className="flex items-center space-x-2"
                         >
-                           {skill}
-                        </span>
+                           <input
+                              type="text"
+                              value={skill}
+                              onChange={(e) =>
+                                 handleSkillChange(
+                                    e.target.value,
+                                    index,
+                                    "technical"
+                                 )
+                              }
+                              className="text-xs px-3 py-1 rounded font-semibold bg-blue-800 text-blue-200 placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 w-32"
+                              placeholder="Enter skill"
+                           />
+                           <button
+                              onClick={() =>
+                                 handleRemoveSkill(index, "technical")
+                              }
+                              className="text-sm px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+                           >
+                              ✖
+                           </button>
+                        </div>
                      ))}
                   </div>
+                  <button
+                     onClick={() => handleAddSkill("technical")}
+                     className="mt-3 text-sm bg-green-700 px-3 py-1 rounded text-green-100 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                  >
+                     Add Skill
+                  </button>
                </div>
+
                {/* Soft Skills */}
-               <div>
-                  <h3 className="text-sm font-bold mb-2">Soft Skills</h3>
-                  <div className="flex flex-wrap gap-1 font-semibold">
+               {/* <div className="mt-6">
+                  <h3 className="text-sm font-bold mb-2 text-blue-300">
+                     Soft Skills
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
                      {analysisResult.softSkills.map((skill, index) => (
                         <span
                            key={index}
-                           className="px-2 py-1 bg-blue-800 text-blue-200 rounded text-xs"
+                           className="px-3 py-1 bg-green-800 text-green-200 rounded text-xs"
                         >
                            {skill}
                         </span>
                      ))}
                   </div>
-               </div>
+               </div> */}
             </div>
          )}
          {/* Inside your ProtectedContent component, after the analysis
