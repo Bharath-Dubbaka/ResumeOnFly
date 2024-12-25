@@ -58,7 +58,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
    //    generateResume,
    downloadAsWord,
    refresh,
-   //    loading,
+   loading,
 }) => {
    const [isEditing, setIsEditing] = useState<boolean>(false);
    const [resumeData, setResumeData] = useState<ResumeData>(
@@ -122,6 +122,29 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       handleEdit("professionalExperience", updatedExperience);
    };
 
+   //Loader
+   if (loading) {
+      return (
+         <div className="flex flex-col items-center justify-center h-64 space-y-4">
+            {/* Spinner */}
+            <div className="relative">
+               <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+               <div className="absolute inset-0 flex items-center justify-center text-blue-400 text-sm font-bold"></div>
+            </div>
+
+            {/* Text */}
+            <p className="text-lg font-semibold text-blue-600 text-center">
+               ResumeOnFly is generating your resume, please hold on.
+            </p>
+
+            {/* Subtext */}
+            <p className="text-sm text-gray-500 text-center">
+               This process may take a few moments. We appreciate your patience!
+            </p>
+         </div>
+      );
+   }
+
    return (
       <div className="mt-6 space-y-4">
          {/* <button
@@ -141,6 +164,24 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
 
          {resumeData && (
             <div className="space-y-4">
+               <div className="flex gap-4">
+                  <button
+                     onClick={() => setIsEditing(!isEditing)}
+                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
+                  >
+                     {isEditing ? "Save Changes" : "Edit Resume"}
+                  </button>
+
+                  <button
+                     onClick={downloadAsWord}
+                     className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
+                  >
+                     <Download size={16} />
+                     Download as Word
+                  </button>
+               </div>
+
+               {/* PREVIEW */}
                <div className="bg-white text-black p-8 rounded-lg max-h-[600px] overflow-y-auto">
                   <div className="space-y-6">
                      {/* Header Section */}
@@ -351,23 +392,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                         ))}
                      </div>
                   </div>
-               </div>
-
-               <div className="flex gap-4">
-                  <button
-                     onClick={() => setIsEditing(!isEditing)}
-                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
-                  >
-                     {isEditing ? "Save Changes" : "Edit Resume"}
-                  </button>
-
-                  <button
-                     onClick={downloadAsWord}
-                     className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
-                  >
-                     <Download size={16} />
-                     Download as Word
-                  </button>
                </div>
             </div>
          )}

@@ -358,14 +358,16 @@ function App() {
                      className="w-8 h-8 rounded-full"
                   />
                   <div className="text-sm">
-                     <p className="font-semibold">{user.name}</p>
-                     <button
-                        onClick={handleLogout}
-                        className="text-sm font-semibold text-red-300 hover:text-red-400"
-                     >
-                        Logout
-                     </button>
-                     <p className="font-semibold">{user.email}</p>
+                     <div className="flex mb-1">
+                        <p className="mr-2">{user.name}</p>
+                        <button
+                           onClick={handleLogout}
+                           className="text-sm text-red-400 hover:text-red-300"
+                        >
+                           Logout
+                        </button>
+                     </div>
+                     <p className="">{user.email}</p>
                   </div>
                </div>
             ) : (
