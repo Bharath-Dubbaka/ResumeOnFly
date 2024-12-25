@@ -4,8 +4,10 @@ import {
    Packer,
    Paragraph,
    TextRun,
-   HeadingLevel,
+   // HeadingLevel,
    TabStopType,
+   AlignmentType,
+   BorderStyle,
 } from "docx";
 import ResumePreview from "./ResumePreview";
 
@@ -152,30 +154,32 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                {
                   properties: {},
                   children: [
-                     // Header with name and contact
+                     // Header Section - Centered
                      new Paragraph({
-                        heading: HeadingLevel.TITLE,
                         children: [
                            new TextRun({
                               text: resumeData.fullName,
                               bold: true,
-                              size: 32,
+                              size: 36, // Increased for better header visibility
                            }),
                         ],
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 200 },
                      }),
                      new Paragraph({
                         children: [
                            new TextRun({
                               text: resumeData.contactInformation,
                               size: 24,
+                              color: "666666", // Gray color to match preview
                            }),
                         ],
+                        alignment: AlignmentType.CENTER,
+                        spacing: { after: 400 },
                      }),
 
                      // Professional Summary
                      new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
                         children: [
                            new TextRun({
                               text: "Professional Summary",
@@ -183,6 +187,14 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               size: 28,
                            }),
                         ],
+                        spacing: { before: 400, after: 200 },
+                        border: {
+                           bottom: {
+                              color: "999999",
+                              size: 1,
+                              style: BorderStyle.SINGLE,
+                           },
+                        },
                      }),
                      new Paragraph({
                         children: [
@@ -191,11 +203,11 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               size: 24,
                            }),
                         ],
+                        spacing: { after: 400 },
                      }),
+
                      // Technical Skills
                      new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
                         children: [
                            new TextRun({
                               text: "Technical Skills",
@@ -203,6 +215,14 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               size: 28,
                            }),
                         ],
+                        spacing: { before: 400, after: 200 },
+                        border: {
+                           bottom: {
+                              color: "999999",
+                              size: 1,
+                              style: BorderStyle.SINGLE,
+                           },
+                        },
                      }),
                      new Paragraph({
                         children: [
@@ -211,11 +231,11 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               size: 24,
                            }),
                         ],
+                        spacing: { after: 400 },
                      }),
+
                      // Professional Experience
                      new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
                         children: [
                            new TextRun({
                               text: "Professional Experience",
@@ -223,56 +243,65 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               size: 28,
                            }),
                         ],
+                        spacing: { before: 400, after: 200 },
+                        border: {
+                           bottom: {
+                              color: "999999",
+                              size: 1,
+                              style: BorderStyle.SINGLE,
+                           },
+                        },
                      }),
                      ...resumeData.professionalExperience.flatMap(
                         (exp: any) => [
                            new Paragraph({
                               children: [
                                  new TextRun({
-                                    text: `Job Title: ${exp.title}`,
+                                    text: exp.title,
                                     bold: true,
-                                    size: 24,
+                                    size: 26,
                                  }),
                                  new TextRun({
-                                    text: `\tDuration: (${exp.startDate} - ${exp.endDate})`,
-                                    bold: true,
+                                    text: `\t${exp.startDate} - ${exp.endDate}`,
                                     size: 24,
+                                    color: "666666", // Gray color to match preview
                                  }),
                               ],
+                              spacing: { before: 200, after: 100 },
                               tabStops: [
                                  {
                                     type: TabStopType.RIGHT,
-                                    position: 9000, // Adjust the position based on your document width
+                                    position: 9000,
                                  },
                               ],
                            }),
                            new Paragraph({
                               children: [
                                  new TextRun({
-                                    text: `Employer: ${exp.employer}`,
-                                    bold: true,
+                                    text: exp.employer,
                                     size: 24,
                                  }),
                                  new TextRun({
                                     text: `, ${exp.location}`,
-                                    bold: true,
                                     size: 24,
                                  }),
                               ],
+                              spacing: { before: 100, after: 200 },
                            }),
-                           // Add responsibilities as bullet points
-                           ...(exp.responsibilities || []).map(
+                           ...exp.responsibilities.map(
                               (responsibility: string) =>
                                  new Paragraph({
-                                    bullet: {
-                                       level: 0,
-                                    },
                                     children: [
                                        new TextRun({
                                           text: responsibility,
                                           size: 24,
                                        }),
                                     ],
+                                    bullet: {
+                                       level: 0,
+                                    },
+                                    indent: { left: 720 }, // Indent for bullet points
+                                    spacing: { before: 100, after: 100 },
                                  })
                            ),
                         ]
@@ -280,8 +309,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 
                      // Education
                      new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
                         children: [
                            new TextRun({
                               text: "Education",
@@ -289,90 +316,185 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               size: 28,
                            }),
                         ],
+                        spacing: { before: 400, after: 200 },
+                        border: {
+                           bottom: {
+                              color: "999999",
+                              size: 1,
+                              style: BorderStyle.SINGLE,
+                           },
+                        },
                      }),
-                     ...resumeData.education.map(
-                        (edu: any) =>
+                     ...resumeData.education
+                        .map((edu: any) => [
                            new Paragraph({
                               children: [
                                  new TextRun({
-                                    text: `${edu.degree}, ${edu.institution} (${edu.year})`,
+                                    text: edu.degree,
+                                    bold: true,
                                     size: 24,
                                  }),
                               ],
-                           })
-                     ),
-
-                     // Soft Skills
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Soft Skills",
-                              bold: true,
-                              size: 28,
+                              spacing: { before: 100 },
                            }),
-                        ],
-                     }),
-                     new Paragraph({
-                        children: [
-                           new TextRun({
-                              text: resumeData.softSkills,
-                              size: 24,
-                           }),
-                        ],
-                     }),
-
-                     // Certifications
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Certifications",
-                              bold: true,
-                              size: 28,
-                           }),
-                        ],
-                     }),
-                     ...resumeData.certifications.map(
-                        (cert: string) =>
                            new Paragraph({
                               children: [
                                  new TextRun({
-                                    text: cert,
+                                    text: `${edu.institution}, ${edu.year}`,
                                     size: 24,
+                                    color: "666666", // Gray color to match preview
                                  }),
                               ],
-                           })
-                     ),
-
-                     // Projects
-                     new Paragraph({
-                        heading: HeadingLevel.HEADING_1,
-                        spacing: { before: 400 },
-                        children: [
-                           new TextRun({
-                              text: "Projects",
-                              bold: true,
-                              size: 28,
+                              spacing: { after: 200 },
                            }),
-                        ],
-                     }),
-                     ...resumeData.projects.map(
-                        (project: any) =>
-                           new Paragraph({
-                              children: [
-                                 new TextRun({
-                                    text: `${project.name}: ${project.description}`,
-                                    size: 24,
-                                 }),
-                              ],
-                           })
-                     ),
+                        ])
+                        .flat(),
+
+                     // Soft Skills (only if data exists)
+                     ...(resumeData.softSkills &&
+                     resumeData.softSkills.length > 0
+                        ? [
+                             new Paragraph({
+                                children: [
+                                   new TextRun({
+                                      text: "Soft Skills",
+                                      bold: true,
+                                      size: 28,
+                                   }),
+                                ],
+                                spacing: { before: 400, after: 200 },
+                                border: {
+                                   bottom: {
+                                      color: "999999",
+                                      size: 1,
+                                      style: BorderStyle.SINGLE,
+                                   },
+                                },
+                             }),
+                             new Paragraph({
+                                children: [
+                                   new TextRun({
+                                      text: resumeData.softSkills.join(", "), // Join skills by commas
+                                      size: 24,
+                                   }),
+                                ],
+                                spacing: { after: 400 },
+                             }),
+                          ]
+                        : []),
+
+                     // Certifications (only if data exists)
+                     ...(resumeData.certifications &&
+                     resumeData.certifications.length > 0
+                        ? [
+                             new Paragraph({
+                                children: [
+                                   new TextRun({
+                                      text: "Certifications",
+                                      bold: true,
+                                      size: 28,
+                                   }),
+                                ],
+                                spacing: { before: 400, after: 200 },
+                                border: {
+                                   bottom: {
+                                      color: "999999",
+                                      size: 1,
+                                      style: BorderStyle.SINGLE,
+                                   },
+                                },
+                             }),
+                             ...resumeData.certifications
+                                .map((cert: any) => [
+                                   new Paragraph({
+                                      children: [
+                                         new TextRun({
+                                            text: cert.name,
+                                            size: 24,
+                                         }),
+                                      ],
+                                      spacing: { before: 100, after: 100 },
+                                   }),
+                                   new Paragraph({
+                                      children: [
+                                         new TextRun({
+                                            text: `${cert.institution} - ${cert.year}`,
+                                            size: 24,
+                                            color: "666666", // Gray color to match preview
+                                         }),
+                                      ],
+                                      spacing: { after: 200 },
+                                   }),
+                                ])
+                                .flat(),
+                          ]
+                        : []),
+
+                     // Projects (only if data exists)
+                     ...(resumeData.projects && resumeData.projects.length > 0
+                        ? [
+                             new Paragraph({
+                                children: [
+                                   new TextRun({
+                                      text: "Projects",
+                                      bold: true,
+                                      size: 28,
+                                   }),
+                                ],
+                                spacing: { before: 400, after: 200 },
+                                border: {
+                                   bottom: {
+                                      color: "999999",
+                                      size: 1,
+                                      style: BorderStyle.SINGLE,
+                                   },
+                                },
+                             }),
+                             ...resumeData.projects
+                                .map((project: any) => [
+                                   new Paragraph({
+                                      children: [
+                                         new TextRun({
+                                            text: project.name,
+                                            size: 24,
+                                         }),
+                                      ],
+                                      spacing: { before: 100 },
+                                   }),
+                                   new Paragraph({
+                                      children: [
+                                         new TextRun({
+                                            text: project.description,
+                                            size: 24,
+                                            color: "666666", // Gray color to match preview
+                                         }),
+                                      ],
+                                      spacing: { after: 200 },
+                                   }),
+                                ])
+                                .flat(),
+                          ]
+                        : []),
                   ],
                },
             ],
+            styles: {
+               paragraphStyles: [
+                  {
+                     id: "Normal",
+                     name: "Normal",
+                     quickFormat: true,
+                     run: {
+                        font: "Calibri",
+                     },
+                     paragraph: {
+                        spacing: {
+                           line: 360, // 1.5 line spacing
+                        },
+                     },
+                  },
+               ],
+            },
          });
 
          Packer.toBlob(doc).then((blob) => {

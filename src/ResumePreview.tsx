@@ -300,6 +300,19 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                                                 }
                                                 className="w-full border rounded p-1"
                                              />
+                                             <input
+                                                type="text"
+                                                value={exp.location || ""}
+                                                onChange={(e) =>
+                                                   handleExperienceEdit(
+                                                      expIndex,
+                                                      "location",
+                                                      e.target.value
+                                                   )
+                                                }
+                                                className="w-full border rounded p-1"
+                                                placeholder="Location (optional)"
+                                             />
                                           </div>
                                        ) : (
                                           <>
@@ -308,6 +321,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                                              </h3>
                                              <p className="text-sm">
                                                 {exp.employer}
+                                                {/* Display Location if available */}
+                                                {exp.location &&
+                                                   `, ${exp.location}`}
                                              </p>
                                           </>
                                        )}
