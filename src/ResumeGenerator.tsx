@@ -38,11 +38,12 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    technicalSkills,
    softSkills,
    yearsOfExperience,
-   jobDescription,
+   // jobDescription,
    userDetails,
 }) => {
    const [resumeContent, setResumeContent] = useState<string>("");
    const [loading, setLoading] = useState(false);
+   const [refreshPreview, setRefreshPreview] = useState(false); // Added for forcing re-render of preview
    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
    function cleanJsonResponse(response: string): string {
@@ -106,7 +107,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          }
          
          Use this information:
-         - Job Description: ${jobDescription}
+         - technicalSkills: ${technicalSkills}
          - Years of Experience: ${yearsOfExperience}
          
          Important Notes:
@@ -130,6 +131,9 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          // Clean up the generated content before storing
          const cleanedContent = cleanJsonResponse(generatedContent);
          setResumeContent(cleanedContent);
+
+         // Trigger a refresh for preview
+         setRefreshPreview((prev) => !prev);
       } catch (error) {
          console.error("Error generating resume:", error);
          alert("Error generating resume content. Please try again.");
@@ -424,9 +428,10 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                      // Handle the updated resume JSON data here
                      setResumeContent(cleanedJson);
                   }}
-                  generateResume={generateResume}
+                  // generateResume={generateResume}
                   downloadAsWord={downloadAsWord}
                   loading={loading}
+                  refresh={refreshPreview} // Pass refresh to force re-render
                />
             </div>
          )}

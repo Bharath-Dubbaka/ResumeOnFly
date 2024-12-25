@@ -346,7 +346,9 @@ function App() {
          <div className="mb-6 flex items-center justify-between">
             <div>
                <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
-               <p className="text-sm opacity-75">Job Description Analyser</p>
+               <p className="text-sm opacity-75">
+                  Job Description Analyser, works on any website
+               </p>
             </div>
             {user ? (
                <div className="flex items-center gap-2">

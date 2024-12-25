@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Download } from "lucide-react";
 
 interface Education {
@@ -31,9 +31,10 @@ interface ResumeData {
 interface ResumePreviewProps {
    initialResumeContent: string | ResumeData;
    onUpdate: (data: string) => void;
-   generateResume: () => void;
+   //    generateResume: () => void;
    downloadAsWord: () => void;
    loading: boolean;
+   refresh: boolean;
 }
 
 const cleanJsonResponse = (response: string): string => {
@@ -54,9 +55,10 @@ const cleanJsonResponse = (response: string): string => {
 const ResumePreview: React.FC<ResumePreviewProps> = ({
    initialResumeContent,
    onUpdate,
-   generateResume,
+   //    generateResume,
    downloadAsWord,
-   loading,
+   refresh,
+   //    loading,
 }) => {
    const [isEditing, setIsEditing] = useState<boolean>(false);
    const [resumeData, setResumeData] = useState<ResumeData>(
@@ -64,6 +66,15 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
          ? JSON.parse(initialResumeContent)
          : initialResumeContent
    );
+
+   useEffect(() => {
+      // Update resumeData whenever refresh or initialResumeContent changes
+      setResumeData(
+         typeof initialResumeContent === "string"
+            ? JSON.parse(initialResumeContent)
+            : initialResumeContent
+      );
+   }, [initialResumeContent, refresh]);
 
    const handleEdit = (field: keyof ResumeData, value: any) => {
       const updatedData = {
@@ -73,19 +84,47 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       setResumeData(updatedData);
 
       try {
-         // Convert the updated data to a string and clean it
          const jsonString = JSON.stringify(updatedData);
          const cleanedJson = cleanJsonResponse(jsonString);
          onUpdate(cleanedJson);
       } catch (error) {
          console.error("Error processing resume data:", error);
-         // You might want to show an error message to the user here
       }
+   };
+
+   const handleExperienceEdit = (
+      expIndex: number,
+      field: keyof Experience,
+      value: any
+   ) => {
+      const updatedExperience = [...resumeData.professionalExperience];
+      updatedExperience[expIndex] = {
+         ...updatedExperience[expIndex],
+         [field]: value,
+      };
+      handleEdit("professionalExperience", updatedExperience);
+   };
+
+   const handleResponsibilityEdit = (
+      expIndex: number,
+      respIndex: number,
+      value: string
+   ) => {
+      const updatedExperience = [...resumeData.professionalExperience];
+      const updatedResponsibilities = [
+         ...updatedExperience[expIndex].responsibilities,
+      ];
+      updatedResponsibilities[respIndex] = value;
+      updatedExperience[expIndex] = {
+         ...updatedExperience[expIndex],
+         responsibilities: updatedResponsibilities,
+      };
+      handleEdit("professionalExperience", updatedExperience);
    };
 
    return (
       <div className="mt-6 space-y-4">
-         <button
+         {/* <button
             onClick={generateResume}
             disabled={loading}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
@@ -98,7 +137,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
             ) : (
                "Generate Resume"
             )}
-         </button>
+         </button> */}
 
          {resumeData && (
             <div className="space-y-4">
@@ -189,26 +228,112 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                         <h2 className="text-xl font-bold border-b-2 mb-2">
                            Professional Experience
                         </h2>
-                        {resumeData.professionalExperience.map((exp, index) => (
-                           <div key={index} className="mb-4">
-                              <div className="flex justify-between items-start">
-                                 <div>
-                                    <h3 className="font-bold">{exp.title}</h3>
-                                    <p className="text-sm">{exp.employer}</p>
+                        {resumeData.professionalExperience.map(
+                           (exp, expIndex) => (
+                              <div key={expIndex} className="mb-4">
+                                 <div className="flex justify-between items-start">
+                                    <div>
+                                       {isEditing ? (
+                                          <div className="space-y-2">
+                                             <input
+                                                type="text"
+                                                value={exp.title}
+                                                onChange={(e) =>
+                                                   handleExperienceEdit(
+                                                      expIndex,
+                                                      "title",
+                                                      e.target.value
+                                                   )
+                                                }
+                                                className="w-full border rounded p-1 font-bold"
+                                             />
+                                             <input
+                                                type="text"
+                                                value={exp.employer}
+                                                onChange={(e) =>
+                                                   handleExperienceEdit(
+                                                      expIndex,
+                                                      "employer",
+                                                      e.target.value
+                                                   )
+                                                }
+                                                className="w-full border rounded p-1"
+                                             />
+                                          </div>
+                                       ) : (
+                                          <>
+                                             <h3 className="font-bold">
+                                                {exp.title}
+                                             </h3>
+                                             <p className="text-sm">
+                                                {exp.employer}
+                                             </p>
+                                          </>
+                                       )}
+                                    </div>
+                                    {isEditing ? (
+                                       <div className="space-x-2">
+                                          <input
+                                             type="text"
+                                             value={exp.startDate}
+                                             onChange={(e) =>
+                                                handleExperienceEdit(
+                                                   expIndex,
+                                                   "startDate",
+                                                   e.target.value
+                                                )
+                                             }
+                                             className="w-24 border rounded p-1 text-sm"
+                                          />
+                                          <span>-</span>
+                                          <input
+                                             type="text"
+                                             value={exp.endDate}
+                                             onChange={(e) =>
+                                                handleExperienceEdit(
+                                                   expIndex,
+                                                   "endDate",
+                                                   e.target.value
+                                                )
+                                             }
+                                             className="w-24 border rounded p-1 text-sm"
+                                          />
+                                       </div>
+                                    ) : (
+                                       <p className="text-sm text-gray-600">
+                                          {exp.startDate} - {exp.endDate}
+                                       </p>
+                                    )}
                                  </div>
-                                 <p className="text-sm text-gray-600">
-                                    {exp.startDate} - {exp.endDate}
-                                 </p>
+                                 <ul className="list-disc ml-6 mt-2">
+                                    {exp.responsibilities.map(
+                                       (resp, respIndex) => (
+                                          <li
+                                             key={respIndex}
+                                             className="text-sm mb-1"
+                                          >
+                                             {isEditing ? (
+                                                <textarea
+                                                   value={resp}
+                                                   onChange={(e) =>
+                                                      handleResponsibilityEdit(
+                                                         expIndex,
+                                                         respIndex,
+                                                         e.target.value
+                                                      )
+                                                   }
+                                                   className="w-full border rounded p-2 min-h-[60px]"
+                                                />
+                                             ) : (
+                                                resp
+                                             )}
+                                          </li>
+                                       )
+                                    )}
+                                 </ul>
                               </div>
-                              <ul className="list-disc ml-6 mt-2">
-                                 {exp.responsibilities.map((resp, idx) => (
-                                    <li key={idx} className="text-sm mb-1">
-                                       {resp}
-                                    </li>
-                                 ))}
-                              </ul>
-                           </div>
-                        ))}
+                           )
+                        )}
                      </div>
 
                      {/* Education */}

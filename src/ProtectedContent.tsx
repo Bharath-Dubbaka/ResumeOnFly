@@ -232,3 +232,4 @@ const ProtectedContent = ({
 };
 
 export default ProtectedContent;
+
