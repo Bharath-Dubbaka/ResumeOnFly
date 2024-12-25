@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import UserDetailsForm from "./UserDetailsForm";
 import ProtectedContent from "./ProtectedContent";
 import { UserData, UserDetails, AnalysisResult } from "./types/types";
+import { LogOutIcon } from "lucide-react";
 
 interface CustomManifest {
    name: string;
@@ -24,6 +25,8 @@ function App() {
    const [user, setUser] = useState<UserData | null>(null);
    const [loginLoading, setLoginLoading] = useState<boolean>(false);
    const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+   const [isEditingDetails, setIsEditingDetails] = useState<boolean>(false);
+
    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
    useEffect(() => {
@@ -126,6 +129,16 @@ function App() {
    //    setUserDetails(details); // Save the user details to state
    //    chrome.storage.local.set({ userDetails: details });
    // };
+
+   const handleSaveUserDetails = (details: UserDetails) => {
+      setUserDetails(details); // Update state
+      setIsEditingDetails(false); // Exit edit mode
+      chrome.storage.local.set({ userDetails: details }); // Save to storage
+   };
+
+   const handleEditClick = () => {
+      setIsEditingDetails(true); // Enable edit mode
+   };
 
    // Function to analyze text with Gemini API
    async function analyzeWithGemini(
@@ -359,15 +372,27 @@ function App() {
                   />
                   <div className="text-sm">
                      <div className="flex mb-1">
-                        <p className="mr-2">{user.name}</p>
+                        <p className="mr-1 px-2 py-1 bg-slate-900 rounded-lg">
+                           {user.name}
+                        </p>
+
+                        <button
+                           onClick={handleEditClick}
+                           className="text-sm text-blue-400 hover:text-blue-300 mr-1 px-2 py-1 bg-slate-900 rounded-lg"
+                        >
+                           Edit Details
+                        </button>
+
                         <button
                            onClick={handleLogout}
-                           className="text-sm text-red-400 hover:text-red-300"
+                           className="text-sm text-red-500 hover:text-red-400 bg-slate-900 px-2 py-1 rounded-lg"
                         >
-                           Logout
+                           <LogOutIcon size={16} />
                         </button>
                      </div>
-                     <p className="">{user.email}</p>
+                     <p className="text-slate-300 px-2 py-1 bg-slate-900 rounded-lg">
+                        {user.email}
+                     </p>
                   </div>
                </div>
             ) : (
@@ -405,9 +430,9 @@ function App() {
 
          {/* Protected Content */}
          {user ? (
-            !userDetails ? (
+            isEditingDetails || !userDetails ? (
                // Show UserDetailsForm if user exists but userDetails are not set
-               <UserDetailsForm onSave={setUserDetails} />
+               <UserDetailsForm onSave={handleSaveUserDetails} />
             ) : (
                // Show ProtectedContent if both user and userDetails exist
                <ProtectedContent

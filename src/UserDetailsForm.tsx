@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface UserDetails {
    fullName: string;
@@ -30,6 +30,14 @@ const UserDetailsForm = ({
       certifications: [],
       projects: [],
    });
+
+   useEffect(() => {
+      chrome.storage.local.get("userDetails", (result) => {
+         if (result.userDetails) {
+            setUserDetails(result.userDetails);
+         }
+      });
+   }, []);
 
    const handleChange = (field: string, value: any) => {
       setUserDetails({ ...userDetails, [field]: value });
@@ -64,107 +72,122 @@ const UserDetailsForm = ({
    };
 
    return (
-      <div className="p-4 bg-blue-900/30 rounded-lg">
-         <h3 className="text-lg font-bold">Enter Your Details</h3>
-         <div className="space-y-4">
-            <input
-               type="text"
-               placeholder="Full Name"
-               value={userDetails.fullName}
-               onChange={(e) => handleChange("fullName", e.target.value)}
-               className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-            />
-            <input
-               type="email"
-               placeholder="Email"
-               value={userDetails.email}
-               onChange={(e) => handleChange("email", e.target.value)}
-               className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-            />
-            <input
-               type="text"
-               placeholder="Phone"
-               value={userDetails.phone}
-               onChange={(e) => handleChange("phone", e.target.value)}
-               className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-            />
+      <div className="p-4 bg-blue-900/30 rounded-lg text-slate-200">
+         <div className="text-lg font-bold mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="flex items-center mb-1">
+               Enter Your Details:{" "}
+               <span className="text-sm text-red-600 ml-2">
+                  * You can modify all details later
+               </span>
+            </div>
+            <div className="flex justify-between">
+               <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={userDetails.fullName}
+                  onChange={(e) => handleChange("fullName", e.target.value)}
+                  className="w-[32%] px-3 py-2 text-sm text-gray-900 rounded-lg"
+               />
+               <input
+                  type="email"
+                  placeholder="Email"
+                  value={userDetails.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  className="w-[32%] px-3 py-2 text-sm text-gray-900 rounded-lg"
+               />
+               <input
+                  type="text"
+                  placeholder="Phone"
+                  value={userDetails.phone}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                  className="w-[32%] px-3 py-2 text-sm text-gray-900 rounded-lg"
+               />
+            </div>
+         </div>
 
+         <div>
             {/* Experience */}
-            <div>
-               <h4 className="text-md font-semibold">Experience</h4>
+            <div className="mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+               <div className="text-lg font-semibold">Work Experiences:</div>
                {userDetails.experience.map((exp, index) => (
-                  <div key={index} className="space-y-2">
-                     <input
-                        type="text"
-                        placeholder="Job Title"
-                        value={exp.title}
-                        onChange={(e) =>
-                           handleChange("experience", [
-                              ...userDetails.experience.slice(0, index),
-                              { ...exp, title: e.target.value },
-                              ...userDetails.experience.slice(index + 1),
-                           ])
-                        }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-                     />
-                     <input
-                        type="text"
-                        placeholder="Employer"
-                        value={exp.employer}
-                        onChange={(e) =>
-                           handleChange("experience", [
-                              ...userDetails.experience.slice(0, index),
-                              { ...exp, employer: e.target.value },
-                              ...userDetails.experience.slice(index + 1),
-                           ])
-                        }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-                     />
-                     <input
-                        type="text"
-                        placeholder="Start Date"
-                        value={exp.startDate}
-                        onChange={(e) =>
-                           handleChange("experience", [
-                              ...userDetails.experience.slice(0, index),
-                              { ...exp, startDate: e.target.value },
-                              ...userDetails.experience.slice(index + 1),
-                           ])
-                        }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-                     />
-                     <input
-                        type="text"
-                        placeholder="End Date"
-                        value={exp.endDate}
-                        onChange={(e) =>
-                           handleChange("experience", [
-                              ...userDetails.experience.slice(0, index),
-                              { ...exp, endDate: e.target.value },
-                              ...userDetails.experience.slice(index + 1),
-                           ])
-                        }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-                     />
-                     <input
-                        type="text"
-                        placeholder="Location (Optional)"
-                        value={exp.location}
-                        onChange={(e) =>
-                           handleChange("experience", [
-                              ...userDetails.experience.slice(0, index),
-                              { ...exp, location: e.target.value },
-                              ...userDetails.experience.slice(index + 1),
-                           ])
-                        }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-                     />
+                  <div key={index} className="space-y-2 my-1">
+                     <div className="mt-2 text-sm mb-2 bg-slate-900 text-white w-fit px-2 py-1 rounded-lg">
+                        Experience {index + 1} :
+                     </div>
+                     <div className="flex gap-1">
+                        <input
+                           type="text"
+                           placeholder="Job Title"
+                           value={exp.title}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, title: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        />
+                        <input
+                           type="text"
+                           placeholder="Employer"
+                           value={exp.employer}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, employer: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        />
+                        <input
+                           type="text"
+                           placeholder="Start Date"
+                           value={exp.startDate}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, startDate: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        />
+                        <input
+                           type="text"
+                           placeholder="End Date"
+                           value={exp.endDate}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, endDate: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        />
+                        <input
+                           type="text"
+                           placeholder="Location (Optional)"
+                           value={exp.location}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, location: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        />
+                     </div>
                      <button
-                        className="text-red-500 text-sm"
+                        className="text-sm px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
                         onClick={() => handleRemoveField("experience", index)}
                      >
                         Remove
                      </button>
+                     <hr className="border-slate-600" />
                   </div>
                ))}
                <button
@@ -184,51 +207,53 @@ const UserDetailsForm = ({
             </div>
 
             {/* Education */}
-            <div>
-               <h4 className="text-md font-semibold">Education</h4>
+            <div className="mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+               <h4 className="text-lg font-semibold">Education:</h4>
                {userDetails.education.map((edu, index) => (
-                  <div key={index} className="space-y-2">
-                     <input
-                        type="text"
-                        placeholder="Degree"
-                        value={edu.degree}
-                        onChange={(e) =>
-                           handleChange("education", [
-                              ...userDetails.education.slice(0, index),
-                              { ...edu, degree: e.target.value },
-                              ...userDetails.education.slice(index + 1),
-                           ])
-                        }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-                     />
-                     <input
-                        type="text"
-                        placeholder="Institution"
-                        value={edu.institution}
-                        onChange={(e) =>
-                           handleChange("education", [
-                              ...userDetails.education.slice(0, index),
-                              { ...edu, institution: e.target.value },
-                              ...userDetails.education.slice(index + 1),
-                           ])
-                        }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-                     />
-                     <input
-                        type="text"
-                        placeholder="Year"
-                        value={edu.year}
-                        onChange={(e) =>
-                           handleChange("education", [
-                              ...userDetails.education.slice(0, index),
-                              { ...edu, year: e.target.value },
-                              ...userDetails.education.slice(index + 1),
-                           ])
-                        }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
-                     />
+                  <div key={index} className="space-y-2 mb-2">
+                     <div className="flex gap-1">
+                        <input
+                           type="text"
+                           placeholder="Degree"
+                           value={edu.degree}
+                           onChange={(e) =>
+                              handleChange("education", [
+                                 ...userDetails.education.slice(0, index),
+                                 { ...edu, degree: e.target.value },
+                                 ...userDetails.education.slice(index + 1),
+                              ])
+                           }
+                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        />
+                        <input
+                           type="text"
+                           placeholder="Institution"
+                           value={edu.institution}
+                           onChange={(e) =>
+                              handleChange("education", [
+                                 ...userDetails.education.slice(0, index),
+                                 { ...edu, institution: e.target.value },
+                                 ...userDetails.education.slice(index + 1),
+                              ])
+                           }
+                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        />
+                        <input
+                           type="text"
+                           placeholder="Year"
+                           value={edu.year}
+                           onChange={(e) =>
+                              handleChange("education", [
+                                 ...userDetails.education.slice(0, index),
+                                 { ...edu, year: e.target.value },
+                                 ...userDetails.education.slice(index + 1),
+                              ])
+                           }
+                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        />
+                     </div>
                      <button
-                        className="text-red-500 text-sm"
+                        className="text-sm px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
                         onClick={() => handleRemoveField("education", index)}
                      >
                         Remove
@@ -250,10 +275,10 @@ const UserDetailsForm = ({
             </div>
 
             {/* Certifications */}
-            <div>
-               <h4 className="text-md font-semibold">Certifications</h4>
+            <div className="mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+               <h4 className="text-lg font-semibold">Certifications:</h4>
                {userDetails.certifications.map((cert, index) => (
-                  <div key={index} className="flex items-center space-x-2">
+                  <div key={index} className="flex items-center space-x-2 mb-2">
                      <input
                         type="text"
                         placeholder="Certification"
@@ -268,7 +293,7 @@ const UserDetailsForm = ({
                         className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
                      />
                      <button
-                        className="text-red-500 text-sm"
+                        className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
                         onClick={() =>
                            handleRemoveField("certifications", index)
                         }
@@ -286,10 +311,10 @@ const UserDetailsForm = ({
             </div>
 
             {/* Projects */}
-            <div>
-               <h4 className="text-md font-semibold">Projects</h4>
+            <div className="mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+               <h4 className="text-lg font-semibold">Projects:</h4>
                {userDetails.projects.map((proj, index) => (
-                  <div key={index} className="space-y-2">
+                  <div key={index} className="space-y-2 mb-2">
                      <input
                         type="text"
                         placeholder="Project Name"
@@ -316,7 +341,7 @@ const UserDetailsForm = ({
                         className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
                      />
                      <button
-                        className="text-red-500 text-sm"
+                        className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
                         onClick={() => handleRemoveField("projects", index)}
                      >
                         Remove

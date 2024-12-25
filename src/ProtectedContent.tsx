@@ -149,9 +149,9 @@ const ProtectedContent = ({
                   </span>
                </div>
                {/* Technical Skills */}
-               <div>
-                  <h3 className="text-sm font-bold mb-2 text-blue-300">
-                     Technical Skills
+               <div className="border border-slate-700 rounded-lg p-3 ">
+                  <h3 className="text-sm font-bold mb-2 text-white bg-slate-900 px-2 py-1 w-fit rounded-lg">
+                     Technical Skills:
                   </h3>
                   <div className="flex flex-wrap gap-2">
                      {analysisResult.technicalSkills.map((skill, index) => (
@@ -185,7 +185,7 @@ const ProtectedContent = ({
                   </div>
                   <button
                      onClick={() => handleAddSkill("technical")}
-                     className="mt-3 text-sm bg-green-700 px-3 py-1 rounded text-green-100 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                     className=" flex mt-3 text-sm bg-green-700 px-3 py-1 rounded font-semibold text-green-100 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
                   >
                      Add Skill
                   </button>
@@ -232,4 +232,3 @@ const ProtectedContent = ({
 };
 
 export default ProtectedContent;
-

@@ -38,7 +38,7 @@ interface ResumeGeneratorProps {
 
 const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    technicalSkills,
-   softSkills,
+   // softSkills,
    yearsOfExperience,
    // jobDescription,
    userDetails,
@@ -103,7 +103,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                 .join(",\n")}
            ],
            "education": ${JSON.stringify(userDetails.education)},
-           "softSkills": "${softSkills.join(", ")}",
            "certifications": ${JSON.stringify(userDetails.certifications)},
            "projects": ${JSON.stringify(userDetails.projects)}
          }
@@ -351,37 +350,37 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                         .flat(),
 
                      // Soft Skills (only if data exists)
-                     ...(resumeData.softSkills &&
-                     resumeData.softSkills.length > 0
-                        ? [
-                             new Paragraph({
-                                children: [
-                                   new TextRun({
-                                      text: "Soft Skills",
-                                      bold: true,
-                                      size: 28,
-                                   }),
-                                ],
-                                spacing: { before: 400, after: 200 },
-                                border: {
-                                   bottom: {
-                                      color: "999999",
-                                      size: 1,
-                                      style: BorderStyle.SINGLE,
-                                   },
-                                },
-                             }),
-                             new Paragraph({
-                                children: [
-                                   new TextRun({
-                                      text: resumeData.softSkills.join(", "), // Join skills by commas
-                                      size: 24,
-                                   }),
-                                ],
-                                spacing: { after: 400 },
-                             }),
-                          ]
-                        : []),
+                     // ...(resumeData.softSkills &&
+                     // resumeData.softSkills.length > 0
+                     //    ? [
+                     //         new Paragraph({
+                     //            children: [
+                     //               new TextRun({
+                     //                  text: "Soft Skills",
+                     //                  bold: true,
+                     //                  size: 28,
+                     //               }),
+                     //            ],
+                     //            spacing: { before: 400, after: 200 },
+                     //            border: {
+                     //               bottom: {
+                     //                  color: "999999",
+                     //                  size: 1,
+                     //                  style: BorderStyle.SINGLE,
+                     //               },
+                     //            },
+                     //         }),
+                     //         new Paragraph({
+                     //            children: [
+                     //               new TextRun({
+                     //                  text: resumeData.softSkills.join(", "), // Join skills by commas
+                     //                  size: 24,
+                     //               }),
+                     //            ],
+                     //            spacing: { after: 400 },
+                     //         }),
+                     //      ]
+                     //    : []),
 
                      // Certifications (only if data exists)
                      ...(resumeData.certifications &&
