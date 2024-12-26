@@ -151,7 +151,16 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          const doc = new Document({
             sections: [
                {
-                  properties: {},
+                  properties: {
+                     page: {
+                        margin: {
+                           top: 720, // 0.5 inches
+                           right: 720, // 0.5 inches
+                           bottom: 720, // 0.5 inches
+                           left: 720, // 0.5 inches
+                        },
+                     },
+                  },
                   children: [
                      // Header Section - Centered
                      new Paragraph({
@@ -160,6 +169,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               text: resumeData.fullName,
                               bold: true,
                               size: 36, // Increased for better header visibility
+                              font: "Roboto",
                            }),
                         ],
                         alignment: AlignmentType.CENTER,
@@ -171,6 +181,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               text: resumeData.contactInformation,
                               size: 24,
                               color: "666666", // Gray color to match preview
+                              font: "Roboto",
                            }),
                         ],
                         alignment: AlignmentType.CENTER,
@@ -184,6 +195,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               text: "Professional Summary",
                               bold: true,
                               size: 28,
+                              font: "Roboto",
                            }),
                         ],
                         spacing: { before: 400, after: 200 },
@@ -200,6 +212,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                            new TextRun({
                               text: resumeData.professionalSummary,
                               size: 24,
+                              font: "Roboto",
                            }),
                         ],
                         spacing: { after: 400 },
@@ -212,6 +225,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               text: "Technical Skills",
                               bold: true,
                               size: 28,
+                              font: "Roboto",
                            }),
                         ],
                         spacing: { before: 400, after: 200 },
@@ -228,6 +242,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                            new TextRun({
                               text: resumeData.technicalSkills,
                               size: 24,
+                              font: "Roboto",
                            }),
                         ],
                         spacing: { after: 400 },
@@ -240,6 +255,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               text: "Professional Experience",
                               bold: true,
                               size: 28,
+                              font: "Roboto",
                            }),
                         ],
                         spacing: { before: 400, after: 200 },
@@ -259,11 +275,13 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                     text: exp.title,
                                     bold: true,
                                     size: 26,
+                                    font: "Roboto",
                                  }),
                                  new TextRun({
                                     text: `\t${exp.startDate} - ${exp.endDate}`,
                                     size: 24,
                                     color: "666666", // Gray color to match preview
+                                    font: "Roboto",
                                  }),
                               ],
                               spacing: { before: 200, after: 100 },
@@ -279,10 +297,12 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                  new TextRun({
                                     text: exp.employer,
                                     size: 24,
+                                    font: "Roboto",
                                  }),
                                  new TextRun({
                                     text: `, ${exp.location}`,
                                     size: 24,
+                                    font: "Roboto",
                                  }),
                               ],
                               spacing: { before: 100, after: 200 },
@@ -294,6 +314,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                        new TextRun({
                                           text: responsibility,
                                           size: 24,
+                                          font: "Roboto",
                                        }),
                                     ],
                                     bullet: {
@@ -313,6 +334,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               text: "Education",
                               bold: true,
                               size: 28,
+                              font: "Roboto",
                            }),
                         ],
                         spacing: { before: 400, after: 200 },
@@ -332,6 +354,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                     text: edu.degree,
                                     bold: true,
                                     size: 24,
+                                    font: "Roboto",
                                  }),
                               ],
                               spacing: { before: 100 },
@@ -342,6 +365,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                     text: `${edu.institution}, ${edu.year}`,
                                     size: 24,
                                     color: "666666", // Gray color to match preview
+                                    font: "Roboto",
                                  }),
                               ],
                               spacing: { after: 200 },
@@ -392,6 +416,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                       text: "Certifications",
                                       bold: true,
                                       size: 28,
+                                      font: "Roboto",
                                    }),
                                 ],
                                 spacing: { before: 400, after: 200 },
@@ -410,6 +435,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                          new TextRun({
                                             text: cert.name,
                                             size: 24,
+                                            font: "Roboto",
                                          }),
                                       ],
                                       spacing: { before: 100, after: 100 },
@@ -420,6 +446,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                             text: `${cert.institution} - ${cert.year}`,
                                             size: 24,
                                             color: "666666", // Gray color to match preview
+                                            font: "Roboto",
                                          }),
                                       ],
                                       spacing: { after: 200 },
@@ -438,6 +465,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                       text: "Projects",
                                       bold: true,
                                       size: 28,
+                                      font: "Roboto",
                                    }),
                                 ],
                                 spacing: { before: 400, after: 200 },
@@ -456,6 +484,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                          new TextRun({
                                             text: project.name,
                                             size: 24,
+                                            font: "Roboto",
                                          }),
                                       ],
                                       spacing: { before: 100 },
@@ -466,6 +495,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                             text: project.description,
                                             size: 24,
                                             color: "666666", // Gray color to match preview
+                                            font: "Roboto",
                                          }),
                                       ],
                                       spacing: { after: 200 },
