@@ -136,6 +136,10 @@ function App() {
       chrome.storage.local.set({ userDetails: details }); // Save to storage
    };
 
+   const handleCancelUserDetails = () => {
+      setIsEditingDetails(false); // Exit edit mode
+   };
+
    const handleEditClick = () => {
       setIsEditingDetails(true); // Enable edit mode
    };
@@ -432,7 +436,10 @@ function App() {
          {user ? (
             isEditingDetails || !userDetails ? (
                // Show UserDetailsForm if user exists but userDetails are not set
-               <UserDetailsForm onSave={handleSaveUserDetails} />
+               <UserDetailsForm
+                  onSave={handleSaveUserDetails}
+                  onCancel={handleCancelUserDetails}
+               />
             ) : (
                // Show ProtectedContent if both user and userDetails exist
                <ProtectedContent

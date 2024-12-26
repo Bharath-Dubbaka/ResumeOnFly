@@ -16,11 +16,12 @@ interface UserDetails {
    projects: { name: string; description: string }[];
 }
 
-const UserDetailsForm = ({
-   onSave,
-}: {
+interface UserDetailsFormProps {
    onSave: (details: UserDetails) => void;
-}) => {
+   onCancel: () => void; // Add the type for the onCancel prop
+}
+
+const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
    const [userDetails, setUserDetails] = useState<UserDetails>({
       fullName: "",
       email: "",
@@ -86,21 +87,27 @@ const UserDetailsForm = ({
                   placeholder="Full Name"
                   value={userDetails.fullName}
                   onChange={(e) => handleChange("fullName", e.target.value)}
-                  className="w-[32%] px-3 py-2 text-sm text-gray-900 rounded-lg"
+                  className="w-[32%] px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                />
                <input
                   type="email"
                   placeholder="Email"
                   value={userDetails.email}
                   onChange={(e) => handleChange("email", e.target.value)}
-                  className="w-[32%] px-3 py-2 text-sm text-gray-900 rounded-lg"
+                  className="w-[32%] px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                />
                <input
                   type="text"
                   placeholder="Phone"
                   value={userDetails.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
-                  className="w-[32%] px-3 py-2 text-sm text-gray-900 rounded-lg"
+                  className="w-[32%] px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                />
             </div>
          </div>
@@ -111,7 +118,7 @@ const UserDetailsForm = ({
                <div className="text-lg font-semibold">Work Experiences:</div>
                {userDetails.experience.map((exp, index) => (
                   <div key={index} className="space-y-2 my-1">
-                     <div className="mt-2 text-sm mb-2 bg-slate-900 text-white w-fit px-2 py-1 rounded-lg">
+                     <div className="mt-2 text-sm mb-2 bg-purple-600 text-white w-fit px-2 py-1 rounded-lg">
                         Experience {index + 1} :
                      </div>
                      <div className="flex gap-1">
@@ -126,7 +133,9 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                           className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                         <input
                            type="text"
@@ -139,7 +148,9 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                           className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                         <input
                            type="text"
@@ -152,7 +163,9 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                           className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                         <input
                            type="text"
@@ -165,7 +178,9 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                           className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                         <input
                            type="text"
@@ -178,11 +193,13 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                           className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                      </div>
                      <button
-                        className="text-sm px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+                        className="text-sm px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
                         onClick={() => handleRemoveField("experience", index)}
                      >
                         Remove
@@ -223,7 +240,9 @@ const UserDetailsForm = ({
                                  ...userDetails.education.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                           className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                         <input
                            type="text"
@@ -236,7 +255,9 @@ const UserDetailsForm = ({
                                  ...userDetails.education.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                           className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                         <input
                            type="text"
@@ -249,11 +270,13 @@ const UserDetailsForm = ({
                                  ...userDetails.education.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                           className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                      </div>
                      <button
-                        className="text-sm px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+                        className="text-sm px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
                         onClick={() => handleRemoveField("education", index)}
                      >
                         Remove
@@ -290,10 +313,12 @@ const UserDetailsForm = ({
                               ...userDetails.certifications.slice(index + 1),
                            ])
                         }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                      />
                      <button
-                        className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
+                        className="px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
                         onClick={() =>
                            handleRemoveField("certifications", index)
                         }
@@ -326,7 +351,9 @@ const UserDetailsForm = ({
                               ...userDetails.projects.slice(index + 1),
                            ])
                         }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                      />
                      <textarea
                         placeholder="Description"
@@ -338,10 +365,12 @@ const UserDetailsForm = ({
                               ...userDetails.projects.slice(index + 1),
                            ])
                         }
-                        className="w-full px-3 py-2 text-sm text-gray-900 rounded-lg"
+                        className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
                      />
                      <button
-                        className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
+                        className="px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
                         onClick={() => handleRemoveField("projects", index)}
                      >
                         Remove
@@ -358,12 +387,23 @@ const UserDetailsForm = ({
                </button>
             </div>
          </div>
-         <button
-            onClick={handleSave}
-            className="mt-4 bg-blue-600 px-4 py-2 text-sm font-bold rounded-lg"
-         >
-            Save Details
-         </button>
+
+         {/* Save and Cancel */}
+         <div className="mt-4 flex justify-center space-x-4">
+            {" "}
+            <button
+               onClick={handleSave}
+               className="mt-4 bg-blue-600 hover:bg-blue-800 px-4 py-2 text-sm font-bold rounded-lg"
+            >
+               Save Details
+            </button>
+            <button
+               onClick={onCancel} // Call the onCancel prop
+               className="mt-4 bg-red-700 hover:bg-red-800 px-4 py-2 text-sm font-bold rounded-lg"
+            >
+               Cancel{" "}
+            </button>
+         </div>
       </div>
    );
 };
