@@ -504,6 +504,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                 .flat(),
                           ]
                         : []),
+                        
                   ],
                },
             ],
