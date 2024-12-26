@@ -74,11 +74,11 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
 
    return (
       <div className="p-4 bg-blue-900/30 rounded-lg text-slate-200">
-         <div className="text-lg font-bold mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+         <div className="text-lg font-bold mb-3 px-2 py-4 border border-slate-600 rounded-lg">
             <div className="flex items-center mb-1">
                Enter Your Details:{" "}
                <span className="text-sm text-red-600 ml-2">
-                  * You can modify all details later
+                  *Can be changed later
                </span>
             </div>
             <div className="flex justify-between">
@@ -114,117 +114,123 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
 
          <div>
             {/* Experience */}
-            <div className="mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg">
                <div className="text-lg font-semibold">Work Experiences:</div>
                {userDetails.experience.map((exp, index) => (
-                  <div key={index} className="space-y-2 my-1">
-                     <div className="mt-2 text-sm mb-2 bg-purple-600 text-white w-fit px-2 py-1 rounded-lg">
-                        Experience {index + 1} :
+                  <>
+                     <div key={index} className="space-y-2 my-4">
+                        <div className="mt-2 text-sm mb-2 bg-blue-600 text-white w-fit px-2 py-1 rounded-lg">
+                           Experience {index + 1} :
+                        </div>
+                        <div className="flex gap-1">
+                           <input
+                              type="text"
+                              placeholder="Job Title"
+                              value={exp.title}
+                              onChange={(e) =>
+                                 handleChange("experience", [
+                                    ...userDetails.experience.slice(0, index),
+                                    { ...exp, title: e.target.value },
+                                    ...userDetails.experience.slice(index + 1),
+                                 ])
+                              }
+                              className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           />
+                           <input
+                              type="text"
+                              placeholder="Employer"
+                              value={exp.employer}
+                              onChange={(e) =>
+                                 handleChange("experience", [
+                                    ...userDetails.experience.slice(0, index),
+                                    { ...exp, employer: e.target.value },
+                                    ...userDetails.experience.slice(index + 1),
+                                 ])
+                              }
+                              className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           />
+                           <input
+                              type="text"
+                              placeholder="Start Date"
+                              value={exp.startDate}
+                              onChange={(e) =>
+                                 handleChange("experience", [
+                                    ...userDetails.experience.slice(0, index),
+                                    { ...exp, startDate: e.target.value },
+                                    ...userDetails.experience.slice(index + 1),
+                                 ])
+                              }
+                              className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           />
+                           <input
+                              type="text"
+                              placeholder="End Date"
+                              value={exp.endDate}
+                              onChange={(e) =>
+                                 handleChange("experience", [
+                                    ...userDetails.experience.slice(0, index),
+                                    { ...exp, endDate: e.target.value },
+                                    ...userDetails.experience.slice(index + 1),
+                                 ])
+                              }
+                              className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           />
+                           <input
+                              type="text"
+                              placeholder="Location (Optional)"
+                              value={exp.location}
+                              onChange={(e) =>
+                                 handleChange("experience", [
+                                    ...userDetails.experience.slice(0, index),
+                                    { ...exp, location: e.target.value },
+                                    ...userDetails.experience.slice(index + 1),
+                                 ])
+                              }
+                              className="w-full px-3 py-2 text-sm text-gray-900 
+              bg-gray-100 border border-gray-200 
+              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           />
+                        </div>
+                        <button
+                           className="text-sm px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+                           onClick={() =>
+                              handleRemoveField("experience", index)
+                           }
+                        >
+                           Remove
+                        </button>
                      </div>
-                     <div className="flex gap-1">
-                        <input
-                           type="text"
-                           placeholder="Job Title"
-                           value={exp.title}
-                           onChange={(e) =>
-                              handleChange("experience", [
-                                 ...userDetails.experience.slice(0, index),
-                                 { ...exp, title: e.target.value },
-                                 ...userDetails.experience.slice(index + 1),
-                              ])
-                           }
-                           className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <input
-                           type="text"
-                           placeholder="Employer"
-                           value={exp.employer}
-                           onChange={(e) =>
-                              handleChange("experience", [
-                                 ...userDetails.experience.slice(0, index),
-                                 { ...exp, employer: e.target.value },
-                                 ...userDetails.experience.slice(index + 1),
-                              ])
-                           }
-                           className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <input
-                           type="text"
-                           placeholder="Start Date"
-                           value={exp.startDate}
-                           onChange={(e) =>
-                              handleChange("experience", [
-                                 ...userDetails.experience.slice(0, index),
-                                 { ...exp, startDate: e.target.value },
-                                 ...userDetails.experience.slice(index + 1),
-                              ])
-                           }
-                           className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <input
-                           type="text"
-                           placeholder="End Date"
-                           value={exp.endDate}
-                           onChange={(e) =>
-                              handleChange("experience", [
-                                 ...userDetails.experience.slice(0, index),
-                                 { ...exp, endDate: e.target.value },
-                                 ...userDetails.experience.slice(index + 1),
-                              ])
-                           }
-                           className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <input
-                           type="text"
-                           placeholder="Location (Optional)"
-                           value={exp.location}
-                           onChange={(e) =>
-                              handleChange("experience", [
-                                 ...userDetails.experience.slice(0, index),
-                                 { ...exp, location: e.target.value },
-                                 ...userDetails.experience.slice(index + 1),
-                              ])
-                           }
-                           className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                     </div>
-                     <button
-                        className="text-sm px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
-                        onClick={() => handleRemoveField("experience", index)}
-                     >
-                        Remove
-                     </button>
                      <hr className="border-slate-600" />
-                  </div>
+                  </>
                ))}
-               <button
-                  className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg"
-                  onClick={() =>
-                     handleAddField("experience", {
-                        title: "",
-                        startDate: "",
-                        endDate: "",
-                        employer: "",
-                        location: "",
-                     })
-                  }
-               >
-                  Add Experience
-               </button>
+               <div className="flex justify-center">
+                  <button
+                     className="mt-4 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg border border-gray-800"
+                     onClick={() =>
+                        handleAddField("experience", {
+                           title: "",
+                           startDate: "",
+                           endDate: "",
+                           employer: "",
+                           location: "",
+                        })
+                     }
+                  >
+                     Add Experience
+                  </button>
+               </div>
             </div>
 
             {/* Education */}
-            <div className="mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg">
                <h4 className="text-lg font-semibold">Education:</h4>
                {userDetails.education.map((edu, index) => (
                   <div key={index} className="space-y-2 mb-2">
@@ -283,22 +289,24 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
                      </button>
                   </div>
                ))}
-               <button
-                  className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg"
-                  onClick={() =>
-                     handleAddField("education", {
-                        degree: "",
-                        institution: "",
-                        year: "",
-                     })
-                  }
-               >
-                  Add Education
-               </button>
+               <div className="flex justify-center">
+                  <button
+                     className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg border border-gray-800"
+                     onClick={() =>
+                        handleAddField("education", {
+                           degree: "",
+                           institution: "",
+                           year: "",
+                        })
+                     }
+                  >
+                     Add Education
+                  </button>
+               </div>
             </div>
 
             {/* Certifications */}
-            <div className="mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg">
                <h4 className="text-lg font-semibold">Certifications:</h4>
                {userDetails.certifications.map((cert, index) => (
                   <div key={index} className="flex items-center space-x-2 mb-2">
@@ -327,16 +335,18 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
                      </button>
                   </div>
                ))}
-               <button
-                  className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg"
-                  onClick={() => handleAddField("certifications", "")}
-               >
-                  Add Certification
-               </button>
+               <div className="flex justify-center">
+                  <button
+                     className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg border border-gray-800"
+                     onClick={() => handleAddField("certifications", "")}
+                  >
+                     Add Certification
+                  </button>
+               </div>
             </div>
 
             {/* Projects */}
-            <div className="mb-1 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg">
                <h4 className="text-lg font-semibold">Projects:</h4>
                {userDetails.projects.map((proj, index) => (
                   <div key={index} className="space-y-2 mb-2">
@@ -377,14 +387,19 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
                      </button>
                   </div>
                ))}
-               <button
-                  className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg"
-                  onClick={() =>
-                     handleAddField("projects", { name: "", description: "" })
-                  }
-               >
-                  Add Project
-               </button>
+               <div className="flex justify-center">
+                  <button
+                     className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg border border-gray-800"
+                     onClick={() =>
+                        handleAddField("projects", {
+                           name: "",
+                           description: "",
+                        })
+                     }
+                  >
+                     Add Project
+                  </button>
+               </div>
             </div>
          </div>
 
@@ -393,13 +408,13 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
             {" "}
             <button
                onClick={handleSave}
-               className="mt-4 bg-blue-600 hover:bg-blue-800 px-4 py-2 text-sm font-bold rounded-lg"
+               className="mt-4 bg-blue-600 hover:bg-blue-800 px-4 py-2 text-sm font-bold rounded-lg border border-gray-800"
             >
                Save Details
             </button>
             <button
                onClick={onCancel} // Call the onCancel prop
-               className="mt-4 bg-red-700 hover:bg-red-800 px-4 py-2 text-sm font-bold rounded-lg"
+               className="mt-4 bg-red-700 hover:bg-red-800 px-4 py-2 text-sm font-bold rounded-lg border border-gray-800"
             >
                Cancel{" "}
             </button>
