@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
-// import nlp from "compromise";
 import UserDetailsForm from "./UserDetailsForm";
 import ProtectedContent from "./ProtectedContent";
-import { UserData, UserDetails, AnalysisResult } from "./types/types";
+import {
+   UserData,
+   UserDetails,
+   AnalysisResult,
+   UserQuota,
+} from "./types/types";
 import { LogOutIcon } from "lucide-react";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import { auth } from "./services/firebase";
+import { QuotaService } from "./services/QuotaService";
 
 interface CustomManifest {
    name: string;
@@ -26,110 +33,112 @@ function App() {
    const [loginLoading, setLoginLoading] = useState<boolean>(false);
    const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
    const [isEditingDetails, setIsEditingDetails] = useState<boolean>(false);
+   const [userQuota, setUserQuota] = useState<UserQuota | null>(null);
+   const [isInitializing, setIsInitializing] = useState(true);
 
    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
    useEffect(() => {
-      const analyzeText = async () => {
-         chrome.storage.local.get(
-            ["selectedText", "storedAnalysis"],
-            async (result) => {
-               if (result.selectedText) {
-                  const text = result.selectedText;
-                  setSelectedText(text);
+      const initialTextAnalyze = async () => {
+         setIsInitializing(true);
+         console.log("isInitializing", isInitializing);
+         // Fetch user data, user details, and user quota from storage
+         const result = await chrome.storage.local.get([
+            "userData",
+            "userDetails",
+            "userQuota",
+            "selectedText",
+            "storedAnalysis",
+            "isLoggedIn",
+         ]);
 
-                  // Check if we have stored analysis for this exact text
-                  if (
-                     result.storedAnalysis &&
-                     result.storedAnalysis.text === text
-                  ) {
-                     // Use stored analysis if text matches
-                     setAnalysisResult(result.storedAnalysis.analysis);
-                  } else {
-                     // Only analyze if we don't have stored results for this text
-                     setLoading(true);
-                     setError(null);
-                     try {
-                        const workExperiences = [
-                           {
-                              title: "Frontend Developer",
-                              organization: "XYZ Corp",
-                              duration: "12/12/2023 - Present",
-                           },
-                           {
-                              title: "Junior Web Developer",
-                              organization: "ABC Ltd",
-                              duration: "12/12/2020 - 12/12/2023",
-                           },
-                        ];
-                        const analysis = await analyzeWithGemini(
-                           text,
-                           workExperiences
-                        );
-                        setAnalysisResult(analysis);
-                        // Store both text and its analysis
-                        chrome.storage.local.set({
-                           storedAnalysis: {
-                              text: text,
-                              analysis: analysis,
-                           },
-                        });
-                     } catch (err) {
-                        setError(
-                           err instanceof Error
-                              ? err.message
-                              : "An error occurred"
-                        );
-                     } finally {
-                        setLoading(false);
-                     }
+         // Only set user data and quota if user is logged in
+         if (result.isLoggedIn) {
+            if (result.userData) setUser(result.userData);
+            if (result.userQuota) setUserQuota(result.userQuota);
+            if (result.userDetails) setUserDetails(result.userDetails);
+         }
+
+         // Handle user session state
+         if (result.isLoggedIn && result.userData) {
+            setUser(result.userData);
+            setUserDetails(result.userDetails || null);
+            setUserQuota(result.userQuota || null);
+         } else {
+            // Only clear everything if explicitly logged out
+            handleLogout();
+         }
+
+         if (result.selectedText) {
+            const text = result.selectedText;
+            setSelectedText(text);
+            if (
+               result.storedAnalysis &&
+               result.storedAnalysis.text === result.selectedText
+            ) {
+               setAnalysisResult(result.storedAnalysis.analysis);
+            } else {
+               setLoading(true);
+               setError(null);
+               try {
+                  // Fetch user details dynamically
+                  const userDetails: UserDetails | null = result.userDetails;
+                  if (!userDetails || !userDetails.experience) {
+                     throw new Error("User details or experience not found");
                   }
+                  //
+                  const workExperiences = userDetails.experience.map((exp) => ({
+                     title: exp.title,
+                     organization: exp.employer,
+                     duration: `${exp.startDate} - ${exp.endDate}`,
+                  }));
+                  const analysis = await analyzeWithGemini(
+                     text,
+                     workExperiences
+                  );
+                  setAnalysisResult(analysis);
+                  // Store both text and its analysis
+                  chrome.storage.local.set({
+                     storedAnalysis: {
+                        text: text,
+                        analysis: analysis,
+                     },
+                  });
+               } catch (err) {
+                  setError(
+                     err instanceof Error ? err.message : "An error occurred"
+                  );
+               } finally {
+                  setLoading(false);
+                  setIsInitializing(false);
+                  console.log("isInitializing", isInitializing);
                }
             }
-         );
+         }
       };
 
-      chrome.storage.local.get("userData", (result) => {
-         if (result.userData) {
-            setUser(result.userData);
-         }
-      });
-
-      //Check if user details are already stored... if not then show the UserDetailsForm.
-      chrome.storage.local.get("userDetails", (result) => {
-         if (result.userDetails) {
-            setUserDetails(result.userDetails);
-         }
-      });
-
-      // Call the async function
-      analyzeText();
-
-      // Check login status
-      chrome.storage.local.get("isLoggedIn", (result) => {
-         if (result.isLoggedIn) {
-            chrome.storage.local.get("userData", (userResult) => {
-               if (userResult.userData) {
-                  setUser(userResult.userData);
-               }
-            });
-         }
-      });
-
-      // Check if user details are already stored
-      chrome.storage.local.get("userDetails", (result) => {
-         if (result.userDetails) {
-            setUserDetails(result.userDetails);
-         }
-      });
+      initialTextAnalyze();
    }, []);
 
-   // Handle saving the user details
-   // const handleSaveUserDetails = (details: UserDetails) => {
-   //    setUserDetails(details); // Save the user details to state
-   //    chrome.storage.local.set({ userDetails: details });
-   // };
+   useEffect(() => {
+      if (user?.uid) {
+         refreshUserQuota();
+      }
+   }, [user?.uid]);
 
+   const refreshUserQuota = async () => {
+      if (user?.uid) {
+         try {
+            const quota = await QuotaService.getUserQuota(user.uid);
+            setUserQuota(quota);
+            chrome.storage.local.set({ userQuota: quota });
+         } catch (err) {
+            console.error("Failed to refresh quota:", err);
+         }
+      }
+   };
+
+   // Handle saving the user details
    const handleSaveUserDetails = (details: UserDetails) => {
       setUserDetails(details); // Update state
       setIsEditingDetails(false); // Exit edit mode
@@ -218,8 +227,8 @@ function App() {
    const handleGoogleLogin = async () => {
       setLoginLoading(true);
 
-      //Reset of all fields
-      // handleLogout();
+      // Reset of all fields just as logout, just to be sure
+      handleLogout();
 
       try {
          // Get manifest and type assert it
@@ -280,41 +289,33 @@ function App() {
             }
          );
 
-         if (!userInfoResponse.ok) {
-            throw new Error("Failed to get user info");
-         }
+         const googleUserData = await userInfoResponse.json();
 
-         const userData = await userInfoResponse.json();
-         setUser({
-            email: userData.email,
-            name: userData.name,
-            picture: userData.picture,
-         });
+         // Create Firebase credential and sign in
+         const credential = GoogleAuthProvider.credential(null, token);
+         const firebaseAuth = await signInWithCredential(auth, credential);
 
-         // Store user data in chrome.storage
+         // Get or initialize quota from Firebase
+         const quota = await QuotaService.getUserQuota(firebaseAuth.user.uid);
+
+         // Create complete user data with Firebase UID
+         const userData: UserData = {
+            email: googleUserData.email,
+            name: googleUserData.name,
+            picture: googleUserData.picture,
+            uid: firebaseAuth.user.uid,
+         };
+
+         // Set states separately
+         setUser(userData);
+         setUserQuota(quota);
+
+         // Store in chrome.storage
          chrome.storage.local.set({
-            userData: {
-               email: userData.email,
-               name: userData.name,
-               picture: userData.picture,
-            },
+            userData: userData,
+            userQuota: quota,
+            isLoggedIn: true,
          });
-
-         // // Save login status in chrome storage
-         // chrome.storage.local.set({ isLoggedIn: true }, () => {
-         //    console.log("User logged in");
-         // });
-
-         // // Save user data if needed
-         // chrome.storage.local.set(
-         //    { userData: JSON.stringify(userData) },
-         //    () => {
-         //       console.log("User data saved");
-         //    }
-         // );
-
-         // // Notify other parts of your extension if necessary (e.g., popup)
-         // chrome.runtime.sendMessage({ type: "userLoggedIn" });
       } catch (err) {
          setLoginLoading(false);
          setError(err instanceof Error ? err.message : "Login failed");
@@ -325,13 +326,15 @@ function App() {
    };
 
    const handleLogout = () => {
-      // Clear user data, analysis results, selected text, any errors,
+      // Clear states
       setUser(null);
       setAnalysisResult(null);
       setSelectedText("");
       setError(null);
       setLoading(false);
       setUserDetails(null);
+      setUserQuota(null);
+
       // Clear all relevant data from chrome storage
       chrome.storage.local.remove(
          [
@@ -339,7 +342,8 @@ function App() {
             "selectedText",
             "storedAnalysis",
             "userDetails",
-            // "isLoggedIn",
+            "userQuota",
+            "isLoggedIn",
          ],
          () => {
             if (chrome.runtime.lastError) {
@@ -348,7 +352,7 @@ function App() {
                   chrome.runtime.lastError
                );
             } else {
-               console.log("Logged out and storage cleared.");
+               console.log("LogIn/logOut and storage cleared.");
             }
          }
       );
@@ -367,6 +371,36 @@ function App() {
                   Job Description Analyser, works on any website
                </p>
             </div>
+
+            {/* Quota Information */}
+            {userQuota && (
+               <div className="mb-4 p-4 bg-slate-800 rounded-lg">
+                  <h3 className="text-lg font-semibold mb-2">Usage Quota</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                     <div>
+                        <p className="text-sm text-slate-300">Parsing</p>
+                        <p className="font-medium">
+                           {userQuota.parsing.used} / {userQuota.parsing.limit}
+                        </p>
+                     </div>
+                     <div>
+                        <p className="text-sm text-slate-300">Generates</p>
+                        <p className="font-medium">
+                           {userQuota.generates.used} /{" "}
+                           {userQuota.generates.limit}
+                        </p>
+                     </div>
+                     <div>
+                        <p className="text-sm text-slate-300">Downloads</p>
+                        <p className="font-medium">
+                           {userQuota.downloads.used} /{" "}
+                           {userQuota.downloads.limit}
+                        </p>
+                     </div>
+                  </div>
+               </div>
+            )}
+
             {user ? (
                <div className="flex items-center gap-2">
                   <img

@@ -32,6 +32,21 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
       projects: [],
    });
 
+   const hasUserDetailsData = (details: UserDetails): boolean => {
+      if (details.fullName || details.email || details.phone) {
+         return true;
+      }
+      if (
+         details.experience.length > 0 ||
+         details.education.length > 0 ||
+         details.certifications.length > 0 ||
+         details.projects.length > 0
+      ) {
+         return true;
+      }
+      return false;
+   };
+
    useEffect(() => {
       chrome.storage.local.get("userDetails", (result) => {
          if (result.userDetails) {
@@ -412,12 +427,14 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
             >
                Save Details
             </button>
-            <button
-               onClick={onCancel} // Call the onCancel prop
-               className="mt-4 bg-red-700 hover:bg-red-800 px-4 py-2 text-sm font-bold rounded-lg border border-gray-800"
-            >
-               Cancel{" "}
-            </button>
+            {hasUserDetailsData(userDetails) && (
+               <button
+                  onClick={onCancel} // Call the onCancel prop
+                  className="mt-4 bg-red-700 hover:bg-red-800 px-4 py-2 text-sm font-bold rounded-lg border border-gray-800"
+               >
+                  Cancel{" "}
+               </button>
+            )}
          </div>
       </div>
    );
