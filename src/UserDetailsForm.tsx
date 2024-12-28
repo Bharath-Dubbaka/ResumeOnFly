@@ -88,8 +88,9 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
    };
 
    return (
-      <div className="p-4 bg-blue-900/30 rounded-lg text-slate-200">
-         <div className="text-lg font-bold mb-3 px-2 py-4 border border-slate-600 rounded-lg">
+      <div className="p-4 bg-transparent rounded-lg text-slate-200 backdrop-blur-lg">
+         {/* 1ST COL */}
+         <div className="text-lg font-bold mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
             <div className="flex items-center mb-1">
                Enter Your Details:{" "}
                <span className="text-sm text-red-600 ml-2">
@@ -129,7 +130,7 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
 
          <div>
             {/* Experience */}
-            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
                <div className="text-lg font-semibold">Work Experiences:</div>
                {userDetails.experience.map((exp, index) => (
                   <>
@@ -245,7 +246,7 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
             </div>
 
             {/* Education */}
-            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
                <h4 className="text-lg font-semibold">Education:</h4>
                {userDetails.education.map((edu, index) => (
                   <div key={index} className="space-y-2 mb-2">
@@ -321,7 +322,7 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
             </div>
 
             {/* Certifications */}
-            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
                <h4 className="text-lg font-semibold">Certifications:</h4>
                {userDetails.certifications.map((cert, index) => (
                   <div key={index} className="flex items-center space-x-2 mb-2">
@@ -361,7 +362,7 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
             </div>
 
             {/* Projects */}
-            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg">
+            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
                <h4 className="text-lg font-semibold">Projects:</h4>
                {userDetails.projects.map((proj, index) => (
                   <div key={index} className="space-y-2 mb-2">

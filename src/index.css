@@ -6,6 +6,11 @@ html {
    scroll-behavior: smooth;
 }
 
+.custom-blur {
+   background: rgba(0, 0, 0, 0.244); /* half black */
+   backdrop-filter: blur(10px); /* Adjust the blur intensity */
+}
+
 /* Custom Scrollbar Styles */
 ::-webkit-scrollbar {
    width: 3px;

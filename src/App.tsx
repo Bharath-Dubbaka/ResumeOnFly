@@ -7,10 +7,11 @@ import {
    AnalysisResult,
    UserQuota,
 } from "./types/types";
-import { LogOutIcon } from "lucide-react";
+import { BugPlay, LogOutIcon } from "lucide-react";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth } from "./services/firebase";
 import { QuotaService } from "./services/QuotaService";
+import { Download, RefreshCcw } from "lucide-react";
 
 interface CustomManifest {
    name: string;
@@ -378,20 +379,20 @@ function App() {
                   <h3 className="text-lg font-semibold mb-2">Usage Quota</h3>
                   <div className="grid grid-cols-3 gap-4">
                      <div>
-                        <p className="text-sm text-slate-300">Parsing</p>
+                        <BugPlay size={16} />
                         <p className="font-medium">
                            {userQuota.parsing.used} / {userQuota.parsing.limit}
                         </p>
                      </div>
                      <div>
-                        <p className="text-sm text-slate-300">Generates</p>
+                        <RefreshCcw size={16} />
                         <p className="font-medium">
                            {userQuota.generates.used} /{" "}
                            {userQuota.generates.limit}
                         </p>
                      </div>
                      <div>
-                        <p className="text-sm text-slate-300">Downloads</p>
+                        <Download size={16} />
                         <p className="font-medium">
                            {userQuota.downloads.used} /{" "}
                            {userQuota.downloads.limit}
