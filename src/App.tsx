@@ -17,6 +17,7 @@ import { auth } from "./services/firebase";
 import { QuotaService } from "./services/QuotaService";
 import { Download, RefreshCcw } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
+import { UserDetailsService } from "./services/UserDetailsService";
 
 interface CustomManifest {
    name: string;
@@ -49,44 +50,60 @@ function App() {
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
          if (firebaseUser) {
             try {
-               // Retrieve user data from chrome.storage
-               const result = await chrome.storage.local.get([
-                  "userData",
-                  "userQuota",
-                  "userDetails",
-               ]);
+               // Get user data from Firestore instead of chrome.storage
+               const userData: UserData = {
+                  email: firebaseUser.email || "",
+                  name: firebaseUser.displayName || "",
+                  picture: firebaseUser.photoURL || "",
+                  uid: firebaseUser.uid,
+               };
 
-               if (result.userData?.uid === firebaseUser.uid) {
-                  // If we have matching user data in storage, , restore all states
-                  setUser(result.userData);
-                  setUserQuota(result.userQuota);
-                  setUserDetails(result.userDetails);
-               } else {
-                  // If no matching data, create new user data
-                  const userData: UserData = {
-                     email: firebaseUser.email || "",
-                     name: firebaseUser.displayName || "",
-                     picture: firebaseUser.photoURL || "",
-                     uid: firebaseUser.uid,
-                  };
+               // // Retrieve user data from chrome.storage
+               // const result = await chrome.storage.local.get([
+               //    "userData",
+               //    "userQuota",
+               //    "userDetails",
+               // ]);
 
-                  // Get fresh quota
-                  const quota = await QuotaService.getUserQuota(
-                     firebaseUser.uid
-                  );
+               // if (result.userData?.uid === firebaseUser.uid) {
+               //    // If we have matching user data in storage, , restore all states
+               //    setUser(result.userData);
+               //    setUserQuota(result.userQuota);
+               //    setUserDetails(result.userDetails);
+               // } else {
+               //    // If no matching data, create new user data
+               //    const userData: UserData = {
+               //       email: firebaseUser.email || "",
+               //       name: firebaseUser.displayName || "",
+               //       picture: firebaseUser.photoURL || "",
+               //       uid: firebaseUser.uid,
+               //    };
 
-                  // Update state
-                  setUser(userData);
-                  setUserQuota(quota);
-                  // don't set userDetails here as it needs to be input ed by user
+               //    // Get fresh quota
+               //    const quota = await QuotaService.getUserQuota(
+               //       firebaseUser.uid
+               //    );
 
-                  // Store in chrome.storage
-                  chrome.storage.local.set({
-                     userData: userData,
-                     userQuota: quota,
-                     isLoggedIn: true,
-                  });
-               }
+               // Get quota
+               const quota = await QuotaService.getUserQuota(firebaseUser.uid);
+
+               // Get user details from Firestore
+               const details = await UserDetailsService.getUserDetails(
+                  firebaseUser.uid
+               );
+
+               // Update all states
+               setUser(userData);
+               setUserQuota(quota);
+               setUserDetails(details);
+
+               // Still store in chrome.storage for faster initial load
+               chrome.storage.local.set({
+                  userData,
+                  userQuota: quota,
+                  userDetails: details,
+                  isLoggedIn: true,
+               });
             } catch (err) {
                console.error("Error restoring auth state:", err);
                handleLogout();
@@ -209,10 +226,23 @@ function App() {
    };
 
    // Handle saving the user details
-   const handleSaveUserDetails = (details: UserDetails) => {
-      setUserDetails(details); // Update state
-      setIsEditingDetails(false); // Exit edit mode
-      chrome.storage.local.set({ userDetails: details }); // Save to storage
+   const handleSaveUserDetails = async (details: UserDetails) => {
+      if (!user?.uid) return;
+
+      try {
+         // Save to Firestore
+         await UserDetailsService.saveUserDetails(user.uid, details);
+
+         // Update local state
+         setUserDetails(details);
+         setIsEditingDetails(false);
+
+         // Update chrome.storage
+         chrome.storage.local.set({ userDetails: details });
+      } catch (error) {
+         console.error("Error saving user details:", error);
+         setError("Failed to save user details. Please try again.");
+      }
    };
 
    const handleCancelUserDetails = () => {
