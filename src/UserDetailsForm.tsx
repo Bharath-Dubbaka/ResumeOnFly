@@ -19,17 +19,27 @@ interface UserDetails {
 interface UserDetailsFormProps {
    onSave: (details: UserDetails) => void;
    onCancel: () => void; // Add the type for the onCancel prop
+   initialData?: UserDetails | null;
 }
 
-const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
-   const [userDetails, setUserDetails] = useState<UserDetails>({
-      fullName: "",
-      email: "",
-      phone: "",
-      experience: [],
-      education: [],
-      certifications: [],
-      projects: [],
+const UserDetailsForm = ({
+   onSave,
+   onCancel,
+   initialData,
+}: UserDetailsFormProps) => {
+   const [userDetails, setUserDetails] = useState<UserDetails>(() => {
+      if (initialData) {
+         return initialData;
+      }
+      return {
+         fullName: "",
+         email: "",
+         phone: "",
+         experience: [],
+         education: [],
+         certifications: [],
+         projects: [],
+      };
    });
 
    const hasUserDetailsData = (details: UserDetails): boolean => {
@@ -48,12 +58,10 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
    };
 
    useEffect(() => {
-      chrome.storage.local.get("userDetails", (result) => {
-         if (result.userDetails) {
-            setUserDetails(result.userDetails);
-         }
-      });
-   }, []);
+      if (initialData) {
+         setUserDetails(initialData);
+      }
+   }, [initialData]);
 
    const handleChange = (field: string, value: any) => {
       setUserDetails({ ...userDetails, [field]: value });
@@ -82,9 +90,7 @@ const UserDetailsForm = ({ onSave, onCancel }: UserDetailsFormProps) => {
    };
 
    const handleSave = () => {
-      chrome.storage.local.set({ userDetails }, () => {
-         onSave(userDetails);
-      });
+      onSave(userDetails);
    };
 
    return (

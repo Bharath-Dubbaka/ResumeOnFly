@@ -8,7 +8,11 @@ import {
    UserQuota,
 } from "./types/types";
 import { BugPlay, LogOutIcon } from "lucide-react";
-import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
+import {
+   GoogleAuthProvider,
+   signInWithCredential,
+   onAuthStateChanged,
+} from "firebase/auth";
 import { auth } from "./services/firebase";
 import { QuotaService } from "./services/QuotaService";
 import { Download, RefreshCcw } from "lucide-react";
@@ -39,94 +43,158 @@ function App() {
 
    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
+   // Add new useEffect for auth state monitoring
    useEffect(() => {
-      const initialTextAnalyze = async () => {
-         setIsInitializing(true);
-         console.log("isInitializing", isInitializing);
-         // Fetch user data, user details, and user quota from storage
-         const result = await chrome.storage.local.get([
-            "userData",
-            "userDetails",
-            "userQuota",
-            "selectedText",
-            "storedAnalysis",
-            "isLoggedIn",
-         ]);
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+         if (firebaseUser) {
+            try {
+               // Retrieve user data from chrome.storage
+               const result = await chrome.storage.local.get([
+                  "userData",
+                  "userQuota",
+                  "userDetails",
+               ]);
 
-         // Only set user data and quota if user is logged in
-         if (result.isLoggedIn) {
-            if (result.userData) setUser(result.userData);
-            if (result.userQuota) setUserQuota(result.userQuota);
-            if (result.userDetails) setUserDetails(result.userDetails);
-         }
+               if (result.userData?.uid === firebaseUser.uid) {
+                  // If we have matching user data in storage, , restore all states
+                  setUser(result.userData);
+                  setUserQuota(result.userQuota);
+                  setUserDetails(result.userDetails);
+               } else {
+                  // If no matching data, create new user data
+                  const userData: UserData = {
+                     email: firebaseUser.email || "",
+                     name: firebaseUser.displayName || "",
+                     picture: firebaseUser.photoURL || "",
+                     uid: firebaseUser.uid,
+                  };
 
-         // Handle user session state
-         if (result.isLoggedIn && result.userData) {
-            setUser(result.userData);
-            setUserDetails(result.userDetails || null);
-            setUserQuota(result.userQuota || null);
+                  // Get fresh quota
+                  const quota = await QuotaService.getUserQuota(
+                     firebaseUser.uid
+                  );
+
+                  // Update state
+                  setUser(userData);
+                  setUserQuota(quota);
+                  // don't set userDetails here as it needs to be input ed by user
+
+                  // Store in chrome.storage
+                  chrome.storage.local.set({
+                     userData: userData,
+                     userQuota: quota,
+                     isLoggedIn: true,
+                  });
+               }
+            } catch (err) {
+               console.error("Error restoring auth state:", err);
+               handleLogout();
+            }
          } else {
-            // Only clear everything if explicitly logged out
+            // No Firebase user, ensure logged out state
             handleLogout();
          }
+         setIsInitializing(false);
+      });
 
-         if (result.selectedText) {
-            const text = result.selectedText;
-            setSelectedText(text);
-            if (
-               result.storedAnalysis &&
-               result.storedAnalysis.text === result.selectedText
-            ) {
-               setAnalysisResult(result.storedAnalysis.analysis);
-            } else {
-               setLoading(true);
-               setError(null);
-               try {
-                  // Fetch user details dynamically
-                  const userDetails: UserDetails | null = result.userDetails;
-                  if (!userDetails || !userDetails.experience) {
-                     throw new Error("User details or experience not found");
+      // Cleanup subscription
+      return () => unsubscribe();
+   }, []);
+
+   useEffect(() => {
+      const initialTextAnalyze = async () => {
+         if (isInitializing || !user?.uid) return;
+
+         // setIsInitializing(true);
+         // console.log("isInitializing", isInitializing);
+         try {
+            const result = await chrome.storage.local.get([
+               "userData",
+               "userDetails",
+               "userQuota",
+               "selectedText",
+               "storedAnalysis",
+               "isLoggedIn",
+            ]);
+
+            // ... existing initialization code ...
+
+            if (result.selectedText && result.isLoggedIn && user?.uid) {
+               const text = result.selectedText;
+               setSelectedText(text);
+
+               // Check if we have stored analysis for this text
+               if (
+                  result.storedAnalysis &&
+                  result.storedAnalysis.text === result.selectedText
+               ) {
+                  setAnalysisResult(result.storedAnalysis.analysis);
+               } else {
+                  setLoading(true);
+                  setError(null);
+
+                  try {
+                     // Check quota before proceeding
+                     const hasQuota = await QuotaService.checkQuota(
+                        user.uid,
+                        "parsing"
+                     );
+                     if (!hasQuota) {
+                        throw new Error(
+                           "Parsing quota exceeded. Please upgrade your plan."
+                        );
+                     }
+
+                     const userDetails: UserDetails | null = result.userDetails;
+                     if (!userDetails || !userDetails.experience) {
+                        throw new Error("User details or experience not found");
+                     }
+
+                     const workExperiences = userDetails.experience.map(
+                        (exp) => ({
+                           title: exp.title,
+                           organization: exp.employer,
+                           duration: `${exp.startDate} - ${exp.endDate}`,
+                        })
+                     );
+
+                     const analysis = await analyzeWithGemini(
+                        text,
+                        workExperiences
+                     );
+                     setAnalysisResult(analysis);
+
+                     chrome.storage.local.set({
+                        storedAnalysis: {
+                           text: text,
+                           analysis: analysis,
+                        },
+                     });
+                  } catch (err) {
+                     setError(
+                        err instanceof Error ? err.message : "An error occurred"
+                     );
+                  } finally {
+                     setLoading(false);
                   }
-                  //
-                  const workExperiences = userDetails.experience.map((exp) => ({
-                     title: exp.title,
-                     organization: exp.employer,
-                     duration: `${exp.startDate} - ${exp.endDate}`,
-                  }));
-                  const analysis = await analyzeWithGemini(
-                     text,
-                     workExperiences
-                  );
-                  setAnalysisResult(analysis);
-                  // Store both text and its analysis
-                  chrome.storage.local.set({
-                     storedAnalysis: {
-                        text: text,
-                        analysis: analysis,
-                     },
-                  });
-               } catch (err) {
-                  setError(
-                     err instanceof Error ? err.message : "An error occurred"
-                  );
-               } finally {
-                  setLoading(false);
-                  setIsInitializing(false);
-                  console.log("isInitializing", isInitializing);
                }
             }
+         } catch (err) {
+            console.error("Initialization error:", err);
+            setError(
+               err instanceof Error
+                  ? err.message
+                  : "An error occurred during initialization"
+            );
+         } finally {
+            setIsInitializing(false);
          }
       };
 
       initialTextAnalyze();
-   }, []);
+   }, [user?.uid, isInitializing]);
 
-   useEffect(() => {
-      if (user?.uid) {
-         refreshUserQuota();
-      }
-   }, [user?.uid]);
-
+   //Refreshing Quota
    const refreshUserQuota = async () => {
       if (user?.uid) {
          try {
@@ -167,8 +235,21 @@ function App() {
       const API_URL =
          "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 
-      // Modified prompt to ensure clean JSON response
-      const prompt = `Analyze the following job description and work experiences in detail. Return only a JSON object with these exact keys:
+      if (!user?.uid) {
+         throw new Error("User not authenticated");
+      }
+
+      try {
+         // Check quota availability using QuotaService
+         const hasQuota = await QuotaService.checkQuota(user.uid, "parsing");
+         if (!hasQuota) {
+            throw new Error(
+               "Parsing quota exceeded. Please upgrade your plan."
+            );
+         }
+
+         // Modified prompt to ensure clean JSON response
+         const prompt = `Analyze the following job description and work experiences in detail. Return only a JSON object with these exact keys:
       {
          "technicalSkills": [array of strings],
          "yearsOfExperience": number,
@@ -188,39 +269,45 @@ function App() {
    
       Return only the JSON object, no additional text or formatting.`;
 
-      const response = await fetch(`${API_URL}?key=${API_KEY}`, {
-         method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify({
-            contents: [
-               {
-                  parts: [
-                     {
-                        text: prompt,
-                     },
-                  ],
-               },
-            ],
-         }),
-      });
+         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+               contents: [
+                  {
+                     parts: [
+                        {
+                           text: prompt,
+                        },
+                     ],
+                  },
+               ],
+            }),
+         });
 
-      if (!response.ok) {
-         throw new Error("Please try again..Failed to analyze job description");
-      }
+         if (!response.ok) {
+            throw new Error("Failed to analyze job description");
+         }
 
-      const data = await response.json();
+         const data = await response.json();
 
-      // Add error handling for response parsing
-      try {
+         // If analysis is successful, increment the parsing quota
+         await QuotaService.incrementUsage(user.uid, "parsing");
+
+         // Refresh the quota display
+         await refreshUserQuota();
+
          const content = data.candidates[0].content.parts[0].text;
-         // Clean the response string before parsing
          const cleanedContent = content.trim().replace(/```json|```/g, "");
          return JSON.parse(cleanedContent);
       } catch (error) {
-         console.error("Parsing error:", error);
-         throw new Error("Try Again, Failed to parse analysis results");
+         console.error("Analysis error:", error);
+         if (error instanceof Error) {
+            throw error;
+         }
+         throw new Error("Failed to parse analysis results");
       }
    }
 
@@ -326,37 +413,31 @@ function App() {
       }
    };
 
-   const handleLogout = () => {
-      // Clear states
-      setUser(null);
-      setAnalysisResult(null);
-      setSelectedText("");
-      setError(null);
-      setLoading(false);
-      setUserDetails(null);
-      setUserQuota(null);
+   const handleLogout = async () => {
+      try {
+         await auth.signOut(); // Sign out from Firebase
 
-      // Clear all relevant data from chrome storage
-      chrome.storage.local.remove(
-         [
+         // Clear states
+         setUser(null);
+         setAnalysisResult(null);
+         setSelectedText("");
+         setError(null);
+         setLoading(false);
+         setUserDetails(null);
+         setUserQuota(null);
+
+         // Clear storage
+         await chrome.storage.local.remove([
             "userData",
             "selectedText",
             "storedAnalysis",
             "userDetails",
             "userQuota",
             "isLoggedIn",
-         ],
-         () => {
-            if (chrome.runtime.lastError) {
-               console.error(
-                  "Error clearing storage:",
-                  chrome.runtime.lastError
-               );
-            } else {
-               console.log("LogIn/logOut and storage cleared.");
-            }
-         }
-      );
+         ]);
+      } catch (err) {
+         console.error("Error during logout:", err);
+      }
    };
 
    return (
@@ -474,6 +555,7 @@ function App() {
                <UserDetailsForm
                   onSave={handleSaveUserDetails}
                   onCancel={handleCancelUserDetails}
+                  initialData={userDetails}
                />
             ) : (
                // Show ProtectedContent if both user and userDetails exist

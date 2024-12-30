@@ -128,14 +128,20 @@ const ProtectedContent = ({
          </div>
          {/* Loading State */}
          {loading && (
-            <div className="flex justify-center p-2">
-               <div className="animate-pulse-slow flex space-x-2">
-                  <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
-                  <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
-                  <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+            <div>
+               <div className="flex justify-center p-2">
+                  <div className="animate-pulse-slow flex space-x-2">
+                     <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                     <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                     <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                  </div>
+               </div>
+               <div className="flex justify-center p-2 font-bold text-white text-xl">
+                  Parsing the Job Description...
                </div>
             </div>
          )}
+
          {/* Analysis Results */}
          {analysisResult && (
             <div className="space-y-4">
