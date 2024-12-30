@@ -16,6 +16,7 @@ import {
 import { auth } from "./services/firebase";
 import { QuotaService } from "./services/QuotaService";
 import { Download, RefreshCcw } from "lucide-react";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface CustomManifest {
    name: string;
@@ -445,135 +446,143 @@ function App() {
          className="w-[800px] max-h-[800px] overflow-y-auto bg-gradient-to-b from-[#370c3e] to-[#243465] p-6 text-white rounded-lg shadow-xl"
          style={{ fontFamily: "Arial, sans-serif" }}
       >
-         {/* Header */}
-         <div className="mb-6 flex items-center justify-between">
-            <div>
-               <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
-               <p className="text-sm opacity-75">
-                  Job Description Analyser, works on any website
-               </p>
-            </div>
-
-            {/* Quota Information */}
-            {userQuota && (
-               <div className="mb-4 p-4 bg-slate-800 rounded-lg">
-                  <h3 className="text-lg font-semibold mb-2">Usage Quota</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                     <div>
-                        <BugPlay size={16} />
-                        <p className="font-medium">
-                           {userQuota.parsing.used} / {userQuota.parsing.limit}
-                        </p>
-                     </div>
-                     <div>
-                        <RefreshCcw size={16} />
-                        <p className="font-medium">
-                           {userQuota.generates.used} /{" "}
-                           {userQuota.generates.limit}
-                        </p>
-                     </div>
-                     <div>
-                        <Download size={16} />
-                        <p className="font-medium">
-                           {userQuota.downloads.used} /{" "}
-                           {userQuota.downloads.limit}
-                        </p>
-                     </div>
-                  </div>
-               </div>
-            )}
-
-            {user ? (
-               <div className="flex items-center gap-2">
-                  <img
-                     src={user.picture}
-                     alt={user.name}
-                     className="w-8 h-8 rounded-full"
-                  />
-                  <div className="text-sm">
-                     <div className="flex mb-1">
-                        <p className="mr-1 px-2 py-1 bg-slate-900 rounded-lg">
-                           {user.name}
-                        </p>
-
-                        <button
-                           onClick={handleEditClick}
-                           className="text-sm text-blue-400 hover:text-blue-300 mr-1 px-2 py-1 bg-slate-900 rounded-lg"
-                        >
-                           Edit Details
-                        </button>
-
-                        <button
-                           onClick={handleLogout}
-                           className="text-sm text-red-500 hover:text-red-400 bg-slate-900 px-2 py-1 rounded-lg"
-                        >
-                           <LogOutIcon size={16} />
-                        </button>
-                     </div>
-                     <p className="text-slate-300 px-2 py-1 bg-slate-900 rounded-lg">
-                        {user.email}
+         {isInitializing ? (
+            <LoadingSpinner />
+         ) : (
+            <>
+               {/* Header */}
+               <div className="mb-6 flex items-center justify-between">
+                  <div>
+                     <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
+                     <p className="text-sm opacity-75">
+                        Job Description Analyser, works on any website
                      </p>
                   </div>
-               </div>
-            ) : (
-               <button
-                  onClick={handleGoogleLogin}
-                  disabled={loginLoading}
-                  className="bg-blue-600 px-4 py-2 text-sm font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
-               >
-                  {loginLoading ? (
+
+                  {/* Quota Information */}
+                  {userQuota && (
+                     <div className="mb-4 p-4 bg-slate-800 rounded-lg">
+                        <h3 className="text-lg font-semibold mb-2">
+                           Usage Quota
+                        </h3>
+                        <div className="grid grid-cols-3 gap-4">
+                           <div>
+                              <BugPlay size={16} />
+                              <p className="font-medium">
+                                 {userQuota.parsing.used} /{" "}
+                                 {userQuota.parsing.limit}
+                              </p>
+                           </div>
+                           <div>
+                              <RefreshCcw size={16} />
+                              <p className="font-medium">
+                                 {userQuota.generates.used} /{" "}
+                                 {userQuota.generates.limit}
+                              </p>
+                           </div>
+                           <div>
+                              <Download size={16} />
+                              <p className="font-medium">
+                                 {userQuota.downloads.used} /{" "}
+                                 {userQuota.downloads.limit}
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                  )}
+
+                  {user ? (
                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Signing in...
+                        <img
+                           src={user.picture}
+                           alt={user.name}
+                           className="w-8 h-8 rounded-full"
+                        />
+                        <div className="text-sm">
+                           <div className="flex mb-1">
+                              <p className="mr-1 px-2 py-1 bg-slate-900 rounded-lg">
+                                 {user.name}
+                              </p>
+
+                              <button
+                                 onClick={handleEditClick}
+                                 className="text-sm text-blue-400 hover:text-blue-300 mr-1 px-2 py-1 bg-slate-900 rounded-lg"
+                              >
+                                 Edit Details
+                              </button>
+
+                              <button
+                                 onClick={handleLogout}
+                                 className="text-sm text-red-500 hover:text-red-400 bg-slate-900 px-2 py-1 rounded-lg"
+                              >
+                                 <LogOutIcon size={16} />
+                              </button>
+                           </div>
+                           <p className="text-slate-300 px-2 py-1 bg-slate-900 rounded-lg">
+                              {user.email}
+                           </p>
+                        </div>
                      </div>
                   ) : (
-                     <>
-                        <svg className="w-4 h-4" viewBox="0 0 24 24">
-                           <path
-                              fill="currentColor"
-                              d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
-                           />
-                        </svg>
-                        Sign in with Google
-                     </>
+                     <button
+                        onClick={handleGoogleLogin}
+                        disabled={loginLoading}
+                        className="bg-blue-600 px-4 py-2 text-sm font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
+                     >
+                        {loginLoading ? (
+                           <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                              Signing in...
+                           </div>
+                        ) : (
+                           <>
+                              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                                 <path
+                                    fill="currentColor"
+                                    d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"
+                                 />
+                              </svg>
+                              Sign in with Google
+                           </>
+                        )}
+                     </button>
                   )}
-               </button>
-            )}
-         </div>
+               </div>
 
-         {/* Error State */}
-         {error && (
-            <div className="bg-red-50 border-l-4 border-red-400 p-2 mb-4 text-xs text-red-700">
-               {error}
-            </div>
+               {/* Error State */}
+               {error && (
+                  <div className="bg-red-50 border-l-4 border-red-400 p-2 mb-4 text-xs text-red-700">
+                     {error}
+                  </div>
+               )}
+
+               {/* Protected Content */}
+               {user ? (
+                  isEditingDetails || !userDetails ? (
+                     // Show UserDetailsForm if user exists but userDetails are not set
+                     <UserDetailsForm
+                        onSave={handleSaveUserDetails}
+                        onCancel={handleCancelUserDetails}
+                        initialData={userDetails}
+                     />
+                  ) : (
+                     // Show ProtectedContent if both user and userDetails exist
+                     <ProtectedContent
+                        user={user}
+                        userDetails={userDetails}
+                        selectedText={selectedText}
+                        setSelectedText={setSelectedText}
+                        analysisResult={analysisResult}
+                        setAnalysisResult={setAnalysisResult}
+                        loading={loading}
+                        setLoading={setLoading}
+                        loginLoading={loginLoading}
+                        setLoginLoading={setLoginLoading}
+                     />
+                  )
+               ) : null}
+            </>
          )}
-
-         {/* Protected Content */}
-         {user ? (
-            isEditingDetails || !userDetails ? (
-               // Show UserDetailsForm if user exists but userDetails are not set
-               <UserDetailsForm
-                  onSave={handleSaveUserDetails}
-                  onCancel={handleCancelUserDetails}
-                  initialData={userDetails}
-               />
-            ) : (
-               // Show ProtectedContent if both user and userDetails exist
-               <ProtectedContent
-                  user={user}
-                  userDetails={userDetails}
-                  selectedText={selectedText}
-                  setSelectedText={setSelectedText}
-                  analysisResult={analysisResult}
-                  setAnalysisResult={setAnalysisResult}
-                  loading={loading}
-                  setLoading={setLoading}
-                  loginLoading={loginLoading}
-                  setLoginLoading={setLoginLoading}
-               />
-            )
-         ) : // Show nothing if user does not exist
-         null}
       </div>
    );
 }

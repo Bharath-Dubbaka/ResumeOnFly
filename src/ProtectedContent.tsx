@@ -136,7 +136,7 @@ const ProtectedContent = ({
                      <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
                   </div>
                </div>
-               <div className="flex justify-center p-2 font-bold text-white text-xl">
+               <div className="flex justify-center p-2 font-bold text-white text-lg">
                   Parsing the Job Description...
                </div>
             </div>
