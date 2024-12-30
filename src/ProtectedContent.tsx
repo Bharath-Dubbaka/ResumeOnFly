@@ -16,6 +16,7 @@ interface ProtectedContentProps {
    // handleSaveUserDetails: (details: UserDetails) => void;
    loginLoading: boolean;
    setLoginLoading: React.Dispatch<React.SetStateAction<boolean>>;
+   refreshUserQuota: () => Promise<void>;
 }
 
 const ProtectedContent = ({
@@ -24,6 +25,7 @@ const ProtectedContent = ({
    selectedText,
    // setSelectedText,
    analysisResult,
+   refreshUserQuota,
    setAnalysisResult,
    loading,
    // setLoginLoading,
@@ -225,11 +227,13 @@ const ProtectedContent = ({
             {/* Render ResumeGenerator only if userDetails is available */}
             {userDetails && analysisResult && (
                <ResumeGenerator
+                  uid={user.uid}
                   userDetails={userDetails} // Pass userDetails here
                   technicalSkills={analysisResult.technicalSkills}
                   softSkills={analysisResult.softSkills}
                   yearsOfExperience={analysisResult.yearsOfExperience}
                   jobDescription={selectedText}
+                  refreshUserQuota={refreshUserQuota}
                />
             )}
          </div>

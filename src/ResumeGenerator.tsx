@@ -10,6 +10,7 @@ import {
    BorderStyle,
 } from "docx";
 import ResumePreview from "./ResumePreview";
+import { QuotaService } from "./services/QuotaService";
 
 interface UserDetails {
    fullName: string;
@@ -34,6 +35,8 @@ interface ResumeGeneratorProps {
    yearsOfExperience: number;
    jobDescription: string;
    userDetails: UserDetails;
+   refreshUserQuota: () => Promise<void>;
+   uid: string;
 }
 
 const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
@@ -42,6 +45,8 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    yearsOfExperience,
    // jobDescription,
    userDetails,
+   refreshUserQuota,
+   uid,
 }) => {
    const [resumeContent, setResumeContent] = useState<string>("");
    const [loading, setLoading] = useState(false);
@@ -135,6 +140,12 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 
          // Trigger a refresh for preview
          setRefreshPreview((prev) => !prev);
+
+         // Increment the usage
+         await QuotaService.incrementUsage(uid, "generates");
+
+         // Refresh the quota display
+         await refreshUserQuota();
       } catch (error) {
          console.error("Error generating resume:", error);
          alert("Error generating resume content. Please try again.");
@@ -504,7 +515,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                 .flat(),
                           ]
                         : []),
-                        
                   ],
                },
             ],
@@ -536,6 +546,11 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
             link.click();
             document.body.removeChild(link);
          });
+
+         await QuotaService.incrementUsage(uid, "downloads");
+
+         // Refresh the quota display
+         await refreshUserQuota();
       } catch (error) {
          console.error("Error generating Word document:", error);
          alert(
