@@ -50,6 +50,9 @@ function App() {
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
          if (firebaseUser) {
             try {
+               // Wait a brief moment to ensure Firebase auth is fully initialized
+               await new Promise((resolve) => setTimeout(resolve, 100));
+
                // Get user data from Firestore instead of chrome.storage
                const userData: UserData = {
                   email: firebaseUser.email || "",
@@ -57,32 +60,6 @@ function App() {
                   picture: firebaseUser.photoURL || "",
                   uid: firebaseUser.uid,
                };
-
-               // // Retrieve user data from chrome.storage
-               // const result = await chrome.storage.local.get([
-               //    "userData",
-               //    "userQuota",
-               //    "userDetails",
-               // ]);
-
-               // if (result.userData?.uid === firebaseUser.uid) {
-               //    // If we have matching user data in storage, , restore all states
-               //    setUser(result.userData);
-               //    setUserQuota(result.userQuota);
-               //    setUserDetails(result.userDetails);
-               // } else {
-               //    // If no matching data, create new user data
-               //    const userData: UserData = {
-               //       email: firebaseUser.email || "",
-               //       name: firebaseUser.displayName || "",
-               //       picture: firebaseUser.photoURL || "",
-               //       uid: firebaseUser.uid,
-               //    };
-
-               //    // Get fresh quota
-               //    const quota = await QuotaService.getUserQuota(
-               //       firebaseUser.uid
-               //    );
 
                // Get quota
                const quota = await QuotaService.getUserQuota(firebaseUser.uid);
@@ -106,7 +83,10 @@ function App() {
                });
             } catch (err) {
                console.error("Error restoring auth state:", err);
-               handleLogout();
+               // handleLogout();
+               console.log(
+                  "Auth state restoration failed, but user remains logged in"
+               );
             }
          } else {
             // No Firebase user, ensure logged out state
@@ -485,7 +465,8 @@ function App() {
                   <div>
                      <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
                      <p className="text-sm opacity-75">
-                        Job Description Analyser, works on any website
+                        Designs resume based on job description, works on all
+                        websites
                      </p>
                   </div>
 

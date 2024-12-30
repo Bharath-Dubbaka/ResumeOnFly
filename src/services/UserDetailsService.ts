@@ -1,3 +1,5 @@
+// src/services/UserDetailsServices.tsx
+
 import { db } from "./firebase";
 import type { UserDetails } from "../types/types";
 import { doc, getDoc, setDoc } from "firebase/firestore";
