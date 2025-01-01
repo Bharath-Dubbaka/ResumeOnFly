@@ -138,6 +138,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          const cleanedContent = cleanJsonResponse(generatedContent);
          setResumeContent(cleanedContent);
 
+         
          // Trigger a refresh for preview
          setRefreshPreview((prev) => !prev);
 

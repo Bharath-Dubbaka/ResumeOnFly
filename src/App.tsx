@@ -462,17 +462,17 @@ function App() {
             <>
                {/* Header */}
                <div className="mb-6 flex items-center justify-between">
-                  <div>
+                  <div className="w-[37%]">
                      <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
                      <p className="text-sm opacity-75">
-                        Designs resume based on job description, works on all
-                        websites
+                        Designs resume based on jobDescription, works on any
+                        website
                      </p>
                   </div>
 
                   {/* Quota Information */}
                   {userQuota && (
-                     <div className="mb-4 p-4 bg-slate-800 rounded-lg">
+                     <div className="flex flex-col items-center mb-4 p-2 bg-slate-900 rounded-lg w-[25%] mr-2">
                         <h3 className="text-lg font-semibold mb-2">
                            Usage Quota
                         </h3>
@@ -503,7 +503,7 @@ function App() {
                   )}
 
                   {user ? (
-                     <div className="flex items-center gap-2">
+                     <div className="flex items-center gap-2 w-[37%]">
                         <img
                            src={user.picture}
                            alt={user.name}
