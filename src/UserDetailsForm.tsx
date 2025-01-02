@@ -11,6 +11,7 @@ interface UserDetails {
       endDate: string;
       location: string;
       responsibilityType: "skillBased" | "titleBased";
+      customResponsibilities: string[];
    }[];
    education: { degree: string; institution: string; year: string }[];
    certifications: string[];
@@ -249,6 +250,7 @@ const UserDetailsForm = ({
                      </div>
 
                      {/* Add responsibility type selector */}
+
                      <div className="flex items-center gap-4 mt-2">
                         <span className="text-sm">
                            Generate responsibilities based on:
@@ -275,6 +277,80 @@ const UserDetailsForm = ({
                            <option value="titleBased">Role Title</option>
                         </select>
                      </div>
+
+                     {/* Custom Responsibilities */}
+                     <div>
+                        <h5>Custom Responsibilities:</h5>
+                        {exp.customResponsibilities?.map((resp, respIndex) => (
+                           <div key={respIndex} className="flex gap-2">
+                              <input
+                                 type="text"
+                                 value={resp}
+                                 onChange={(e) =>
+                                    handleChange("experience", [
+                                       ...userDetails.experience.slice(
+                                          0,
+                                          index
+                                       ),
+                                       {
+                                          ...exp,
+                                          customResponsibilities:
+                                             exp.customResponsibilities.map(
+                                                (r, i) =>
+                                                   i === respIndex
+                                                      ? e.target.value
+                                                      : r
+                                             ),
+                                       },
+                                       ...userDetails.experience.slice(
+                                          index + 1
+                                       ),
+                                    ])
+                                 }
+                                 className="input-class"
+                              />
+                              <button
+                                 onClick={() =>
+                                    handleChange("experience", [
+                                       ...userDetails.experience.slice(
+                                          0,
+                                          index
+                                       ),
+                                       {
+                                          ...exp,
+                                          customResponsibilities:
+                                             exp.customResponsibilities.filter(
+                                                (_, i) => i !== respIndex
+                                             ),
+                                       },
+                                       ...userDetails.experience.slice(
+                                          index + 1
+                                       ),
+                                    ])
+                                 }
+                              >
+                                 Remove
+                              </button>
+                           </div>
+                        ))}
+                        <button
+                           onClick={() =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 {
+                                    ...exp,
+                                    customResponsibilities: [
+                                       ...(exp.customResponsibilities || []),
+                                       "",
+                                    ],
+                                 },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                        >
+                           Add Responsibility
+                        </button>
+                     </div>
                      <hr className="border-slate-600" />
                   </>
                ))}
@@ -288,6 +364,8 @@ const UserDetailsForm = ({
                            endDate: "",
                            employer: "",
                            location: "",
+                           responsibilityType: "skillBased", // Default value
+                           customResponsibilities: [],
                         })
                      }
                   >

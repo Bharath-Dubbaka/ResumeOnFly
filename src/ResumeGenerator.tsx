@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+// import { firestore } from "./services/firebase";
+// import { doc, onSnapshot } from "firebase/firestore";
 import {
    Document,
    Packer,
@@ -23,6 +25,7 @@ interface UserDetails {
       endDate: string;
       location: string;
       responsibilityType: "skillBased" | "titleBased";
+      customResponsibilities: string[];
    }[];
    education: { degree: string; institution: string; year: string }[];
    certifications: string[];
@@ -51,7 +54,27 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    const [resumeContent, setResumeContent] = useState<string>("");
    const [loading, setLoading] = useState(false);
    const [refreshPreview, setRefreshPreview] = useState(false); // Added for forcing re-render of preview
+   // const [userDetails, setUserDetails] = useState(null); // Added for forcing re-render of preview
    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+   // useEffect(() => {
+   //    const fetchUserDetails = async () => {
+   //       const userDoc = doc(firestore, "users", uid);
+
+   //       const unsubscribe = onSnapshot(userDoc, (docSnapshot) => {
+   //          if (docSnapshot.exists()) {
+   //             const userData = docSnapshot.data();
+   //             setUserDetails(userData); // Update state with Firestore data
+   //          } else {
+   //             console.warn("No such document!");
+   //          }
+   //       });
+
+   //       return () => unsubscribe(); // Cleanup listener on unmount
+   //    };
+
+   //    fetchUserDetails();
+   // }, [uid]);
 
    function cleanJsonResponse(response: string): string {
       try {
@@ -92,14 +115,14 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          )}).",
            "technicalSkills": "${technicalSkills.join(", ")}",
            "professionalExperience": [
-             ${userDetails.experience
-                .map(
-                   (experience) => `{
-                 "title": "${experience.title}",
-                 "employer": "${experience.employer}",
-                 "startDate": "${experience.startDate}",
-                 "endDate": "${experience.endDate}",
-                 "location": "${experience.location}",
+               ${userDetails?.experience
+                  .map(
+                     (experience) => `{
+                  "title": "${experience.title}",
+                  "employer": "${experience.employer}",
+                  "startDate": "${experience.startDate}",
+                  "endDate": "${experience.endDate}",
+                  "location": "${experience.location}",
                   "responsibilities": [
                         ${
                            experience.responsibilityType === "skillBased"
@@ -110,8 +133,8 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                         }
                      ]
                   }`
-                )
-                .join(",\n")}
+                  )
+                  .join(",\n")}
            ],
            "education": ${JSON.stringify(userDetails.education)},
            "certifications": ${JSON.stringify(userDetails.certifications)},
@@ -141,10 +164,24 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          const data = await response.json();
          const generatedContent = data.candidates[0].content.parts[0].text;
 
-         // Clean up the generated content before storing
-         const cleanedContent = cleanJsonResponse(generatedContent);
-         setResumeContent(cleanedContent);
+         // Clean the generated content before storing using cleanJsonResponse
+         const parsedContent = JSON.parse(cleanJsonResponse(generatedContent));
+         // Merge custom responsibilities for each experience
+         parsedContent.professionalExperience =
+            parsedContent.professionalExperience.map(
+               (exp: any, index: number) => ({
+                  ...exp,
+                  responsibilities: [
+                     ...exp.responsibilities,
+                     ...(userDetails.experience[index].customResponsibilities ||
+                        []),
+                  ],
+               })
+            );
 
+         // Again Stringify before storing in state
+         setResumeContent(JSON.stringify(parsedContent));
+         console.log(parsedContent, "parsedContent inside generateResumeFN");
          // Trigger a refresh for preview
          setRefreshPreview((prev) => !prev);
 
@@ -163,8 +200,9 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 
    const downloadAsWord = async () => {
       // Directly use the resumeContent assuming it is already cleaned
+      console.log(resumeContent, "ResumeContent inside downloadAsWord");
       const resumeData = JSON.parse(resumeContent); // resumeContent is now used directly without cleaning
-
+      console.log(resumeData, "after json  inside downloadAsWord");
       try {
          const doc = new Document({
             sections: [
@@ -287,6 +325,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                      }),
                      ...resumeData.professionalExperience.flatMap(
                         (exp: any) => [
+                           // Title and Dates
                            new Paragraph({
                               children: [
                                  new TextRun({
@@ -310,6 +349,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                  },
                               ],
                            }),
+                           // Employer and Location
                            new Paragraph({
                               children: [
                                  new TextRun({
@@ -325,6 +365,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                               ],
                               spacing: { before: 100, after: 200 },
                            }),
+                           // Responsibilities (custom and generated merged)
                            ...exp.responsibilities.map(
                               (responsibility: string) =>
                                  new Paragraph({

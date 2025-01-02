@@ -14,6 +14,8 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+// Export Firestore instance
+export const firestore = getFirestore(app);
 
 // Modified error handling function that checks auth state first
 async function fetchDataWithErrorHandling() {
