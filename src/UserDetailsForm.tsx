@@ -1,5 +1,7 @@
 import { Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface UserDetails {
    fullName: string;
@@ -68,6 +70,16 @@ const UserDetailsForm = ({
 
    const handleChange = (field: string, value: any) => {
       setUserDetails({ ...userDetails, [field]: value });
+   };
+
+   const handleDateChange = (date: any, field: any) => {
+      if (date) {
+         handleChange("experience", [
+            ...userDetails.experience.slice(0, index),
+            { ...exp, [field]: date.toISOString().split("T")[0] }, // ISO format for date
+            ...userDetails.experience.slice(index + 1),
+         ]);
+      }
    };
 
    const handleAddField = <T extends keyof UserDetails>(
@@ -192,32 +204,27 @@ const UserDetailsForm = ({
                            }
                            className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
-                        <input
-                           type="text"
-                           placeholder="Start Date"
-                           value={exp.startDate}
-                           onChange={(e) =>
-                              handleChange("experience", [
-                                 ...userDetails.experience.slice(0, index),
-                                 { ...exp, startDate: e.target.value },
-                                 ...userDetails.experience.slice(index + 1),
-                              ])
+                        <DatePicker
+                           selected={
+                              exp.startDate ? new Date(exp.startDate) : null
                            }
+                           onChange={(date) =>
+                              handleDateChange(date, "startDate")
+                           }
+                           placeholderText="Start Date"
+                           dateFormat="yyyy-MM-dd"
                            className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
-                        <input
-                           type="text"
-                           placeholder="End Date"
-                           value={exp.endDate}
-                           onChange={(e) =>
-                              handleChange("experience", [
-                                 ...userDetails.experience.slice(0, index),
-                                 { ...exp, endDate: e.target.value },
-                                 ...userDetails.experience.slice(index + 1),
-                              ])
+                        <DatePicker
+                           selected={exp.endDate ? new Date(exp.endDate) : null}
+                           onChange={(date) =>
+                              handleDateChange(date, "endDate")
                            }
+                           placeholderText="End Date"
+                           dateFormat="yyyy-MM-dd"
                            className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
+
                         <input
                            type="text"
                            placeholder="Location (Optional)"
