@@ -10,6 +10,7 @@ interface UserDetails {
       startDate: string;
       endDate: string;
       location: string;
+      responsibilityType: "skillBased" | "titleBased";
    }[];
    education: { degree: string; institution: string; year: string }[];
    certifications: string[];
@@ -69,12 +70,28 @@ const UserDetailsForm = ({
 
    const handleAddField = <T extends keyof UserDetails>(
       field: T,
-      value: UserDetails[T][number]
+      value:
+         | Omit<UserDetails[T][number], "responsibilityType">
+         | UserDetails[T][number]
    ) => {
-      setUserDetails((prevDetails) => ({
-         ...prevDetails,
-         [field]: [...(prevDetails[field] as Array<any>), value],
-      }));
+      if (field === "experience") {
+         const experienceValue = {
+            ...(value as Omit<
+               UserDetails["experience"][number],
+               "responsibilityType"
+            >),
+            responsibilityType: "skillBased" as const,
+         };
+         setUserDetails((prevDetails) => ({
+            ...prevDetails,
+            [field]: [...prevDetails[field], experienceValue],
+         }));
+      } else {
+         setUserDetails((prevDetails) => ({
+            ...prevDetails,
+            [field]: [...(prevDetails[field] as Array<any>), value],
+         }));
+      }
    };
 
    const handleRemoveField = <T extends keyof UserDetails>(
@@ -229,6 +246,34 @@ const UserDetailsForm = ({
                         >
                            Remove
                         </button>
+                     </div>
+
+                     {/* Add responsibility type selector */}
+                     <div className="flex items-center gap-4 mt-2">
+                        <span className="text-sm">
+                           Generate responsibilities based on:
+                        </span>
+                        <select
+                           value={exp.responsibilityType}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 {
+                                    ...exp,
+                                    responsibilityType: e.target.value as
+                                       | "skillBased"
+                                       | "titleBased",
+                                 },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="px-3 py-2 text-sm text-gray-900 
+                                    bg-gray-100 border border-gray-200 
+                                    rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                        >
+                           <option value="skillBased">Current Skills</option>
+                           <option value="titleBased">Role Title</option>
+                        </select>
                      </div>
                      <hr className="border-slate-600" />
                   </>

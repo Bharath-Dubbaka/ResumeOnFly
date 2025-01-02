@@ -22,7 +22,7 @@ interface UserDetails {
       startDate: string;
       endDate: string;
       location: string;
-      responsibilities?: string[]; // Added responsibilities
+      responsibilityType: "skillBased" | "titleBased";
    }[];
    education: { degree: string; institution: string; year: string }[];
    certifications: string[];
@@ -100,10 +100,16 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                  "startDate": "${experience.startDate}",
                  "endDate": "${experience.endDate}",
                  "location": "${experience.location}",
-                 "responsibilities": ["Generate one responsibility for each technical skill (${technicalSkills.join(
-                    ", "
-                 )}) based on the job description and ensure all skills are covered uniquely for this role."]
-               }`
+                  "responsibilities": [
+                        ${
+                           experience.responsibilityType === "skillBased"
+                              ? `"Generate one responsibility for each technical skill (${technicalSkills.join(
+                                   ", "
+                                )}) based on the job description"`
+                              : `"Generate responsibilities based on the role title '${experience.title}' and typical responsibilities for that position"`
+                        }
+                     ]
+                  }`
                 )
                 .join(",\n")}
            ],
@@ -118,8 +124,9 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          
          Important Notes:
          1. Retain the original title, employer, startDate, and endDate for each role.
-         2. Ensure each work experience has unique responsibilities that include all the listed technical skills.
-         3. Return only the JSON object with no additional text or formatting.`;
+         2. For experiences with 'skillBased' type, focus on current technical skills.
+         3. For experiences with 'titleBased' type, focus on typical responsibilities for that role title.
+         4. Return only the JSON object with no additional text or formatting.`;
 
          const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: "POST",
@@ -138,7 +145,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          const cleanedContent = cleanJsonResponse(generatedContent);
          setResumeContent(cleanedContent);
 
-         
          // Trigger a refresh for preview
          setRefreshPreview((prev) => !prev);
 

@@ -39,6 +39,7 @@ export interface UserDetails {
       startDate: string;
       endDate: string;
       location: string;
+      responsibilityType: "skillBased" | "titleBased";
    }[];
    education: { degree: string; institution: string; year: string }[];
    certifications: string[];
