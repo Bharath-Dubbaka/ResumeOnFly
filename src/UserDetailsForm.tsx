@@ -72,14 +72,31 @@ const UserDetailsForm = ({
       setUserDetails({ ...userDetails, [field]: value });
    };
 
-   const handleDateChange = (date: any, field: any) => {
+   const handleDateChange = (
+      date: Date | null,
+      field: string,
+      index: number
+   ) => {
       if (date) {
+         const year = date.getFullYear();
+         const month = date.getMonth() + 1; // Month is 0-indexed
+         const formattedDate = `${year}-${month.toString().padStart(2, "0")}`; // YYYY-MM
+
          handleChange("experience", [
             ...userDetails.experience.slice(0, index),
-            { ...exp, [field]: date.toISOString().split("T")[0] }, // ISO format for date
+            {
+               ...userDetails.experience[index],
+               [field]: formattedDate,
+            },
             ...userDetails.experience.slice(index + 1),
          ]);
       }
+   };
+
+   const isValidDate = (dateString: string) => {
+      if (!dateString) return false;
+      const [year, month] = dateString.split("-").map(Number);
+      return !isNaN(year) && !isNaN(month) && month >= 1 && month <= 12;
    };
 
    const handleAddField = <T extends keyof UserDetails>(
@@ -177,7 +194,7 @@ const UserDetailsForm = ({
                         Experience {index + 1}
                      </div>
                      {/* </div> */}
-                     <div className="grid grid-cols-5 gap-3 mb-3">
+                     <div className="flex justify-between">
                         <input
                            type="text"
                            placeholder="Job Title"
@@ -189,7 +206,7 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                           className="w-[19%] px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
                         <input
                            type="text"
@@ -202,28 +219,47 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                           className="w-[19%] px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
-                        <DatePicker
-                           selected={
-                              exp.startDate ? new Date(exp.startDate) : null
-                           }
-                           onChange={(date) =>
-                              handleDateChange(date, "startDate")
-                           }
-                           placeholderText="Start Date"
-                           dateFormat="yyyy-MM-dd"
-                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        />
-                        <DatePicker
-                           selected={exp.endDate ? new Date(exp.endDate) : null}
-                           onChange={(date) =>
-                              handleDateChange(date, "endDate")
-                           }
-                           placeholderText="End Date"
-                           dateFormat="yyyy-MM-dd"
-                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        />
+                        {/* START END DATES */}
+                        <div className="max-w-[19%]">
+                           <DatePicker
+                              selected={
+                                 isValidDate(exp.startDate)
+                                    ? new Date(
+                                         Number(exp.startDate.split("-")[0]),
+                                         Number(exp.startDate.split("-")[1]) - 1
+                                      ) // Correct Date creation
+                                    : null
+                              }
+                              onChange={(date) =>
+                                 handleDateChange(date, "startDate", index)
+                              }
+                              placeholderText="Start Date"
+                              dateFormat="MM-yyyy"
+                              showMonthYearPicker
+                              className="w-full px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                           />
+                        </div>
+                        <div className="max-w-[19%]">
+                           <DatePicker
+                              selected={
+                                 isValidDate(exp.endDate)
+                                    ? new Date(
+                                         Number(exp.endDate.split("-")[0]),
+                                         Number(exp.endDate.split("-")[1]) - 1
+                                      ) // Correct Date creation
+                                    : null
+                              }
+                              onChange={(date) =>
+                                 handleDateChange(date, "endDate", index)
+                              }
+                              placeholderText="End Date"
+                              dateFormat="MM-yyyy"
+                              showMonthYearPicker
+                              className="w-full px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                           />
+                        </div>
 
                         <input
                            type="text"
@@ -236,7 +272,7 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                           className="w-[19%] px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
                      </div>
 
