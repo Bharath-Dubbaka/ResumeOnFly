@@ -1,3 +1,4 @@
+import { Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface UserDetails {
@@ -112,149 +113,130 @@ const UserDetailsForm = ({
    };
 
    return (
-      <div className="p-4 bg-transparent rounded-lg text-slate-200 backdrop-blur-lg">
-         {/* 1ST COL */}
-         <div className="text-lg font-bold mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
-            <div className="flex items-center mb-1">
-               Enter Your Details:{" "}
-               <span className="text-sm text-red-600 ml-2">
+      <div className="p-6 bg-slate-900/80 rounded-xl text-slate-100 backdrop-blur-lg shadow-xl">
+         {/* Personal Details */}
+         <div className="mb-6 p-5 border border-slate-700/50 rounded-xl bg-slate-800/30 shadow-lg">
+            <div className="flex items-center mb-4">
+               <h3 className="text-xl font-bold text-white">
+                  Enter Your Details
+               </h3>
+               <span className="text-sm text-rose-400 ml-3">
                   *Can be changed later
                </span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
                <input
                   type="text"
                   placeholder="Full Name"
                   value={userDetails.fullName}
                   onChange={(e) => handleChange("fullName", e.target.value)}
-                  className="w-[32%] px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-1/3 px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                />
                <input
                   type="email"
                   placeholder="Email"
                   value={userDetails.email}
                   onChange={(e) => handleChange("email", e.target.value)}
-                  className="w-[32%] px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-1/3 px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                />
                <input
                   type="text"
                   placeholder="Phone"
                   value={userDetails.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
-                  className="w-[32%] px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-1/3 px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                />
             </div>
          </div>
 
-         <div>
-            {/* Experience */}
-            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
-               <div className="text-lg font-semibold">Work Experiences:</div>
+         <div className="space-y-6">
+            {/* Experience Section */}
+            <div className="p-5 border border-slate-700/50 rounded-xl bg-slate-800/30 shadow-lg">
+               {/* <div className="flex flex-col items-center"> */}
+               <h4 className="text-xl font-bold text-white mb-6">
+                  Work Experiences
+               </h4>
+               {/* </div> */}
+
                {userDetails.experience.map((exp, index) => (
-                  <>
-                     <div key={index} className="space-y-2 my-4">
-                        <div className="mt-2 text-sm mb-2 bg-blue-600 text-white w-fit px-2 py-1 rounded-lg">
-                           Experience {index + 1} :
-                        </div>
-                        <div className="flex gap-1">
-                           <input
-                              type="text"
-                              placeholder="Job Title"
-                              value={exp.title}
-                              onChange={(e) =>
-                                 handleChange("experience", [
-                                    ...userDetails.experience.slice(0, index),
-                                    { ...exp, title: e.target.value },
-                                    ...userDetails.experience.slice(index + 1),
-                                 ])
-                              }
-                              className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                           />
-                           <input
-                              type="text"
-                              placeholder="Employer"
-                              value={exp.employer}
-                              onChange={(e) =>
-                                 handleChange("experience", [
-                                    ...userDetails.experience.slice(0, index),
-                                    { ...exp, employer: e.target.value },
-                                    ...userDetails.experience.slice(index + 1),
-                                 ])
-                              }
-                              className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                           />
-                           <input
-                              type="text"
-                              placeholder="Start Date"
-                              value={exp.startDate}
-                              onChange={(e) =>
-                                 handleChange("experience", [
-                                    ...userDetails.experience.slice(0, index),
-                                    { ...exp, startDate: e.target.value },
-                                    ...userDetails.experience.slice(index + 1),
-                                 ])
-                              }
-                              className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                           />
-                           <input
-                              type="text"
-                              placeholder="End Date"
-                              value={exp.endDate}
-                              onChange={(e) =>
-                                 handleChange("experience", [
-                                    ...userDetails.experience.slice(0, index),
-                                    { ...exp, endDate: e.target.value },
-                                    ...userDetails.experience.slice(index + 1),
-                                 ])
-                              }
-                              className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                           />
-                           <input
-                              type="text"
-                              placeholder="Location (Optional)"
-                              value={exp.location}
-                              onChange={(e) =>
-                                 handleChange("experience", [
-                                    ...userDetails.experience.slice(0, index),
-                                    { ...exp, location: e.target.value },
-                                    ...userDetails.experience.slice(index + 1),
-                                 ])
-                              }
-                              className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
-                           />
-                        </div>
-                        <button
-                           className="text-sm px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
-                           onClick={() =>
-                              handleRemoveField("experience", index)
+                  <div key={index} className="mb-6 last:mb-0">
+                     {/* <div className="flex flex-col items-center"> */}
+                     <div className="inline-block px-4 py-2.5 text-sm font-semibold bg-blue-600 text-white rounded-lg mb-6">
+                        Experience {index + 1}
+                     </div>
+                     {/* </div> */}
+                     <div className="grid grid-cols-5 gap-3 mb-3">
+                        <input
+                           type="text"
+                           placeholder="Job Title"
+                           value={exp.title}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, title: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
                            }
-                        >
-                           Remove
-                        </button>
+                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        />
+                        <input
+                           type="text"
+                           placeholder="Employer"
+                           value={exp.employer}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, employer: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        />
+                        <input
+                           type="text"
+                           placeholder="Start Date"
+                           value={exp.startDate}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, startDate: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        />
+                        <input
+                           type="text"
+                           placeholder="End Date"
+                           value={exp.endDate}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, endDate: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        />
+                        <input
+                           type="text"
+                           placeholder="Location (Optional)"
+                           value={exp.location}
+                           onChange={(e) =>
+                              handleChange("experience", [
+                                 ...userDetails.experience.slice(0, index),
+                                 { ...exp, location: e.target.value },
+                                 ...userDetails.experience.slice(index + 1),
+                              ])
+                           }
+                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        />
                      </div>
 
-                     {/* Add responsibility type selector */}
-
-                     <div className="flex items-center gap-4 mt-2">
-                        <span className="text-sm">
-                           Generate responsibilities based on:
-                        </span>
+                     <div className="flex items-center gap-4 mt-6">
+                        <h5 className="text-sm font-semibold">
+                           Generate other responsibilities based on:
+                        </h5>
                         <select
                            value={exp.responsibilityType}
                            onChange={(e) =>
@@ -269,20 +251,22 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
-                           className="px-3 py-2 text-sm text-gray-900 
-                                    bg-gray-100 border border-gray-200 
-                                    rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           className="px-4 py-2 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         >
                            <option value="skillBased">Current Skills</option>
                            <option value="titleBased">Role Title</option>
                         </select>
                      </div>
 
-                     {/* Custom Responsibilities */}
-                     <div>
-                        <h5>Custom Responsibilities:</h5>
+                     <div className="mt-4">
+                        <h5 className="text-sm font-semibold mb-2">
+                           Custom Responsibilities:
+                        </h5>
                         {exp.customResponsibilities?.map((resp, respIndex) => (
-                           <div key={respIndex} className="flex gap-2">
+                           <div
+                              key={respIndex}
+                              className="flex items-center gap-2 mb-2"
+                           >
                               <input
                                  type="text"
                                  value={resp}
@@ -307,7 +291,7 @@ const UserDetailsForm = ({
                                        ),
                                     ])
                                  }
-                                 className="input-class"
+                                 className="flex-1 px-4 py-2 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                               />
                               <button
                                  onClick={() =>
@@ -328,8 +312,9 @@ const UserDetailsForm = ({
                                        ),
                                     ])
                                  }
+                                 className="px-2 py-1 text-sm font-medium bg-rose-600 text-white rounded-lg hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-colors duration-200"
                               >
-                                 Remove
+                                 <Trash2 size={16} />
                               </button>
                            </div>
                         ))}
@@ -347,16 +332,29 @@ const UserDetailsForm = ({
                                  ...userDetails.experience.slice(index + 1),
                               ])
                            }
+                           className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 mt-2"
                         >
                            Add Responsibility
                         </button>
                      </div>
-                     <hr className="border-slate-600" />
-                  </>
+                     {/* REMOVE EXPERIENCE BTN */}
+                     <div className="flex flex-col items-center">
+                        <button
+                           className="px-3 py-2.5 mt-4 text-sm font-medium bg-rose-600 text-white rounded-lg hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-colors duration-200"
+                           onClick={() =>
+                              handleRemoveField("experience", index)
+                           }
+                        >
+                           Remove Experience
+                        </button>
+                     </div>
+
+                     <hr className="border-slate-700 my-6" />
+                  </div>
                ))}
                <div className="flex justify-center">
                   <button
-                     className="mt-4 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg border border-gray-800"
+                     className="px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors duration-200"
                      onClick={() =>
                         handleAddField("experience", {
                            title: "",
@@ -364,7 +362,7 @@ const UserDetailsForm = ({
                            endDate: "",
                            employer: "",
                            location: "",
-                           responsibilityType: "skillBased", // Default value
+                           responsibilityType: "skillBased",
                            customResponsibilities: [],
                         })
                      }
@@ -374,12 +372,12 @@ const UserDetailsForm = ({
                </div>
             </div>
 
-            {/* Education */}
-            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
-               <h4 className="text-lg font-semibold">Education:</h4>
+            {/* Education Section */}
+            <div className="p-5 border border-slate-700/50 rounded-xl bg-slate-800/30 shadow-lg">
+               <h4 className="text-xl font-bold text-white mb-4">Education</h4>
                {userDetails.education.map((edu, index) => (
-                  <div key={index} className="space-y-2 mb-2">
-                     <div className="flex gap-1">
+                  <div key={index} className="space-y-3 mb-4">
+                     <div className="grid grid-cols-3 gap-3">
                         <input
                            type="text"
                            placeholder="Degree"
@@ -391,9 +389,7 @@ const UserDetailsForm = ({
                                  ...userDetails.education.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
                         <input
                            type="text"
@@ -406,9 +402,7 @@ const UserDetailsForm = ({
                                  ...userDetails.education.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
                         <input
                            type="text"
@@ -421,13 +415,11 @@ const UserDetailsForm = ({
                                  ...userDetails.education.slice(index + 1),
                               ])
                            }
-                           className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                           className="px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
                      </div>
                      <button
-                        className="text-sm px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+                        className="px-3 py-1.5 text-sm font-medium bg-rose-600 text-white rounded-lg hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-colors duration-200"
                         onClick={() => handleRemoveField("education", index)}
                      >
                         Remove
@@ -436,7 +428,7 @@ const UserDetailsForm = ({
                ))}
                <div className="flex justify-center">
                   <button
-                     className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg border border-gray-800"
+                     className="px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors duration-200"
                      onClick={() =>
                         handleAddField("education", {
                            degree: "",
@@ -450,11 +442,13 @@ const UserDetailsForm = ({
                </div>
             </div>
 
-            {/* Certifications */}
-            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
-               <h4 className="text-lg font-semibold">Certifications:</h4>
+            {/* Certifications Section */}
+            <div className="p-5 border border-slate-700/50 rounded-xl bg-slate-800/30 shadow-lg">
+               <h4 className="text-xl font-bold text-white mb-4">
+                  Certifications
+               </h4>
                {userDetails.certifications.map((cert, index) => (
-                  <div key={index} className="flex items-center space-x-2 mb-2">
+                  <div key={index} className="flex items-center gap-3 mb-3">
                      <input
                         type="text"
                         placeholder="Certification"
@@ -466,12 +460,10 @@ const UserDetailsForm = ({
                               ...userDetails.certifications.slice(index + 1),
                            ])
                         }
-                        className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="flex-1 px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                      />
                      <button
-                        className="px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
+                        className="px-3 py-1.5 text-sm font-medium bg-rose-600 text-white rounded-lg hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-colors duration-200 whitespace-nowrap"
                         onClick={() =>
                            handleRemoveField("certifications", index)
                         }
@@ -482,7 +474,7 @@ const UserDetailsForm = ({
                ))}
                <div className="flex justify-center">
                   <button
-                     className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg border border-gray-800"
+                     className="px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors duration-200"
                      onClick={() => handleAddField("certifications", "")}
                   >
                      Add Certification
@@ -490,11 +482,11 @@ const UserDetailsForm = ({
                </div>
             </div>
 
-            {/* Projects */}
-            <div className="mb-3 px-2 py-4 border border-slate-600 rounded-lg bg-transparent custom-blur">
-               <h4 className="text-lg font-semibold">Projects:</h4>
+            {/* Projects Section */}
+            <div className="p-5 border border-slate-700/50 rounded-xl bg-slate-800/30 shadow-lg">
+               <h4 className="text-xl font-bold text-white mb-4">Projects</h4>
                {userDetails.projects.map((proj, index) => (
-                  <div key={index} className="space-y-2 mb-2">
+                  <div key={index} className="space-y-3 mb-6 last:mb-0">
                      <input
                         type="text"
                         placeholder="Project Name"
@@ -506,9 +498,7 @@ const UserDetailsForm = ({
                               ...userDetails.projects.slice(index + 1),
                            ])
                         }
-                        className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                      />
                      <textarea
                         placeholder="Description"
@@ -520,12 +510,10 @@ const UserDetailsForm = ({
                               ...userDetails.projects.slice(index + 1),
                            ])
                         }
-                        className="w-full px-3 py-2 text-sm text-gray-900 
-              bg-gray-100 border border-gray-200 
-              rounded-md outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 min-h-[100px] resize-y"
                      />
                      <button
-                        className="px-2 py-1 bg-red-700 text-white rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 text-sm"
+                        className="px-3 py-1.5 text-sm font-medium bg-rose-600 text-white rounded-lg hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-colors duration-200"
                         onClick={() => handleRemoveField("projects", index)}
                      >
                         Remove
@@ -534,7 +522,7 @@ const UserDetailsForm = ({
                ))}
                <div className="flex justify-center">
                   <button
-                     className="mt-2 bg-green-600 px-2 py-1 text-sm font-bold rounded-lg border border-gray-800"
+                     className="px-4 py-2 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors duration-200"
                      onClick={() =>
                         handleAddField("projects", {
                            name: "",
@@ -548,21 +536,20 @@ const UserDetailsForm = ({
             </div>
          </div>
 
-         {/* Save and Cancel */}
-         <div className="mt-4 flex justify-center space-x-4">
-            {" "}
+         {/* Save and Cancel Buttons */}
+         <div className="mt-6 flex justify-center gap-4">
             <button
                onClick={handleSave}
-               className="mt-4 bg-blue-600 hover:bg-blue-800 px-4 py-2 text-sm font-bold rounded-lg border border-gray-800"
+               className="px-6 py-2.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
             >
                Save Details
             </button>
             {hasUserDetailsData(userDetails) && (
                <button
-                  onClick={onCancel} // Call the onCancel prop
-                  className="mt-4 bg-red-700 hover:bg-red-800 px-4 py-2 text-sm font-bold rounded-lg border border-gray-800"
+                  onClick={onCancel}
+                  className="px-6 py-2.5 text-sm font-medium bg-rose-600 text-white rounded-lg hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-colors duration-200"
                >
-                  Cancel{" "}
+                  Cancel
                </button>
             )}
          </div>

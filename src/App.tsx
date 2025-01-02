@@ -453,7 +453,7 @@ function App() {
 
    return (
       <div
-         className="w-[800px] max-h-[800px] overflow-y-auto bg-gradient-to-b from-[#370c3e] to-[#243465] p-6 text-white rounded-lg shadow-xl"
+         className="w-[850px] max-h-[800px] overflow-y-auto bg-gradient-to-b from-[#370c3e] to-[#243465] p-6 text-white rounded-lg shadow-xl"
          style={{ fontFamily: "Arial, sans-serif" }}
       >
          {isInitializing ? (
@@ -461,7 +461,7 @@ function App() {
          ) : (
             <>
                {/* Header */}
-               <div className="mb-6 flex items-center justify-between">
+               <div className="mb-10 flex items-center justify-between">
                   <div className="w-[37%]">
                      <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
                      <p className="text-sm opacity-75">
@@ -472,64 +472,83 @@ function App() {
 
                   {/* Quota Information */}
                   {userQuota && (
-                     <div className="flex flex-col items-center mb-4 p-2 bg-slate-900 rounded-lg w-[25%] mr-2">
-                        <h3 className="text-lg font-semibold mb-2">
+                     <div className="flex flex-col items-center p-2 bg-slate-800 rounded-lg w-[23%] mr-2">
+                        {/* <h3 className="text-lg font-semibold mb-2">
                            Usage Quota
-                        </h3>
-                        <div className="grid grid-cols-3 gap-4">
-                           <div>
-                              <BugPlay size={16} />
-                              <p className="font-medium">
+                        </h3> */}
+                        <div className="grid grid-cols-3 gap-4 py-2">
+                           <div className="group relative flex flex-col items-center cursor-pointer">
+                              <BugPlay size={20} />
+                              <p className="font-medium mt-2">
                                  {userQuota.parsing.used} /{" "}
                                  {userQuota.parsing.limit}
                               </p>
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex items-center justify-center px-3 py-1 text-sm bg-black text-white rounded shadow-lg">
+                                 Parsing Usage
+                              </div>
                            </div>
-                           <div>
-                              <RefreshCcw size={16} />
-                              <p className="font-medium">
+                           <div className="group relative flex flex-col items-center  cursor-pointer">
+                              <RefreshCcw size={20} />
+                              <p className="font-medium mt-2">
                                  {userQuota.generates.used} /{" "}
                                  {userQuota.generates.limit}
                               </p>
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex items-center justify-center px-3 py-1 text-sm bg-black text-white rounded shadow-lg">
+                                 Generate Quota
+                              </div>
                            </div>
-                           <div>
-                              <Download size={16} />
-                              <p className="font-medium">
+                           <div className="group relative flex flex-col items-center  cursor-pointer">
+                              <Download size={20} />
+                              <p
+                                 className="font-medium mt-2"
+                                 title="Your name W"
+                              >
                                  {userQuota.downloads.used} /{" "}
                                  {userQuota.downloads.limit}
                               </p>
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex items-center justify-center px-3 py-1 text-sm bg-black text-white rounded shadow-lg">
+                                 Download Limit
+                              </div>
                            </div>
                         </div>
                      </div>
                   )}
 
                   {user ? (
-                     <div className="flex items-center gap-2 w-[37%]">
+                     <div className="flex items-center justify-end gap-2 w-[39%]">
                         <img
                            src={user.picture}
                            alt={user.name}
                            className="w-8 h-8 rounded-full"
+                           title="User Avatar"
                         />
                         <div className="text-sm">
                            <div className="flex mb-1">
-                              <p className="mr-1 px-2 py-1 bg-slate-900 rounded-lg">
+                              <p
+                                 className="mr-1 px-2 py-1 bg-slate-900 rounded-lg"
+                                 title="Your name"
+                              >
                                  {user.name}
                               </p>
-
                               <button
                                  onClick={handleEditClick}
                                  className="text-sm text-blue-400 hover:text-blue-300 mr-1 px-2 py-1 bg-slate-900 rounded-lg"
+                                 title="Edit Details"
                               >
                                  Edit Details
                               </button>
-
                               <button
                                  onClick={handleLogout}
                                  className="text-sm text-red-500 hover:text-red-400 bg-slate-900 px-2 py-1 rounded-lg"
+                                 title="Logout"
                               >
                                  <LogOutIcon size={16} />
                               </button>
                            </div>
-                           <p className="text-slate-300 px-2 py-1 bg-slate-900 rounded-lg">
+                           <p
+                              className="text-slate-300 px-2 py-1 bg-slate-900 rounded-lg"
+                              title="Your email"
+                           >
                               {user.email}
                            </p>
                         </div>
@@ -539,6 +558,7 @@ function App() {
                         onClick={handleGoogleLogin}
                         disabled={loginLoading}
                         className="bg-blue-600 px-4 py-2 text-sm font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
+                        title="Sign in with Google"
                      >
                         {loginLoading ? (
                            <div className="flex items-center gap-2">
