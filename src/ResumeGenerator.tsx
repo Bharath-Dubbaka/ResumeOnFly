@@ -40,15 +40,17 @@ interface ResumeGeneratorProps {
    userDetails: UserDetails;
    refreshUserQuota: () => Promise<void>;
    uid: string;
+   totalExperience: string | number;
 }
 
 const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    technicalSkills,
    // softSkills,
-   yearsOfExperience,
+   // yearsOfExperience,
    // jobDescription,
    userDetails,
    refreshUserQuota,
+   totalExperience,
    uid,
 }) => {
    const [resumeContent, setResumeContent] = useState<string>("");
@@ -97,7 +99,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          const API_KEY = apiKey;
          const API_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
-         console.log(userDetails.experience, "userDetails.experience");
 
          const prompt = `Generate a JSON object with the following structure. For responsibilities:
          1. Include at least one sentence for **each technical skill (${technicalSkills.join(
@@ -110,7 +111,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
            "contactInformation": "${userDetails.email} | ${
             userDetails.phone
          } | Location",
-           "professionalSummary": "A detailed summary (minimum 6 sentences) based on ${yearsOfExperience} years of experience, the job description, and skills (${technicalSkills.join(
+           "professionalSummary": "A detailed summary (minimum 6 sentences) based on ${totalExperience} years of experience, the job description, and skills (${technicalSkills.join(
             ", "
          )}).",
            "technicalSkills": "${technicalSkills.join(", ")}",
@@ -126,10 +127,10 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                   "responsibilities": [
                         ${
                            experience.responsibilityType === "skillBased"
-                              ? `"Generate one responsibility for each technical skill (${technicalSkills.join(
+                              ? `"Generate at least 8 responsibilities covering each technical skill (${technicalSkills.join(
                                    ", "
                                 )}) based on the job description"`
-                              : `"Generate responsibilities based on the role title '${experience.title}' and typical responsibilities for that position"`
+                              : `"Generate at least 8 responsibilities based on the role title '${experience.title}' and typical responsibilities for that position"`
                         }
                      ]
                   }`
@@ -143,7 +144,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          
          Use this information:
          - technicalSkills: ${technicalSkills}
-         - Years of Experience: ${yearsOfExperience}
+         - Years of Experience: ${totalExperience}
          
          Important Notes:
          1. Retain the original title, employer, startDate, and endDate for each role.
@@ -181,7 +182,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 
          // Again Stringify before storing in state
          setResumeContent(JSON.stringify(parsedContent));
-         console.log(parsedContent, "parsedContent inside generateResumeFN");
+         // console.log(parsedContent, "parsedContent inside generateResumeFN");
          // Trigger a refresh for preview
          setRefreshPreview((prev) => !prev);
 
@@ -200,9 +201,9 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 
    const downloadAsWord = async () => {
       // Directly use the resumeContent assuming it is already cleaned
-      console.log(resumeContent, "ResumeContent inside downloadAsWord");
+      // console.log(resumeContent, "ResumeContent inside downloadAsWord");
       const resumeData = JSON.parse(resumeContent); // resumeContent is now used directly without cleaning
-      console.log(resumeData, "after json  inside downloadAsWord");
+      // console.log(resumeData, "after json  inside downloadAsWord");
       try {
          const doc = new Document({
             sections: [

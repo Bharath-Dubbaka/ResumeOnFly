@@ -17,6 +17,7 @@ interface ProtectedContentProps {
    loginLoading: boolean;
    setLoginLoading: React.Dispatch<React.SetStateAction<boolean>>;
    refreshUserQuota: () => Promise<void>;
+   totalExperience: string | number;
 }
 
 const ProtectedContent = ({
@@ -30,6 +31,7 @@ const ProtectedContent = ({
    loading,
    // setLoginLoading,
    loginLoading,
+   totalExperience,
 }: ProtectedContentProps) => {
    const handleAddSkill = (type: "technical" | "soft") => {
       setAnalysisResult((prev) => {
@@ -147,15 +149,35 @@ const ProtectedContent = ({
          {/* Analysis Results */}
          {analysisResult && (
             <div className="space-y-4">
-               {/* Experience Badge */}
-               <div className="flex items-center bg-green-800 p-2 rounded-lg">
-                  <span className="text-sm font-semibold">
-                     Experience Required:
-                  </span>
-                  <span className="ml-auto font-bold text-green-300">
-                     {analysisResult.yearsOfExperience} years
-                  </span>
+               <div className="flex items-center rounded-lg justify-between">
+                  {/* Experience Required */}
+                  <div className="relative bg-green-800 w-[49%] p-2 rounded-lg group">
+                     <span className="text-sm font-semibold">
+                        Experience Required:
+                     </span>
+                     <span className="ml-2 font-bold text-green-300 text-sm">
+                        {analysisResult.yearsOfExperience} years
+                     </span>
+                     {/* Tooltip */}
+                     <div className="absolute left-0 top-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        Based on the job description.
+                     </div>
+                  </div>
+                  {/* Total Experience */}
+                  <div className="relative bg-green-800 w-[49%] p-2 rounded-lg group">
+                     <span className="text-sm font-semibold">
+                        Your Experience:
+                     </span>
+                     <span className="ml-2 font-bold text-green-300 text-sm">
+                        {totalExperience} years
+                     </span>
+                     {/* Tooltip */}
+                     <div className="absolute left-0 top-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        You can edit this in the Edit Details section.
+                     </div>
+                  </div>
                </div>
+
                {/* Technical Skills */}
                <div className="border border-slate-700 rounded-lg p-3 ">
                   <h3 className="text-sm font-bold mb-2 text-white bg-slate-900 px-2 py-1 w-fit rounded-lg">
@@ -234,6 +256,7 @@ const ProtectedContent = ({
                   yearsOfExperience={analysisResult.yearsOfExperience}
                   jobDescription={selectedText}
                   refreshUserQuota={refreshUserQuota}
+                  totalExperience={totalExperience}
                />
             )}
          </div>

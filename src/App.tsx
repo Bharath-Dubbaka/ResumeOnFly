@@ -44,7 +44,7 @@ function App() {
    const [isInitializing, setIsInitializing] = useState(true);
 
    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
+   // console.log(userDetails, "userDetailsuserDetails");
    // Add new useEffect for auth state monitoring
    useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -451,6 +451,59 @@ function App() {
       }
    };
 
+   // Calculating User Experiences
+   const calculateTotalExperience = (
+      experiences: { startDate: string; endDate: string }[]
+   ) => {
+      let totalMonths = 0;
+
+      experiences.forEach((exp) => {
+         if (exp.startDate && exp.endDate) {
+            const [startYear, startMonth] = exp.startDate
+               .split("-")
+               .map(Number);
+            const [endYear, endMonth] = exp.endDate.split("-").map(Number);
+
+            // Calculate the total months between start and end dates
+            const months = (endYear - startYear) * 12 + (endMonth - startMonth);
+
+            const validMonths = Math.max(0, months); // Ensure no negative months
+
+            // Log individual experience duration
+            // console.log(
+            //    `Experience ${index + 1}: Start Date = ${
+            //       exp.startDate
+            //    }, End Date = ${exp.endDate}, Duration = ${(
+            //       validMonths / 12
+            //    ).toFixed(1)} years (${validMonths} months)`
+            // );
+
+            totalMonths += validMonths;
+         } else {
+            // Log incomplete experience data
+            // console.log(
+            //    `Experience ${index + 1}: Incomplete data (Start Date = ${
+            //       exp.startDate
+            //    }, End Date = ${exp.endDate})`
+            // );
+         }
+      });
+
+      // Convert total months to years and round to 1 decimal place
+      const totalYears = (totalMonths / 12).toFixed(1);
+
+      // Log combined total experience
+      // console.log(
+      //    `Total Experience: ${totalYears} years (${totalMonths} months)`
+      // );
+
+      return totalYears;
+   };
+
+   const totalExperience = userDetails?.experience
+      ? calculateTotalExperience(userDetails.experience)
+      : 0;
+
    return (
       <div
          className="w-[850px] max-h-[800px] overflow-y-auto bg-gradient-to-b from-[#370c3e] to-[#243465] p-6 text-white rounded-lg shadow-xl"
@@ -610,6 +663,7 @@ function App() {
                         loginLoading={loginLoading}
                         setLoginLoading={setLoginLoading}
                         refreshUserQuota={refreshUserQuota}
+                        totalExperience={totalExperience}
                      />
                   )
                ) : null}
