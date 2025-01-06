@@ -7,7 +7,7 @@ import {
    AnalysisResult,
    UserQuota,
 } from "./types/types";
-import { BugPlay, LogOutIcon } from "lucide-react";
+import { LogOutIcon } from "lucide-react";
 import {
    GoogleAuthProvider,
    signInWithCredential,
@@ -15,9 +15,11 @@ import {
 } from "firebase/auth";
 import { auth } from "./services/firebase";
 import { QuotaService } from "./services/QuotaService";
-import { Download, RefreshCcw } from "lucide-react";
+// import { Download, RefreshCcw } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import { UserDetailsService } from "./services/UserDetailsService";
+import { QuotaDisplay } from "./components/QuotaDisplay";
+import { PremiumUpgradeButton } from "./components/PremiumUpgradeButton";
 
 interface CustomManifest {
    name: string;
@@ -519,51 +521,25 @@ function App() {
                      <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
                      <p className="text-sm opacity-75">
                         Designs resume based on jobDescription, works on any
-                        website
+                        website.{" "}
+                        <span className="text-xs text-pink-500">
+                           prod. by CVtoSalary.com
+                        </span>
                      </p>
                   </div>
 
-                  {/* Quota Information */}
-                  {userQuota && (
-                     <div className="flex flex-col items-center p-2 bg-slate-800 rounded-lg w-[23%] mr-2">
-                        {/* <h3 className="text-lg font-semibold mb-2">
-                           Usage Quota
-                        </h3> */}
-                        <div className="grid grid-cols-3 gap-4 py-2">
-                           <div className="group relative flex flex-col items-center cursor-pointer">
-                              <BugPlay size={20} />
-                              <p className="font-medium mt-2">
-                                 {userQuota.parsing.used} /{" "}
-                                 {userQuota.parsing.limit}
-                              </p>
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex items-center justify-center px-3 py-1 text-sm bg-black text-white rounded shadow-lg">
-                                 Parsing Usage
-                              </div>
-                           </div>
-                           <div className="group relative flex flex-col items-center  cursor-pointer">
-                              <RefreshCcw size={20} />
-                              <p className="font-medium mt-2">
-                                 {userQuota.generates.used} /{" "}
-                                 {userQuota.generates.limit}
-                              </p>
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex items-center justify-center px-3 py-1 text-sm bg-black text-white rounded shadow-lg">
-                                 Generate Quota
-                              </div>
-                           </div>
-                           <div className="group relative flex flex-col items-center  cursor-pointer">
-                              <Download size={20} />
-                              <p
-                                 className="font-medium mt-2"
-                                 title="Your name W"
-                              >
-                                 {userQuota.downloads.used} /{" "}
-                                 {userQuota.downloads.limit}
-                              </p>
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:flex items-center justify-center px-3 py-1 text-sm bg-black text-white rounded shadow-lg">
-                                 Download Limit
-                              </div>
-                           </div>
-                        </div>
+                  {/* Quota Display */}
+                  {user && userQuota && (
+                     <div className="flex items-center justify-end gap-2 w-[39%]">
+                        <QuotaDisplay
+                           userQuota={userQuota}
+                           onRefresh={refreshUserQuota}
+                        />
+                        <PremiumUpgradeButton
+                           user={user}
+                           userQuota={userQuota}
+                           onUpgradeSuccess={refreshUserQuota}
+                        />
                      </div>
                   )}
 

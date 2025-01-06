@@ -36,6 +36,7 @@ export default defineConfig({
          input: {
             main: resolve(__dirname, "index.html"),
             background: resolve(__dirname, "src/background.ts"),
+            payment: "public/payment-success.html",
          },
          output: {
             entryFileNames: (chunkInfo) => {
