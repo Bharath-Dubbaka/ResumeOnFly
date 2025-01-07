@@ -54,22 +54,22 @@ export class PaymentService {
             amount: 10000, // Amount in paise (₹100)
             currency: "INR",
             accept_partial: false,
-            description: "Premium Subscription - ResumeOnFly",
+            description: "PREMIUM (1month) - ResumeOnFly",
             customer: {
                name: user.displayName || uid,
                email: user.email,
                contact: user.phoneNumber || "",
             },
-            notify: {
-               sms: true,
-               email: true,
-            },
-            reminder_enable: true,
             notes: {
                uid: uid,
                session: session,
                userEmail: user.email,
                userName: user.displayName,
+            },
+            reminder_enable: true,
+            notify: {
+               sms: true,
+               email: true,
             },
             callback_url:
                "chrome-extension://cepccnjniaighekofbjageangfeofhlg/payment-success.html",

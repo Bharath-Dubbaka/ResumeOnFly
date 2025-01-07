@@ -167,8 +167,8 @@ const UserDetailsForm = ({
                   value={userDetails.email}
                   onChange={(e) => handleChange("email", e.target.value)}
                   className="w-1/3 px-4 py-2.5 text-sm text-slate-900 bg-white/90 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-               />
-               <input
+               />   
+               <input 
                   type="text"
                   placeholder="Phone"
                   value={userDetails.phone}

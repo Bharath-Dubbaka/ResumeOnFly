@@ -146,7 +146,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
    }
 
    return (
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 space-y-4">
          {/* <button
             onClick={generateResume}
             disabled={loading}

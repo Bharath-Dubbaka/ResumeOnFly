@@ -1,12 +1,50 @@
+import { useState } from "react";
 import { UserQuota } from "../types/types";
-import { RefreshCcw } from "lucide-react";
+// import { RefreshCcw } from "lucide-react";
+import { CrownIcon } from "lucide-react";
+import { PaymentService } from "../services/PaymentService";
+import { UserData } from "../types/types";
 
 interface QuotaDisplayProps {
    userQuota: UserQuota | null;
    onRefresh: () => Promise<void>;
+   user: UserData;
+   onUpgradeSuccess: () => Promise<void>;
 }
 
-export function QuotaDisplay({ userQuota, onRefresh }: QuotaDisplayProps) {
+export function QuotaDisplay({
+   userQuota,
+   // onRefresh,
+   user,
+   onUpgradeSuccess,
+}: QuotaDisplayProps) {
+   const [loading, setLoading] = useState(false);
+
+   const handleUpgradeClick = async () => {
+      setLoading(true);
+      try {
+         const paymentLink = await PaymentService.getPaymentLink(user.uid);
+         window.open(paymentLink, "_blank");
+
+         const checkPaymentStatus = setInterval(async () => {
+            const isPremium = await PaymentService.checkPaymentStatus(user.uid);
+            if (isPremium) {
+               clearInterval(checkPaymentStatus);
+               await onUpgradeSuccess();
+               setLoading(false);
+            }
+         }, 500);
+
+         setTimeout(() => {
+            clearInterval(checkPaymentStatus);
+            setLoading(false);
+         }, 120000);
+      } catch (error) {
+         console.error("Error initiating payment:", error);
+         setLoading(false);
+      }
+   };
+
    if (!userQuota) return null;
 
    const quotaItems = [
@@ -28,40 +66,78 @@ export function QuotaDisplay({ userQuota, onRefresh }: QuotaDisplayProps) {
    ];
 
    return (
-      <div className="bg-slate-800 p-4 rounded-lg">
-         <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold">Monthly Quota</h3>
-            <button
-               onClick={onRefresh}
-               className="p-1 hover:bg-slate-700 rounded-full"
-               title="Refresh quota"
-            >
-               <RefreshCcw size={14} />
-            </button>
+      <div className="w-[24%] bg-slate-800/80 backdrop-blur-sm m-2 p-3 rounded-xl shadow-lg">
+         <div className="flex items-center justify-between mb-2 pb-1 border-b border-slate-700/50">
+            {userQuota?.subscription?.type === "premium" ? (
+               <div className="w-full p-1 bg-black/20 flex justify-center items-center gap-2 text-yellow-400 rounded-sm ">
+                  <CrownIcon size={18} />
+                  <span className="font-medium">Premium Member</span>
+               </div>
+            ) : (
+               <div className="w-full">
+                  {/* <h3 className="text-base font-semibold text-gray-400">
+                     Free Plan
+                  </h3> */}
+                  <button
+                     onClick={handleUpgradeClick}
+                     disabled={loading}
+                     className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-2 py-1 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg hover:shadow-purple-500/20"
+                     title="Upgrade to Premium: Get 300:Parsing, 200:Generates, and 100:Downloads in a month"
+                  >
+                     {loading ? (
+                        <div className="flex items-center gap-2">
+                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                           <span className="font-medium">Processing...</span>
+                        </div>
+                     ) : (
+                        <>
+                           <div className="flex flex-col">
+                              <span className="font-medium">
+                                 Upgrade to Premium ⭐️
+                              </span>
+                              <span className="text-sm font-normal">
+                                 (₹100/month)
+                              </span>
+                           </div>
+                        </>
+                     )}
+                  </button>
+               </div>
+            )}
          </div>
 
-         <div className="space-y-3">
+         <div className="px-1.5">
             {quotaItems.map((item) => (
-               <div key={item.label} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                     <span>{item.label}</span>
-                     <span>
+               <div key={item.label} className="mb-1">
+                  <div className="flex justify-between text-sm">
+                     <span className="text-gray-300">{item.label}</span>
+                     <span className="text-gray-200 font-medium">
                         {item.used}/{item.limit}
                      </span>
                   </div>
-                  <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-2 bg-slate-700/50 rounded-full overflow-hidden">
                      <div
-                        className="h-full bg-blue-500 transition-all"
+                        className="h-full transition-all duration-300 ease-out"
                         style={{
                            width: `${(item.used / item.limit) * 100}%`,
                            backgroundColor:
-                              item.used >= item.limit ? "#ef4444" : undefined,
+                              item.used >= item.limit
+                                 ? "#ef4444"
+                                 : item.used > item.limit * 0.8
+                                 ? "#eab308"
+                                 : "#3b82f6",
                         }}
                      />
                   </div>
                </div>
             ))}
          </div>
+
+         {/* {userQuota?.subscription?.type !== "premium" && (
+            <div className="mt-5 pt-4 border-t border-slate-700/50">
+               
+            </div>
+         )} */}
       </div>
    );
 }

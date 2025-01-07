@@ -19,7 +19,6 @@ import { QuotaService } from "./services/QuotaService";
 import LoadingSpinner from "./LoadingSpinner";
 import { UserDetailsService } from "./services/UserDetailsService";
 import { QuotaDisplay } from "./components/QuotaDisplay";
-import { PremiumUpgradeButton } from "./components/PremiumUpgradeButton";
 
 interface CustomManifest {
    name: string;
@@ -516,10 +515,12 @@ function App() {
          ) : (
             <>
                {/* Header */}
-               <div className="mb-10 flex items-center justify-between">
-                  <div className="w-[37%]">
-                     <h1 className="text-2xl font-extrabold">ResumeOnFly🚀</h1>
-                     <p className="text-sm opacity-75">
+               <div className="mb-4 flex items-center justify-between p-4 bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-sm rounded-xl shadow-lg border border-white/5">
+                  <div className="w-[39%]">
+                     <h1 className="text-3xl font-extrabold text-white mb-2.5">
+                        ResumeOnFly🚀
+                     </h1>
+                     <p className="text-sm text-gray-300">
                         Designs resume based on jobDescription, works on any
                         website.{" "}
                         <span className="text-xs text-pink-500">
@@ -530,52 +531,47 @@ function App() {
 
                   {/* Quota Display */}
                   {user && userQuota && (
-                     <div className="flex items-center justify-end gap-2 w-[39%]">
-                        <QuotaDisplay
-                           userQuota={userQuota}
-                           onRefresh={refreshUserQuota}
-                        />
-                        <PremiumUpgradeButton
-                           user={user}
-                           userQuota={userQuota}
-                           onUpgradeSuccess={refreshUserQuota}
-                        />
-                     </div>
+                     <QuotaDisplay
+                        userQuota={userQuota}
+                        onRefresh={refreshUserQuota}
+                        user={user}
+                        onUpgradeSuccess={refreshUserQuota}
+                     />
                   )}
 
                   {user ? (
-                     <div className="flex items-center justify-end gap-2 w-[39%]">
+                     <div className="ml-3 flex items-center justify-end w-[36%]">
                         <img
                            src={user.picture}
                            alt={user.name}
-                           className="w-8 h-8 rounded-full"
+                           className="w-10 h-10 rounded-full border-2 border-white mr-1"
                            title="User Avatar"
                         />
-                        <div className="text-sm">
+                        <div className="text-sm text-white">
                            <div className="flex mb-1">
                               <p
-                                 className="mr-1 px-2 py-1 bg-slate-900 rounded-lg"
+                                 className="mr-1 px-3 py-1 text-center bg-slate-800 rounded-lg shadow-md"
                                  title="Your name"
                               >
                                  {user.name}
                               </p>
                               <button
                                  onClick={handleEditClick}
-                                 className="text-sm text-blue-400 hover:text-blue-300 mr-1 px-2 py-1 bg-slate-900 rounded-lg"
+                                 className="text-sm text-blue-400 hover:text-blue-300 mr-1 px-3 py-1 bg-slate-800 rounded-lg shadow-md"
                                  title="Edit Details"
                               >
                                  Edit Details
                               </button>
                               <button
                                  onClick={handleLogout}
-                                 className="text-sm text-red-500 hover:text-red-400 bg-slate-900 px-2 py-1 rounded-lg"
+                                 className="text-sm text-red-500 hover:text-red-400 bg-slate-800 px-3 py-1 rounded-lg shadow-md"
                                  title="Logout"
                               >
                                  <LogOutIcon size={16} />
                               </button>
                            </div>
                            <p
-                              className="text-slate-300 px-2 py-1 bg-slate-900 rounded-lg"
+                              className="text-slate-300 px-3 py-1 bg-slate-800 rounded-lg shadow-md"
                               title="Your email"
                            >
                               {user.email}
@@ -586,7 +582,7 @@ function App() {
                      <button
                         onClick={handleGoogleLogin}
                         disabled={loginLoading}
-                        className="bg-blue-600 px-4 py-2 text-sm font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
+                        className="bg-blue-600 px-5 py-2 text-sm font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 shadow-md"
                         title="Sign in with Google"
                      >
                         {loginLoading ? (
