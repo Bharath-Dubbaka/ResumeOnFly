@@ -1,0 +1,33 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is accessing their own data
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // UserDetails collection
+    match /userDetails/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+    
+    // Quotas collection with combined rules
+    match /quotas/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId) || 
+                  request.auth.token.firebase.sign_in_provider == 'service_account';
+    }
+
+    // Special initialization document if needed
+    match /initialization/{document} {
+      allow read: if true;  // Allow reading initialization data without auth
+    }
+  }
+}

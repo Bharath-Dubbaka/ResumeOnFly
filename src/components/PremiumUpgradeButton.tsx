@@ -22,25 +22,23 @@ export function PremiumUpgradeButton({
          const paymentLink = await PaymentService.getPaymentLink(user.uid);
          window.open(paymentLink, "_blank");
 
-         // Start polling for payment status
+         // Start polling more frequently initially
          const checkPaymentStatus = setInterval(async () => {
             const isPremium = await PaymentService.checkPaymentStatus(user.uid);
             if (isPremium) {
                clearInterval(checkPaymentStatus);
-               // Update the quota when payment is confirmed
-               await PaymentService.updateToPremiumQuota(user.uid);
                await onUpgradeSuccess();
+               setLoading(false);
             }
-         }, 3000); // Check every 3 seconds
+         }, 500); // Check every 500ms
 
-         // Stop checking after 5 minutes
+         // Stop checking after 2 minutes
          setTimeout(() => {
             clearInterval(checkPaymentStatus);
             setLoading(false);
-         }, 300000);
+         }, 120000);
       } catch (error) {
          console.error("Error initiating payment:", error);
-      } finally {
          setLoading(false);
       }
    };
