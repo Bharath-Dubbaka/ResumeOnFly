@@ -78,30 +78,39 @@ export function QuotaDisplay({
                   {/* <h3 className="text-base font-semibold text-gray-400">
                      Free Plan
                   </h3> */}
-                  <button
-                     onClick={handleUpgradeClick}
-                     disabled={loading}
-                     className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-2 py-1 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg hover:shadow-purple-500/20"
-                     title="Upgrade to Premium: Get 300:Parsing, 200:Generates, and 100:Downloads in a month"
-                  >
-                     {loading ? (
-                        <div className="flex items-center gap-2">
-                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                           <span className="font-medium">Processing...</span>
-                        </div>
-                     ) : (
-                        <>
-                           <div className="flex flex-col">
-                              <span className="font-medium">
-                                 Upgrade to Premium ⭐️
-                              </span>
-                              <span className="text-sm font-normal">
-                                 (₹100/month)
-                              </span>
+                  <div className="relative group">
+                     <button
+                        onClick={handleUpgradeClick}
+                        disabled={loading}
+                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-2 py-1 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg hover:shadow-purple-500/20"
+                     >
+                        {loading ? (
+                           <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              <span className="font-medium">Processing...</span>
                            </div>
-                        </>
-                     )}
-                  </button>
+                        ) : (
+                           <>
+                              <div className="flex flex-col">
+                                 <span className="font-medium">
+                                    Upgrade to Premium ⭐️
+                                 </span>
+                                 <span className="text-sm font-normal">
+                                    (₹100/month)
+                                 </span>
+                              </div>
+                           </>
+                        )}
+                     </button>
+                     {/* Tooltip */}
+                     <div className="absolute left-0 top-[50px] mt-1 w-[180px] px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        Upgrade to Premium: Get{" "}
+                        <span className="font-bold">300</span>:Parsing,{" "}
+                        <span className="font-bold">200</span>:Generates, and{" "}
+                        <span className="font-bold">100</span>:Downloads in a
+                        month
+                     </div>
+                  </div>
                </div>
             )}
          </div>

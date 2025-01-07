@@ -13,6 +13,7 @@ import {
 } from "docx";
 import ResumePreview from "./ResumePreview";
 import { QuotaService } from "./services/QuotaService";
+import { Bug } from "lucide-react";
 
 interface UserDetails {
    fullName: string;
@@ -621,7 +622,9 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                   Generating Resume...
                </div>
             ) : (
-               "Generate Resume"
+               <div className="flex items-center justify-center gap-2">
+                  <Bug size={16} /> Generate Resume
+               </div>
             )}
          </button>
 

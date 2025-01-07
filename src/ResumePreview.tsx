@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Download } from "lucide-react";
+import { Download, EditIcon } from "lucide-react";
 
 interface Education {
    degree: string;
@@ -167,9 +167,10 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                <div className="flex gap-4">
                   <button
                      onClick={() => setIsEditing(!isEditing)}
-                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
+                     className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
                   >
                      {isEditing ? "Save Changes" : "Edit Resume"}
+                     <EditIcon size={16} /> {/* Add edit icon here */}
                   </button>
 
                   <button

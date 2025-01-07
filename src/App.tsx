@@ -541,41 +541,61 @@ function App() {
 
                   {user ? (
                      <div className="ml-3 flex items-center justify-end w-[36%]">
-                        <img
-                           src={user.picture}
-                           alt={user.name}
-                           className="w-10 h-10 rounded-full border-2 border-white mr-1"
-                           title="User Avatar"
-                        />
+                        <div className="relative group mr-1.5">
+                           <img
+                              src={user.picture}
+                              alt={user.name}
+                              className="w-8 h-8 rounded-full border-1 border-slate-200 mr-1"
+                           />
+                           {/* Tooltip */}
+                           <div className="absolute left-0 top-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                              User Avatar
+                           </div>
+                        </div>
                         <div className="text-sm text-white">
                            <div className="flex mb-1">
-                              <p
-                                 className="mr-1 px-3 py-1 text-center bg-slate-800 rounded-lg shadow-md"
-                                 title="Your name"
-                              >
-                                 {user.name}
-                              </p>
-                              <button
-                                 onClick={handleEditClick}
-                                 className="text-sm text-blue-400 hover:text-blue-300 mr-1 px-3 py-1 bg-slate-800 rounded-lg shadow-md"
-                                 title="Edit Details"
-                              >
-                                 Edit Details
-                              </button>
+                              <div className="relative group">
+                                 <p className="mr-1 px-3 py-1 text-center bg-slate-800 rounded-lg shadow-md">
+                                    {user.name}
+                                 </p>
+                                 {/* Tooltip */}
+                                 <div className="absolute left-0 bottom-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                    Your name
+                                 </div>
+                              </div>
+                              <div className="relative group">
+                                 <button
+                                    onClick={handleEditClick}
+                                    className="text-sm text-blue-400 hover:text-blue-300 mr-1 px-3 py-1 bg-slate-800 rounded-lg shadow-md"
+                                 >
+                                    Edit Details
+                                 </button>
+                                 {/* Tooltip */}
+                                 <div className="absolute left-0 bottom-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                    Edit Details
+                                 </div>
+                              </div>
                               <button
                                  onClick={handleLogout}
                                  className="text-sm text-red-500 hover:text-red-400 bg-slate-800 px-3 py-1 rounded-lg shadow-md"
-                                 title="Logout"
+                                 title="LogOut"
                               >
                                  <LogOutIcon size={16} />
                               </button>
+                              {/* Tooltip for Logout */}
+                              {/* <div className="absolute left-0 bottom-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                 LogOut{" "}
+                              </div> */}
                            </div>
-                           <p
-                              className="text-slate-300 px-3 py-1 bg-slate-800 rounded-lg shadow-md"
-                              title="Your email"
-                           >
-                              {user.email}
-                           </p>
+                           <div className="relative group">
+                              <p className="text-slate-300 px-3 py-1 bg-slate-800 rounded-lg shadow-md">
+                                 {user.email}
+                              </p>
+                              {/* Tooltip for User Email */}
+                              <div className="absolute left-0 top-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                 User Email
+                              </div>
+                           </div>
                         </div>
                      </div>
                   ) : (
