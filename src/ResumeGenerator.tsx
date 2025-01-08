@@ -14,6 +14,7 @@ import {
 import ResumePreview from "./ResumePreview";
 import { QuotaService } from "./services/QuotaService";
 import { Bug } from "lucide-react";
+import { ResumeFormattingEngine } from "./components/ResumeFormattingEngine";
 
 interface UserDetails {
    fullName: string;
@@ -97,77 +98,44 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    const generateResume = async () => {
       setLoading(true);
       try {
-         const API_KEY = apiKey;
+         const formattedPrompt = ResumeFormattingEngine.formatPrompt(
+            userDetails,
+            technicalSkills,
+            totalExperience
+         );
+         console.log(
+            formattedPrompt,
+            "formattedPrompt inside generateResumeFN"
+         );
          const API_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 
-         const prompt = `Generate a JSON object with the following structure. For responsibilities:
-         1. Include at least one sentence for **each technical skill (${technicalSkills.join(
-            ", "
-         )}),** for every work experience.
-         2. Ensure responsibilities are unique and relevant for each work experience.
-         
-         {
-           "fullName": "${userDetails.fullName}",
-           "contactInformation": "${userDetails.email} | ${
-            userDetails.phone
-         } | Location",
-           "professionalSummary": "A detailed summary (minimum 6 sentences) based on ${totalExperience} years of experience, the job description, and skills (${technicalSkills.join(
-            ", "
-         )}).",
-           "technicalSkills": "${technicalSkills.join(", ")}",
-           "professionalExperience": [
-               ${userDetails?.experience
-                  .map(
-                     (experience) => `{
-                  "title": "${experience.title}",
-                  "employer": "${experience.employer}",
-                  "startDate": "${experience.startDate}",
-                  "endDate": "${experience.endDate}",
-                  "location": "${experience.location}",
-                  "responsibilities": [
-                        ${
-                           experience.responsibilityType === "skillBased"
-                              ? `"Generate at least 8 responsibilities covering each technical skill (${technicalSkills.join(
-                                   ", "
-                                )}) based on the job description"`
-                              : `"Generate at least 8 responsibilities based on the role title '${experience.title}' and typical responsibilities for that position"`
-                        }
-                     ]
-                  }`
-                  )
-                  .join(",\n")}
-           ],
-           "education": ${JSON.stringify(userDetails.education)},
-           "certifications": ${JSON.stringify(userDetails.certifications)},
-           "projects": ${JSON.stringify(userDetails.projects)}
-         }
-         
-         Use this information:
-         - technicalSkills: ${technicalSkills}
-         - Years of Experience: ${totalExperience}
-         
-         Important Notes:
-         1. Retain the original title, employer, startDate, and endDate for each role.
-         2. For experiences with 'skillBased' type, focus on current technical skills.
-         3. For experiences with 'titleBased' type, focus on typical responsibilities for that role title.
-         4. Return only the JSON object with no additional text or formatting.`;
-
-         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+         const response = await fetch(`${API_URL}?key=${apiKey}`, {
             method: "POST",
             headers: {
                "Content-Type": "application/json",
             },
             body: JSON.stringify({
-               contents: [{ parts: [{ text: prompt }] }],
+               contents: [{ parts: [{ text: formattedPrompt }] }],
+               generationConfig: {
+                  temperature: 0.7,
+                  topK: 40,
+                  topP: 0.95,
+                  maxOutputTokens: 1024,
+               },
             }),
          });
 
          const data = await response.json();
          const generatedContent = data.candidates[0].content.parts[0].text;
 
-         // Clean the generated content before storing using cleanJsonResponse
+         // Clean and validate the response
          const parsedContent = JSON.parse(cleanJsonResponse(generatedContent));
+
+         if (!ResumeFormattingEngine.validateResponse(parsedContent)) {
+            throw new Error("Generated content failed validation");
+         }
+
          // Merge custom responsibilities for each experience
          parsedContent.professionalExperience =
             parsedContent.professionalExperience.map(
