@@ -14,7 +14,14 @@ import {
 import ResumePreview from "./ResumePreview";
 import { QuotaService } from "./services/QuotaService";
 import { Bug } from "lucide-react";
-import { ResumeFormattingEngine } from "./components/ResumeFormattingEngine";
+// import { ResumeFormattingEngine } from "./components/ResumeFormattingEngine";
+import OpenAI from "openai";
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+   apiKey: import.meta.env.VITE_OPENAI_API_SECRET_KEY,
+   dangerouslyAllowBrowser: true, // Only if using in browser
+});
 
 interface UserDetails {
    fullName: string;
@@ -59,7 +66,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    const [loading, setLoading] = useState(false);
    const [refreshPreview, setRefreshPreview] = useState(false); // Added for forcing re-render of preview
    // const [userDetails, setUserDetails] = useState(null); // Added for forcing re-render of preview
-   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+   // const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
    // useEffect(() => {
    //    const fetchUserDetails = async () => {
@@ -98,43 +105,84 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    const generateResume = async () => {
       setLoading(true);
       try {
-         const formattedPrompt = ResumeFormattingEngine.formatPrompt(
-            userDetails,
-            technicalSkills,
-            totalExperience
-         );
-         console.log(
-            formattedPrompt,
-            "formattedPrompt inside generateResumeFN"
-         );
-         const API_URL =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+         // const formattedPrompt = ResumeFormattingEngine.formatPrompt(
+         //    userDetails,
+         //    technicalSkills,
+         //    totalExperience
+         // );
+         // console.log(
+         //    formattedPrompt,
+         //    "formattedPrompt inside generateResumeFN before LLM call"
+         // );
+         const formattedPrompt = `Generate a JSON object with the following structure. For responsibilities use the following rules:
+         1. Retain the original title, employer, startDate, and endDate for each role.
+         2. For experiences with 'skillBased' type, focus ONLY on current technical skills.
+         3. For experiences with 'titleBased' type, focus ONLY on title/roles typical responsibilities.
+         4. Return only the JSON object with no additional text or formatting.
 
-         const response = await fetch(`${API_URL}?key=${apiKey}`, {
-            method: "POST",
-            headers: {
-               "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-               contents: [{ parts: [{ text: formattedPrompt }] }],
-               generationConfig: {
-                  temperature: 0.7,
-                  topK: 40,
-                  topP: 0.95,
-                  maxOutputTokens: 1024,
+         {
+           "fullName": "${userDetails.fullName}",
+           "contactInformation": "${userDetails.email} | ${
+            userDetails.phone
+         } | Location",
+           "professionalSummary": "A detailed summary highlighting ${totalExperience} years of experience in ${technicalSkills.join(
+            ", "
+         )}, exactly 6 sentences",
+           "technicalSkills": "${technicalSkills.join(", ")}",
+           "professionalExperience": [
+               ${userDetails?.experience
+                  .map(
+                     (experience) => `{
+                  "title": "${experience.title}",
+                  "employer": "${experience.employer}", 
+                  "startDate": "${experience.startDate}",
+                  "endDate": "${experience.endDate}", 
+                  "location": "${experience.location}", 
+                  "responsibilities": [
+                        ${
+                           experience.responsibilityType === "skillBased"
+                              ? `"Generate at least 8 detailed responsibilities using ONLY technical skills irrespective of the role title and covering each technical skill (${technicalSkills.join(
+                                   ", "
+                                )})`
+                              : `"Generate at least 8 detailed responsibilities using ONLY the role title '${experience.title}' and typical responsibilities for that position"`
+                        }
+                     ]
+                  }`
+                  )
+                  .join(",\n")}
+           ],
+           "education": ${JSON.stringify(userDetails.education)},
+           "certifications": ${JSON.stringify(userDetails.certifications)},
+           "projects": ${JSON.stringify(userDetails.projects)}
+         }`;
+
+         const completion = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [
+               {
+                  role: "system",
+                  content:
+                     "You are a professional resume writer. Use the provided input to generate relevant JSON-based content. Do NOT echo input text or instructions. Focus on generating meaningful, original responsibilities and content based on the context.",
                },
-            }),
+               {
+                  role: "user",
+                  content: formattedPrompt,
+               },
+            ],
+            temperature: 0.7,
+            max_tokens: 2000,
+            response_format: { type: "json_object" },
          });
 
-         const data = await response.json();
-         const generatedContent = data.candidates[0].content.parts[0].text;
+         const generatedContent = completion.choices[0].message.content;
+         if (!generatedContent) throw new Error("No content generated");
 
          // Clean and validate the response
          const parsedContent = JSON.parse(cleanJsonResponse(generatedContent));
 
-         if (!ResumeFormattingEngine.validateResponse(parsedContent)) {
-            throw new Error("Generated content failed validation");
-         }
+         // if (!ResumeFormattingEngine.validateResponse(parsedContent)) {
+         //    throw new Error("Generated content failed validation");
+         // }
 
          // Merge custom responsibilities for each experience
          parsedContent.professionalExperience =

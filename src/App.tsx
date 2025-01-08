@@ -261,7 +261,7 @@ function App() {
          }
 
          // Modified prompt to ensure clean JSON response
-         const prompt = `Analyze the following job description and work experiences in detail. Return only a JSON object with these exact keys:
+         const prompt = `Analyze the following job description and work experiences in detail as you are a professional resume writer, including all the details and responsibilities and skills. Return only a JSON object with these exact keys:
       {
          "technicalSkills": [array of strings],
          "yearsOfExperience": number,

@@ -11,48 +11,50 @@ export class ResumeFormattingEngine {
       totalExperience: string | number
    ): string {
       const prompt = `
-Generate a JSON resume with this EXACT structure:
-{
-   "fullName": "${this.validateField(userDetails.fullName)}",
-   "contactInformation": "${this.validateField(userDetails.email)}${
+            Generate a JSON resume with this EXACT structure:
+            {
+            "fullName": "${this.validateField(userDetails.fullName)}",
+            "contactInformation": "${this.validateField(userDetails.email)}${
          userDetails.phone ? ` | ${userDetails.phone}` : ""
       }",
-   "professionalSummary": "A detailed summary highlighting ${totalExperience} years of experience in ${technicalSkills.join(
+            "professionalSummary": "A detailed summary highlighting ${totalExperience} years of experience in ${technicalSkills.join(
          ", "
       )}, exactly 6 sentences",
-   "technicalSkills": "${technicalSkills.join(", ")}",
-   "professionalExperience": [
-      ${userDetails.experience
-         .map(
-            (exp) => `{
-         "title": "${this.validateField(exp.title)}",
-         "employer": "${this.validateField(exp.employer)}",
-         "startDate": "${this.validateField(exp.startDate)}",
-         "endDate": "${this.validateField(exp.endDate)}",
-         "location": "${this.validateField(exp.location)}",
-         "responsibilities": [
-            ${
-               exp.responsibilityType === "skillBased"
-                  ? `"GENERATE_8_RESPONSIBILITIES_USING_ONLY_SKILLS: ${technicalSkills.join(
-                       ", "
-                    )}"`
-                  : `"GENERATE_8_RESPONSIBILITIES_BASED_ONLY_ON_ROLE: ${exp.title}"`
+            "technicalSkills": "${technicalSkills.join(", ")}",
+            "professionalExperience": [
+                ${userDetails.experience
+                   .map(
+                      (exp) => `{
+                    "title": "${this.validateField(exp.title)}",
+                    "employer": "${this.validateField(exp.employer)}",
+                    "startDate": "${this.validateField(exp.startDate)}",
+                    "endDate": "${this.validateField(exp.endDate)}",
+                    "location": "${this.validateField(exp.location)}",
+                    "responsibilities": [
+                        ${
+                           exp.responsibilityType === "skillBased"
+                              ? `"GENERATE_8_RESPONSIBILITIES_USING_ONLY_SKILLS: ${technicalSkills.join(
+                                   ", "
+                                )}"`
+                              : `"GENERATE_8_RESPONSIBILITIES_BASED_ONLY_ON_ROLE: ${exp.title}"`
+                        }
+                    ]
+                }`
+                   )
+                   .join(",\n")}
+            ],
+            "education": ${JSON.stringify(userDetails.education || [])},
+            "certifications": ${JSON.stringify(
+               userDetails.certifications || []
+            )},
+            "projects": ${JSON.stringify(userDetails.projects || [])}
             }
-         ]
-      }`
-         )
-         .join(",\n")}
-   ],
-   "education": ${JSON.stringify(userDetails.education || [])},
-   "certifications": ${JSON.stringify(userDetails.certifications || [])},
-   "projects": ${JSON.stringify(userDetails.projects || [])}
-}
 
-STRICT RULES:
-1. Keep ALL provided values exactly as shown
-2. Generate EXACTLY 8 unique responsibilities per experience
-3. DO NOT modify or remove any fields
-4. Return ONLY the JSON object`;
+            STRICT RULES:
+            1. Keep ALL provided values exactly as shown
+            2. Generate EXACTLY 8 unique responsibilities per experience
+            3. DO NOT modify or remove any fields
+            4. Return ONLY the JSON object`;
 
       return prompt;
    }
@@ -116,3 +118,6 @@ STRICT RULES:
       }
    }
 }
+
+
+  
