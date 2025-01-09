@@ -122,6 +122,19 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
       handleEdit("professionalExperience", updatedExperience);
    };
 
+   const handleAddResponsibility = (expIndex: number) => {
+      const updatedExperience = [...resumeData.professionalExperience];
+      const updatedResponsibilities = [
+         ...updatedExperience[expIndex].responsibilities,
+      ];
+      updatedResponsibilities.push("");
+      updatedExperience[expIndex] = {
+         ...updatedExperience[expIndex],
+         responsibilities: updatedResponsibilities,
+      };
+      handleEdit("professionalExperience", updatedExperience);
+   };
+
    //Loader
    if (loading) {
       return (
@@ -363,32 +376,91 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                                        </p>
                                     )}
                                  </div>
-                                 <ul className="list-disc ml-6 mt-2">
-                                    {exp.responsibilities.map(
-                                       (resp, respIndex) => (
-                                          <li
-                                             key={respIndex}
-                                             className="text-sm mb-1"
-                                          >
-                                             {isEditing ? (
-                                                <textarea
-                                                   value={resp}
-                                                   onChange={(e) =>
-                                                      handleResponsibilityEdit(
-                                                         expIndex,
-                                                         respIndex,
-                                                         e.target.value
-                                                      )
-                                                   }
-                                                   className="w-full border rounded p-2 min-h-[60px]"
-                                                />
-                                             ) : (
-                                                resp
-                                             )}
-                                          </li>
-                                       )
+                                 <div>
+                                    <ul className="list-disc ml-6 mt-2">
+                                       {exp.responsibilities
+                                          .filter(
+                                             (resp) =>
+                                                isEditing || resp.trim() !== ""
+                                          )
+                                          .map((resp, respIndex) => (
+                                             <li
+                                                key={respIndex}
+                                                className={`text-sm mb-1 group flex items-start gap-2 ${
+                                                   isEditing
+                                                      ? "list-none"
+                                                      : "list-disc"
+                                                }`}
+                                             >
+                                                {isEditing ? (
+                                                   <div className="flex-1 flex items-start gap-2">
+                                                      <div className="flex-1 flex items-start gap-2">
+                                                         <span className="mt-2">
+                                                            •
+                                                         </span>
+                                                         <textarea
+                                                            value={resp}
+                                                            onChange={(e) =>
+                                                               handleResponsibilityEdit(
+                                                                  expIndex,
+                                                                  respIndex,
+                                                                  e.target.value
+                                                               )
+                                                            }
+                                                            className="w-full border rounded p-2 min-h-[60px]"
+                                                         />
+                                                      </div>
+                                                      <button
+                                                         onClick={() => {
+                                                            const updatedExperience =
+                                                               [
+                                                                  ...resumeData.professionalExperience,
+                                                               ];
+                                                            updatedExperience[
+                                                               expIndex
+                                                            ].responsibilities =
+                                                               updatedExperience[
+                                                                  expIndex
+                                                               ].responsibilities.filter(
+                                                                  (_, idx) =>
+                                                                     idx !==
+                                                                     respIndex
+                                                               );
+                                                            handleEdit(
+                                                               "professionalExperience",
+                                                               updatedExperience
+                                                            );
+                                                         }}
+                                                         className="text-red-500 hover:text-red-700 p-1"
+                                                      >
+                                                         <span className="sr-only">
+                                                            Delete
+                                                         </span>
+                                                         ×
+                                                      </button>
+                                                   </div>
+                                                ) : (
+                                                   <div className="flex items-start gap-2">
+                                                      <span>•</span>
+                                                      <span>{resp}</span>
+                                                   </div>
+                                                )}
+                                             </li>
+                                          ))}
+                                    </ul>
+
+                                    {/* Add new responsibility button */}
+                                    {isEditing && (
+                                       <button
+                                          onClick={() =>
+                                             handleAddResponsibility(expIndex)
+                                          }
+                                          className="mt-2 ml-6 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                                       >
+                                          <span>+</span> Add New Responsibility
+                                       </button>
                                     )}
-                                 </ul>
+                                 </div>
                               </div>
                            )
                         )}
