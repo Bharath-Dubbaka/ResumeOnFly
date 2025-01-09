@@ -87,6 +87,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    //    fetchUserDetails();
    // }, [uid]);
 
+   // Clean the JSON response to remove any extra text or formatting
    function cleanJsonResponse(response: string): string {
       try {
          const jsonMatch = response.match(/{[\s\S]*}/);
@@ -101,113 +102,108 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          throw new Error("Failed to parse JSON from response.");
       }
    }
+   // Generate Responsibilities based on the User preference
+   const generateResponsibilities = async (
+      experience: {
+         title: string;
+         responsibilityType: "skillBased" | "titleBased";
+      },
+      technicalSkills: string[]
+   ): Promise<string[]> => {
+      const prompt =
+         experience.responsibilityType === "skillBased"
+            ? `Generate EXACTLY 8 detailed technical responsibilities that:
+       1. Use ONLY these technical skills: ${technicalSkills.join(", ")}
+       2. MUST NOT mention or reference the job title
+       3. Focus purely on technical implementation and achievements
+       4. Each responsibility should demonstrate hands-on technical work
+       Return ONLY an array of 8 responsibilities in JSON format.`
+            : `Generate EXACTLY 8 detailed responsibilities that:
+       1. Are specific to the role of ${experience.title}
+       2. MUST NOT mention any technical skills
+       3. Focus on business impact and role-specific achievements
+       4. Describe typical duties and accomplishments
+       Return ONLY an array of 8 responsibilities in JSON format.`;
 
+      const completion = await openai.chat.completions.create({
+         model: "gpt-3.5-turbo",
+         messages: [
+            {
+               role: "system",
+               content:
+                  "You are a professional resume writer. Generate specific, detailed responsibilities in JSON format. Return ONLY the array of responsibilities, no additional text.",
+            },
+            {
+               role: "user",
+               content: prompt,
+            },
+         ],
+         temperature: 0.7,
+         max_tokens: 1000,
+         response_format: { type: "json_object" },
+      });
+
+      const response = JSON.parse(
+         completion.choices[0].message.content || "{}"
+      );
+      return response.responsibilities || [];
+   };
+
+   // Generate the Resume using the generated Responsibilities and hardcoded userDetails
    const generateResume = async () => {
       setLoading(true);
       try {
-         // const formattedPrompt = ResumeFormattingEngine.formatPrompt(
-         //    userDetails,
-         //    technicalSkills,
-         //    totalExperience
-         // );
-         // console.log(
-         //    formattedPrompt,
-         //    "formattedPrompt inside generateResumeFN before LLM call"
-         // );
-         const formattedPrompt = `Generate a JSON object with the following structure. For responsibilities use the following rules:
-         1. Retain the original title, employer, startDate, and endDate for each role.
-         2. For experiences with 'skillBased' type, focus ONLY on current technical skills.
-         3. For experiences with 'titleBased' type, focus ONLY on title/roles typical responsibilities.
-         4. Return only the JSON object with no additional text or formatting.
+         // Generate responsibilities for each experience separately
+         const generatedResponsibilities = await Promise.all(
+            userDetails.experience.map((exp) =>
+               generateResponsibilities(exp, technicalSkills)
+            )
+         );
 
-         {
-           "fullName": "${userDetails.fullName}",
-           "contactInformation": "${userDetails.email} | ${
-            userDetails.phone
-         } | Location",
-           "professionalSummary": "A detailed summary highlighting ${totalExperience} years of experience in ${technicalSkills.join(
-            ", "
-         )}, exactly 6 sentences",
-           "technicalSkills": "${technicalSkills.join(", ")}",
-           "professionalExperience": [
-               ${userDetails?.experience
-                  .map(
-                     (experience) => `{
-                  "title": "${experience.title}",
-                  "employer": "${experience.employer}", 
-                  "startDate": "${experience.startDate}",
-                  "endDate": "${experience.endDate}", 
-                  "location": "${experience.location}", 
-                  "responsibilities": [
-                        ${
-                           experience.responsibilityType === "skillBased"
-                              ? `"Generate at least 8 detailed responsibilities using ONLY technical skills irrespective of the role title and covering each technical skill (${technicalSkills.join(
-                                   ", "
-                                )})`
-                              : `"Generate at least 8 detailed responsibilities using ONLY the role title '${experience.title}' and typical responsibilities for that position"`
-                        }
-                     ]
-                  }`
-                  )
-                  .join(",\n")}
-           ],
-           "education": ${JSON.stringify(userDetails.education)},
-           "certifications": ${JSON.stringify(userDetails.certifications)},
-           "projects": ${JSON.stringify(userDetails.projects)}
-         }`;
-
-         const completion = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [
-               {
-                  role: "system",
-                  content:
-                     "You are a professional resume writer. Use the provided input to generate relevant JSON-based content. Do NOT echo input text or instructions. Focus on generating meaningful, original responsibilities and content based on the context.",
-               },
-               {
-                  role: "user",
-                  content: formattedPrompt,
-               },
-            ],
-            temperature: 0.7,
-            max_tokens: 2000,
-            response_format: { type: "json_object" },
-         });
-
-         const generatedContent = completion.choices[0].message.content;
-         if (!generatedContent) throw new Error("No content generated");
+         // Create the final resume content
+         const resumeContent = {
+            fullName: userDetails.fullName,
+            contactInformation: `${userDetails.email} | ${userDetails.phone}`,
+            professionalSummary: `A detailed summary highlighting ${totalExperience} years of experience`,
+            technicalSkills: technicalSkills.join(", "),
+            professionalExperience: userDetails.experience.map(
+               (exp, index) => ({
+                  title: exp.title,
+                  employer: exp.employer,
+                  startDate: exp.startDate,
+                  endDate: exp.endDate,
+                  location: exp.location,
+                  responsibilities: [
+                     ...generatedResponsibilities[index],
+                     ...(exp.customResponsibilities || []),
+                  ],
+               })
+            ),
+            education: userDetails.education || [],
+            certifications: userDetails.certifications || [],
+            projects: userDetails.projects || [],
+         };
 
          // Clean and validate the response
-         const parsedContent = JSON.parse(cleanJsonResponse(generatedContent));
+         const cleanedContent = cleanJsonResponse(
+            JSON.stringify(resumeContent)
+         );
+         const parsedContent = JSON.parse(cleanedContent);
 
+         // Validate the parsed content
          // if (!ResumeFormattingEngine.validateResponse(parsedContent)) {
          //    throw new Error("Generated content failed validation");
          // }
 
-         // Merge custom responsibilities for each experience
-         parsedContent.professionalExperience =
-            parsedContent.professionalExperience.map(
-               (exp: any, index: number) => ({
-                  ...exp,
-                  responsibilities: [
-                     ...exp.responsibilities,
-                     ...(userDetails.experience[index].customResponsibilities ||
-                        []),
-                  ],
-               })
-            );
-
          // Again Stringify before storing in state
          setResumeContent(JSON.stringify(parsedContent));
-         // console.log(parsedContent, "parsedContent inside generateResumeFN");
          // Trigger a refresh for preview
          setRefreshPreview((prev) => !prev);
-
          // Increment the usage
          await QuotaService.incrementUsage(uid, "generates");
-
          // Refresh the quota display
          await refreshUserQuota();
+         setRefreshPreview(!refreshPreview);
       } catch (error) {
          console.error("Error generating resume:", error);
          alert("Error generating resume content. Please try again.");
