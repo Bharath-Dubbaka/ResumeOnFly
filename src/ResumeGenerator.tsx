@@ -16,6 +16,7 @@ import { QuotaService } from "./services/QuotaService";
 import { Bug } from "lucide-react";
 // import { ResumeFormattingEngine } from "./components/ResumeFormattingEngine";
 import OpenAI from "openai";
+import { UserDetailsService } from "./services/UserDetailsService";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -149,6 +150,44 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
       return response.responsibilities || [];
    };
 
+   // Add this new function to generate summary
+   const generateProfessionalSummary = async (
+      totalExperience: string | number,
+      technicalSkills: string[],
+      latestRole: string
+   ): Promise<string> => {
+      const prompt = `Generate a detailed professional summary that:
+      1. Highlights ${totalExperience} years of total experience
+      2. Incorporates key technical skills: ${technicalSkills.join(", ")}
+      3. Mentions current/latest role as ${latestRole}
+      4. Focuses on career progression and expertise
+      5. Is approximately 6-8 sentences long
+      Return ONLY the summary text in JSON format.`;
+
+      const completion = await openai.chat.completions.create({
+         model: "gpt-3.5-turbo",
+         messages: [
+            {
+               role: "system",
+               content:
+                  "You are a professional resume writer. Generate a compelling professional summary in JSON format. Return ONLY the summary text.",
+            },
+            {
+               role: "user",
+               content: prompt,
+            },
+         ],
+         temperature: 0.7,
+         max_tokens: 500,
+         response_format: { type: "json_object" },
+      });
+
+      const response = JSON.parse(
+         completion.choices[0].message.content || "{}"
+      );
+      return response.summary || "";
+   };
+
    // Generate the Resume using the generated Responsibilities and hardcoded userDetails
    const generateResume = async () => {
       setLoading(true);
@@ -160,11 +199,19 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
             )
          );
 
+         // Generate professional summary
+         const latestRole = userDetails.experience[0]?.title || "Professional";
+         const generatedSummary = await generateProfessionalSummary(
+            totalExperience,
+            technicalSkills,
+            latestRole
+         );
+
          // Create the final resume content
          const resumeContent = {
             fullName: userDetails.fullName,
             contactInformation: `${userDetails.email} | ${userDetails.phone}`,
-            professionalSummary: `A detailed summary highlighting ${totalExperience} years of experience`,
+            professionalSummary: generatedSummary, // Use the generated summary
             technicalSkills: technicalSkills.join(", "),
             professionalExperience: userDetails.experience.map(
                (exp, index) => ({
@@ -189,11 +236,6 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
             JSON.stringify(resumeContent)
          );
          const parsedContent = JSON.parse(cleanedContent);
-
-         // Validate the parsed content
-         // if (!ResumeFormattingEngine.validateResponse(parsedContent)) {
-         //    throw new Error("Generated content failed validation");
-         // }
 
          // Again Stringify before storing in state
          setResumeContent(JSON.stringify(parsedContent));
@@ -621,6 +663,33 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
       }
    };
 
+   const handleSaveCustomResponsibility = async (
+      expIndex: number,
+      responsibility: string
+   ) => {
+      const updatedUserDetails = { ...userDetails };
+      const experience = updatedUserDetails.experience[expIndex];
+
+      if (!experience.customResponsibilities) {
+         experience.customResponsibilities = [];
+      }
+
+      // Add the responsibility if it's not already in the list
+      if (!experience.customResponsibilities.includes(responsibility)) {
+         experience.customResponsibilities.push(responsibility);
+
+         try {
+            // Save to Firebase
+            await UserDetailsService.saveUserDetails(uid, updatedUserDetails);
+            // Update local state if needed
+            // Trigger any necessary UI updates
+         } catch (error) {
+            console.error("Error saving custom responsibility:", error);
+            alert("Failed to save custom responsibility. Please try again.");
+         }
+      }
+   };
+
    return (
       <div className="mt-4 space-y-4">
          <button
@@ -663,6 +732,8 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                   downloadAsWord={downloadAsWord}
                   loading={loading}
                   refresh={refreshPreview} // Pass refresh to force re-render
+                  onSaveCustomResponsibility={handleSaveCustomResponsibility}
+                  userDetails={userDetails}
                />
             </div>
          )}

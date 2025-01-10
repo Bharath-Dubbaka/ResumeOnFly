@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Download, EditIcon } from "lucide-react";
+import { UserDetails } from "./types/types";
 
 interface Education {
    degree: string;
@@ -35,6 +36,11 @@ interface ResumePreviewProps {
    downloadAsWord: () => void;
    loading: boolean;
    refresh: boolean;
+   onSaveCustomResponsibility: (
+      experienceIndex: number,
+      responsibility: string
+   ) => void;
+   userDetails: UserDetails;
 }
 
 const cleanJsonResponse = (response: string): string => {
@@ -59,6 +65,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
    downloadAsWord,
    refresh,
    loading,
+   onSaveCustomResponsibility,
+   userDetails,
 }) => {
    const [isEditing, setIsEditing] = useState<boolean>(false);
    const [resumeData, setResumeData] = useState<ResumeData>(
@@ -66,6 +74,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
          ? JSON.parse(initialResumeContent)
          : initialResumeContent
    );
+
+   const [addedToCustom, setAddedToCustom] = useState<{
+      expIndex: number;
+      resp: string;
+   } | null>(null);
 
    useEffect(() => {
       // Update resumeData whenever refresh or initialResumeContent changes
@@ -133,6 +146,23 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
          responsibilities: updatedResponsibilities,
       };
       handleEdit("professionalExperience", updatedExperience);
+   };
+
+   const handleSaveToCustom = (expIndex: number, responsibility: string) => {
+      onSaveCustomResponsibility(expIndex, responsibility);
+      setAddedToCustom({ expIndex, resp: responsibility });
+      setTimeout(() => setAddedToCustom(null), 2000);
+   };
+
+   // Function to check if responsibility is already in custom list
+   const isResponsibilityInCustom = (
+      expIndex: number,
+      responsibility: string
+   ): boolean => {
+      const experience = userDetails.experience[expIndex];
+      return (
+         experience.customResponsibilities?.includes(responsibility) || false
+      );
    };
 
    //Loader
@@ -390,7 +420,12 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                                                    isEditing
                                                       ? "list-none"
                                                       : "list-disc"
-                                                }`}
+                                                } ${
+                                                   addedToCustom &&
+                                                   addedToCustom.resp === resp
+                                                      ? "bg-green-100"
+                                                      : ""
+                                                } hover:bg-gray-200`}
                                              >
                                                 {isEditing ? (
                                                    <div className="flex-1 flex items-start gap-2">
@@ -440,9 +475,31 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                                                       </button>
                                                    </div>
                                                 ) : (
-                                                   <div className="flex items-start gap-2">
-                                                      <span>•</span>
-                                                      <span>{resp}</span>
+                                                   <div className="flex items-start justify-between w-full gap-2">
+                                                      <div className="flex items-start gap-2">
+                                                         <span>•</span>
+                                                         <span>{resp}</span>
+                                                      </div>
+                                                      {isResponsibilityInCustom(
+                                                         expIndex,
+                                                         resp
+                                                      ) ? (
+                                                         <span className="opacity-0 group-hover:opacity-100 text-xs bg-gray-600 text-white px-2 py-1 rounded transition-all">
+                                                            Saved in Custom
+                                                         </span>
+                                                      ) : (
+                                                         <button
+                                                            onClick={() =>
+                                                               handleSaveToCustom(
+                                                                  expIndex,
+                                                                  resp
+                                                               )
+                                                            }
+                                                            className="opacity-0 group-hover:opacity-100 text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-all"
+                                                         >
+                                                            Save to Custom
+                                                         </button>
+                                                      )}
                                                    </div>
                                                 )}
                                              </li>
