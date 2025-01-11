@@ -26,7 +26,7 @@ interface ResumeData {
    education: Education[];
    softSkills: string;
    certifications: string[];
-   projects: string[];
+   projects: { name: string; description: string }[];
 }
 
 interface ResumePreviewProps {
@@ -524,19 +524,68 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                      </div>
 
                      {/* Education */}
-                     <div>
-                        <h2 className="text-xl font-bold border-b-2 mb-2">
-                           Education
-                        </h2>
-                        {resumeData.education.map((edu, index) => (
-                           <div key={index} className="mb-2">
-                              <p className="font-bold">{edu.degree}</p>
-                              <p className="text-sm">
-                                 {edu.institution}, {edu.year}
-                              </p>
+                     {resumeData.education &&
+                        resumeData.education.length > 0 && (
+                           <div className="mt-6">
+                              <h2 className="text-xl font-bold mb-4 border-b-2">
+                                 Education
+                              </h2>
+                              <ul className="list-disc ml-6">
+                                 {resumeData.education.map((edu, index) => (
+                                    <li key={index} className="mb-2">
+                                       <span className="font-semibold">
+                                          {edu.degree}
+                                       </span>{" "}
+                                       - {edu.institution}, {edu.year}
+                                    </li>
+                                 ))}
+                              </ul>
                            </div>
-                        ))}
-                     </div>
+                        )}
+
+                     {/* Certifications Section */}
+                     {resumeData.certifications &&
+                        resumeData.certifications.length > 0 && (
+                           <div className="mt-6">
+                              <h2 className="text-xl font-bold mb-4 border-b-2">
+                                 Certifications
+                              </h2>
+                              <ul className="list-disc ml-6">
+                                 {resumeData.certifications.map(
+                                    (cert, index) => (
+                                       <li key={index} className="mb-2">
+                                          <span className="font-semibold">
+                                             {cert}
+                                          </span>
+                                       </li>
+                                    )
+                                 )}
+                              </ul>
+                           </div>
+                        )}
+
+                     {/* Projects Section */}
+                     {resumeData.projects && resumeData.projects.length > 0 && (
+                        <div className="mt-6">
+                           <h2 className="text-xl font-bold mb-4 border-b-2">
+                              Projects
+                           </h2>
+                           <ul className="list-disc ml-6">
+                              {resumeData.projects.map((project, index) => (
+                                 <li key={index} className="mb-4">
+                                    <div className="flex flex-col">
+                                       <span className="font-semibold">
+                                          {project.name}
+                                       </span>
+                                       <span className="text-sm text-gray-600">
+                                          {project.description}
+                                       </span>
+                                    </div>
+                                 </li>
+                              ))}
+                           </ul>
+                        </div>
+                     )}
                   </div>
                </div>
             </div>

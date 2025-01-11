@@ -397,7 +397,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                     font: "Roboto",
                                  }),
                               ],
-                              spacing: { before: 200, after: 100 },
+                              spacing: { before: 300, after: 100 },
                               tabStops: [
                                  {
                                     type: TabStopType.RIGHT,
@@ -466,24 +466,16 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                            new Paragraph({
                               children: [
                                  new TextRun({
-                                    text: edu.degree,
+                                    text: `${edu.degree} - ${edu.institution}, ${edu.year}`,
                                     bold: true,
                                     size: 24,
                                     font: "Roboto",
                                  }),
                               ],
+                              bullet: {
+                                 level: 0,
+                              },
                               spacing: { before: 100 },
-                           }),
-                           new Paragraph({
-                              children: [
-                                 new TextRun({
-                                    text: `${edu.institution}, ${edu.year}`,
-                                    size: 24,
-                                    color: "666666", // Gray color to match preview
-                                    font: "Roboto",
-                                 }),
-                              ],
-                              spacing: { after: 200 },
                            }),
                         ])
                         .flat(),
@@ -548,23 +540,15 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                    new Paragraph({
                                       children: [
                                          new TextRun({
-                                            text: cert.name,
+                                            text: cert,
                                             size: 24,
                                             font: "Roboto",
                                          }),
                                       ],
+                                      bullet: {
+                                         level: 0,
+                                      },
                                       spacing: { before: 100, after: 100 },
-                                   }),
-                                   new Paragraph({
-                                      children: [
-                                         new TextRun({
-                                            text: `${cert.institution} - ${cert.year}`,
-                                            size: 24,
-                                            color: "666666", // Gray color to match preview
-                                            font: "Roboto",
-                                         }),
-                                      ],
-                                      spacing: { after: 200 },
                                    }),
                                 ])
                                 .flat(),
@@ -602,6 +586,9 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                             font: "Roboto",
                                          }),
                                       ],
+                                      bullet: {
+                                         level: 0,
+                                      },
                                       spacing: { before: 100 },
                                    }),
                                    new Paragraph({
@@ -609,11 +596,11 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                                          new TextRun({
                                             text: project.description,
                                             size: 24,
-                                            color: "666666", // Gray color to match preview
                                             font: "Roboto",
                                          }),
                                       ],
-                                      spacing: { after: 200 },
+                                      spacing: { before: 0, after: 200 }, // Add spacing after description
+                                      indent: { left: 720 },
                                    }),
                                 ])
                                 .flat(),
@@ -629,7 +616,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
                      name: "Normal",
                      quickFormat: true,
                      run: {
-                        font: "Calibri",
+                        font: "Roboto",
                      },
                      paragraph: {
                         spacing: {
