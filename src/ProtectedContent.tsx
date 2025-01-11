@@ -1,6 +1,7 @@
 import ResumeGenerator from "./ResumeGenerator";
 import { UserData, UserDetails, AnalysisResult } from "./types/types";
 // import UserDetailsForm from "./UserDetailsForm";
+import { useState, useEffect, useRef } from "react";
 
 interface ProtectedContentProps {
    user: UserData;
@@ -20,6 +21,12 @@ interface ProtectedContentProps {
    totalExperience: string | number;
 }
 
+// Add this interface for skill mapping
+interface SkillMapping {
+   skill: string;
+   experienceMappings: string[]; // Array of experience titles where this skill should be used
+}
+
 const ProtectedContent = ({
    user,
    userDetails,
@@ -33,6 +40,30 @@ const ProtectedContent = ({
    loginLoading,
    totalExperience,
 }: ProtectedContentProps) => {
+   const [skillMappings, setSkillMappings] = useState<SkillMapping[]>([]);
+   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+   const dropdownRef = useRef<HTMLDivElement>(null);
+
+   const handleDropdownToggle = (index: number) => {
+      setOpenDropdown(openDropdown === index ? null : index);
+   };
+
+   useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+         if (
+            dropdownRef.current &&
+            !dropdownRef.current.contains(event.target as Node)
+         ) {
+            setOpenDropdown(null);
+         }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+         document.removeEventListener("mousedown", handleClickOutside);
+      };
+   }, []);
+
    const handleAddSkill = (type: "technical" | "soft") => {
       setAnalysisResult((prev) => {
          if (!prev) return null;
@@ -40,6 +71,18 @@ const ProtectedContent = ({
             ...prev[type === "technical" ? "technicalSkills" : "softSkills"],
             "",
          ];
+
+         // Add default mapping for the new skill
+         const allExperienceTitles = userDetails.experience.map(
+            (exp) => exp.title
+         );
+         const updatedMappings = [...skillMappings];
+         updatedMappings.push({
+            skill: "",
+            experienceMappings: allExperienceTitles,
+         });
+         setSkillMappings(updatedMappings);
+
          return {
             ...prev,
             [type === "technical" ? "technicalSkills" : "softSkills"]:
@@ -54,6 +97,17 @@ const ProtectedContent = ({
          const updatedSkills = prev[
             type === "technical" ? "technicalSkills" : "softSkills"
          ].filter((_, i) => i !== index);
+
+         // Remove mapping for the deleted skill
+         const skillToRemove =
+            prev[type === "technical" ? "technicalSkills" : "softSkills"][
+               index
+            ];
+         const updatedMappings = skillMappings.filter(
+            (m) => m.skill !== skillToRemove
+         );
+         setSkillMappings(updatedMappings);
+
          return {
             ...prev,
             [type === "technical" ? "technicalSkills" : "softSkills"]:
@@ -72,13 +126,83 @@ const ProtectedContent = ({
          const updatedSkills = [
             ...prev[type === "technical" ? "technicalSkills" : "softSkills"],
          ];
+         const oldSkill = updatedSkills[index];
          updatedSkills[index] = value;
+
+         // Find existing mapping for this skill
+         const mappingIndex = skillMappings.findIndex(
+            (m) => m.skill === oldSkill
+         );
+         const updatedMappings = [...skillMappings];
+
+         if (mappingIndex !== -1) {
+            // Update only the skill name, preserve its mappings
+            updatedMappings[mappingIndex] = {
+               ...updatedMappings[mappingIndex],
+               skill: value,
+            };
+         } else {
+            // If no mapping exists, create new with all experiences
+            const allExperienceTitles = userDetails.experience.map(
+               (exp) => exp.title
+            );
+            updatedMappings.push({
+               skill: value,
+               experienceMappings: allExperienceTitles,
+            });
+         }
+
+         setSkillMappings(updatedMappings);
+
          return {
             ...prev,
             [type === "technical" ? "technicalSkills" : "softSkills"]:
                updatedSkills,
          };
       });
+   };
+
+   // Initialize mappings when skills are first loaded
+   useEffect(() => {
+      if (analysisResult?.technicalSkills && userDetails) {
+         setSkillMappings((prev) => {
+            const allExperienceTitles = userDetails.experience.map(
+               (exp) => exp.title
+            );
+
+            // Create mappings for any new skills while preserving existing mappings
+            return analysisResult.technicalSkills.map((skill) => {
+               const existingMapping = prev.find((m) => m.skill === skill);
+               return (
+                  existingMapping || {
+                     skill,
+                     experienceMappings: allExperienceTitles,
+                  }
+               );
+            });
+         });
+      }
+   }, [analysisResult?.technicalSkills, userDetails]);
+
+   const handleSkillMappingChange = (
+      skill: string,
+      expTitle: string,
+      checked: boolean
+   ) => {
+      setSkillMappings((prev) =>
+         prev.map((mapping) =>
+            mapping.skill === skill
+               ? {
+                    ...mapping,
+                    experienceMappings: checked
+                       ? [...mapping.experienceMappings, expTitle]
+                       : mapping.experienceMappings.filter(
+                            (title) => title !== expTitle
+                         ),
+                 }
+               : mapping
+         )
+      );
    };
 
    if (!user) {
@@ -192,9 +316,9 @@ const ProtectedContent = ({
                      {analysisResult.technicalSkills.map((skill, index) => (
                         <div
                            key={index}
-                           className="w-[23%] flex items-center mb-2 mr-[2%] last:mr-0"
+                           className="w-[23%] flex flex-col mb-2 mr-[2%] last:mr-0"
                         >
-                           <div className="relative group flex-1">
+                           <div className="relative group flex items-center">
                               <input
                                  type="text"
                                  value={skill}
@@ -205,28 +329,96 @@ const ProtectedContent = ({
                                        "technical"
                                     )
                                  }
-                                 className="text-xs px-3 py-2 rounded font-semibold bg-blue-800 text-white placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full border border-gray-600 hover:bg-blue-600"
+                                 className="text-xs px-3 py-2 rounded-l font-semibold bg-blue-800 text-white placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full border border-gray-600 hover:bg-blue-600"
                                  placeholder="Enter skill"
-                                 title="Click to EDIT"
+                                 title="Edit Skill"
                               />
-                              {/* <div className="absolute left-[50px] bottom-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                 Click to EDIT
-                              </div> */}
-                           </div>
-                           <div className="relative group ml-1">
+                              <button
+                                 onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDropdownToggle(index);
+                                 }}
+                                 className={`px-2 py-2 rounded-r border-t border-r border-b border-gray-600 hover:bg-blue-600 ${
+                                    openDropdown === index
+                                       ? "bg-blue-400"
+                                       : "bg-blue-800"
+                                 }`}
+                                 title="Map to Experiences"
+                              >
+                                 <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                 >
+                                    <path
+                                       fillRule="evenodd"
+                                       d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 100-2h-4a1 1 0 100 2h4zm-9 7a1 1 0 011-1h4a1 1 0 110 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 14.414V16a1 1 0 01-2 0v-4zm9 1a1 1 0 100-2h-4a1 1 0 100 2h4z"
+                                       clipRule="evenodd"
+                                    />
+                                 </svg>
+                              </button>
                               <button
                                  onClick={() =>
                                     handleRemoveSkill(index, "technical")
                                  }
-                                 className="text-sm px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
-                                 title="Click to DELETE"
+                                 className="text-sm px-2 py-1 bg-red-600 text-white rounded ml-1 hover:bg-red-700"
+                                 title="Remove Skill"
                               >
                                  ✖
                               </button>
-                              {/* <div className="absolute right-[25px] bottom-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                 Click to DELETE
-                              </div> */}
                            </div>
+
+                           {openDropdown === index && (
+                              <div
+                                 ref={dropdownRef}
+                                 className="mt-6 absolute z-10 w-[23%] bg-slate-700 rounded-lg p-2 shadow-lg"
+                              >
+                                 {userDetails.experience.map(
+                                    (exp, expIndex) => {
+                                       const isSelected =
+                                          skillMappings
+                                             .find((m) => m.skill === skill)
+                                             ?.experienceMappings.includes(
+                                                exp.title
+                                             ) || false;
+                                       const isTitleBased =
+                                          exp.responsibilityType ===
+                                          "titleBased";
+
+                                       return (
+                                          <label
+                                             key={expIndex}
+                                             className={`flex items-center gap-2 p-1 rounded cursor-pointer ${
+                                                isTitleBased
+                                                   ? "opacity-50 cursor-not-allowed bg-slate-800"
+                                                   : "hover:bg-slate-600"
+                                             }`}
+                                          >
+                                             <input
+                                                type="checkbox"
+                                                checked={isSelected}
+                                                disabled={isTitleBased}
+                                                onChange={(e) =>
+                                                   handleSkillMappingChange(
+                                                      skill,
+                                                      exp.title,
+                                                      e.target.checked
+                                                   )
+                                                }
+                                                className="rounded border-gray-400"
+                                             />
+                                             <span className="text-xs text-white">
+                                                {exp.title}
+                                                {isTitleBased &&
+                                                   " (Title-based)"}
+                                             </span>
+                                          </label>
+                                       );
+                                    }
+                                 )}
+                              </div>
+                           )}
                         </div>
                      ))}
                   </div>
@@ -272,13 +464,14 @@ const ProtectedContent = ({
             {userDetails && analysisResult && (
                <ResumeGenerator
                   uid={user.uid}
-                  userDetails={userDetails} // Pass userDetails here
+                  userDetails={userDetails}
                   technicalSkills={analysisResult.technicalSkills}
                   softSkills={analysisResult.softSkills}
                   yearsOfExperience={analysisResult.yearsOfExperience}
                   jobDescription={selectedText}
                   refreshUserQuota={refreshUserQuota}
                   totalExperience={totalExperience}
+                  skillMappings={skillMappings}
                />
             )}
          </div>

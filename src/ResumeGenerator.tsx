@@ -24,6 +24,12 @@ const openai = new OpenAI({
    dangerouslyAllowBrowser: true, // Only if using in browser
 });
 
+// Add this interface for skill mapping
+interface SkillMapping {
+   skill: string;
+   experienceMappings: string[]; // Array of experience titles where this skill should be used
+}
+
 interface UserDetails {
    fullName: string;
    email: string;
@@ -51,6 +57,7 @@ interface ResumeGeneratorProps {
    refreshUserQuota: () => Promise<void>;
    uid: string;
    totalExperience: string | number;
+   skillMappings: SkillMapping[];
 }
 
 const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
@@ -62,6 +69,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    refreshUserQuota,
    totalExperience,
    uid,
+   skillMappings,
 }) => {
    const [resumeContent, setResumeContent] = useState<string>("");
    const [loading, setLoading] = useState(false);
@@ -109,12 +117,23 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          title: string;
          responsibilityType: "skillBased" | "titleBased";
       },
-      technicalSkills: string[]
+      technicalSkills: string[],
+      skillMappings: SkillMapping[]
    ): Promise<string[]> => {
+      console.log(skillMappings, "skillMappings");
+      console.log(technicalSkills, "technicalSkills");
+      // Filter skills based on mappings
+      const relevantSkills = technicalSkills.filter((skill) => {
+         const mapping = skillMappings.find((m) => m.skill === skill);
+         return mapping?.experienceMappings.includes(experience.title);
+      });
+
+      console.log(relevantSkills, "relevantSkills");
+
       const prompt =
          experience.responsibilityType === "skillBased"
             ? `Generate EXACTLY 8 detailed technical responsibilities that:
-       1. Use ONLY these technical skills: ${technicalSkills.join(", ")}
+       1. Use ONLY these technical skills: ${relevantSkills.join(", ")}
        2. MUST NOT mention or reference the job title
        3. Focus purely on technical implementation and achievements
        4. Each responsibility should demonstrate hands-on technical work
@@ -195,7 +214,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          // Generate responsibilities for each experience separately
          const generatedResponsibilities = await Promise.all(
             userDetails.experience.map((exp) =>
-               generateResponsibilities(exp, technicalSkills)
+               generateResponsibilities(exp, technicalSkills, skillMappings)
             )
          );
 
