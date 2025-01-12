@@ -701,7 +701,7 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
          <button
             onClick={generateResume}
             disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 py-2 px-4 rounded-lg font-bold text-sm"
+            className="w-full py-3 px-4 rounded-lg font-bold text-base bg-gradient-to-r from-purple-500 to-violet-500 text-white hover:from-purple-600 hover:to-violet-600 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-colors duration-200"
          >
             {loading ? (
                <div className="flex items-center justify-center gap-2">

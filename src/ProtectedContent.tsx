@@ -2,6 +2,7 @@ import ResumeGenerator from "./ResumeGenerator";
 import { UserData, UserDetails, AnalysisResult } from "./types/types";
 // import UserDetailsForm from "./UserDetailsForm";
 import { useState, useEffect, useRef } from "react";
+import { MapIcon, Trash2, PlusCircle } from "lucide-react";
 
 interface ProtectedContentProps {
    user: UserData;
@@ -243,28 +244,49 @@ const ProtectedContent = ({
       <>
          {/* Selected Text - Collapsible */}
          <div className="mb-4">
-            <details className="bg-blue-800 rounded-lg">
-               <summary className="cursor-pointer p-2 text-sm font-semibold">
-                  {selectedText
-                     ? "View Selected Job-Description"
-                     : "Please select Job description, then right-click, then send to ResumeOnFly"}
+            <details className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-xl shadow-lg border border-slate-600/20">
+               <summary className="cursor-pointer p-4 text-sm font-semibold bg-gradient-to-r from-slate-700/80 to-slate-800/80 rounded-xl flex items-center justify-between hover:from-slate-800/80 hover:to-slate-900/80 transition-all duration-200">
+                  {selectedText ? (
+                     <span className="text-blue-300">
+                        View Selected Job-Description
+                     </span>
+                  ) : (
+                     <span className="text-slate-300">
+                        Please select Job description, then right-click, then
+                        send to ResumeOnFly
+                     </span>
+                  )}
+                  <svg
+                     className="w-5 h-5 text-blue-400"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor"
+                  >
+                     <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                     />
+                  </svg>
                </summary>
-               <div className="p-2 text-sm text-blue-200 max-h-[100px] overflow-y-auto">
+               <div className="p-4 text-sm text-blue-200 max-h-[200px] overflow-y-auto custom-scrollbar">
                   {selectedText || "No Job description selected"}
                </div>
             </details>
          </div>
+
          {/* Loading State */}
          {loading && (
-            <div>
+            <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-xl p-6 shadow-lg border border-slate-600/20">
                <div className="flex justify-center p-2">
                   <div className="animate-pulse-slow flex space-x-2">
-                     <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
-                     <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
-                     <div className="h-2 w-2 bg-blue-400 rounded-full"></div>
+                     <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce"></div>
+                     <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                     <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
                   </div>
                </div>
-               <div className="flex justify-center p-2 font-bold text-white text-lg">
+               <div className="flex justify-center p-2 font-bold text-blue-300 text-lg">
                   Parsing the Job Description...
                </div>
             </div>
@@ -272,53 +294,56 @@ const ProtectedContent = ({
 
          {/* Analysis Results */}
          {analysisResult && (
-            <div className="space-y-4">
-               <div className="flex items-center rounded-lg justify-between">
+            <div className="space-y-6">
+               <div className="flex items-center rounded-xl justify-between gap-4">
                   {/* Experience Required */}
-                  <div className="relative bg-green-800 w-[49%] p-2 rounded-lg group">
-                     <span className="text-sm font-semibold">
-                        Experience Required:
-                     </span>
-                     <span className="ml-2 font-bold text-green-300 text-sm">
-                        {analysisResult.yearsOfExperience} years
-                     </span>
+                  <div className="relative group bg-gradient-to-br from-green-800/80 to-emerald-900/80 w-1/2 p-3 rounded-xl shadow-lg border border-green-700/30 hover:border-green-600/50 transition-all duration-200">
+                     <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-green-200">
+                           Experience Required:
+                        </span>
+                        <span className="font-bold text-emerald-300 text-lg">
+                           {analysisResult.yearsOfExperience} years
+                        </span>
+                     </div>
                      {/* Tooltip */}
-                     <div className="absolute left-0 top-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                        Based on the job description.
+                     <div className="absolute left-0 top-full mt-2 w-max px-3 py-2 bg-gray-800 text-gray-200 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-xl">
+                        Based on the job description
                      </div>
                   </div>
+
                   {/* Total Experience */}
-                  <div className="relative bg-green-800 w-[49%] p-2 rounded-lg group">
-                     <span className="text-sm font-semibold">
-                        Your Experience:
-                     </span>
-                     <span className="ml-2 font-bold text-green-300 text-sm">
-                        {totalExperience} years
-                     </span>
+                  <div className="relative group bg-gradient-to-br from-green-800/80 to-emerald-900/80 w-1/2 p-3 rounded-xl shadow-lg border border-green-700/30 hover:border-green-600/50 transition-all duration-200">
+                     <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-green-200">
+                           Your Experience:
+                        </span>
+                        <span className="font-bold text-emerald-300 text-lg">
+                           {totalExperience} years
+                        </span>
+                     </div>
                      {/* Tooltip */}
-                     <div className="absolute left-0 top-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                        Can edit this in the Edit Details section.
+                     <div className="absolute left-0 top-full mt-2 w-max px-3 py-2 bg-gray-800 text-gray-200 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-xl">
+                        Can edit this in the Edit Details section
                      </div>
                   </div>
                </div>
 
                {/* Technical Skills */}
-               <div className="border border-slate-700 rounded-lg p-3">
-                  <div className="relative">
-                     <h3 className="text-sm font-bold mb-2 text-white bg-slate-900 px-2 py-1 w-fit rounded-lg group">
-                        Technical Skills
-                        <div className="absolute left-0 bottom-full mt-2 w-[150px] px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                           You can modify below skills: add, edit, or delete.
-                        </div>
+               <div className="bg-gradient-to-l from-slate-800/50 to-slate-900/60 rounded-xl p-6 shadow-lg border border-slate-600/20">
+                  <div className="relative mb-6">
+                     <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent inline-flex items-center gap-2">
+                        Technical Skills:
+                        <span className="text-xs text-slate-400 font-normal bg-slate-800 px-2 py-1 rounded-lg">
+                           Editable
+                        </span>
                      </h3>
                   </div>
-                  <div className="flex flex-wrap m-0">
+
+                  <div className="flex flex-wrap gap-4">
                      {analysisResult.technicalSkills.map((skill, index) => (
-                        <div
-                           key={index}
-                           className="w-[23%] flex flex-col mb-2 mr-[2%] last:mr-0"
-                        >
-                           <div className="relative group flex items-center">
+                        <div key={index} className="w-[23%] group relative">
+                           <div className="relative flex items-center gap-1">
                               <input
                                  type="text"
                                  value={skill}
@@ -329,59 +354,46 @@ const ProtectedContent = ({
                                        "technical"
                                     )
                                  }
-                                 className="text-xs px-3 py-2 rounded-l font-semibold bg-blue-800 text-white placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full border border-gray-600 hover:bg-blue-600"
+                                 className="w-full px-3 py-2 text-sm bg-slate-600 text-white rounded-lg border border-slate-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all duration-200"
                                  placeholder="Enter skill"
                                  title="Edit Skill"
                               />
                               <button
-                                 onClick={(e) => {
-                                    e.stopPropagation();
+                                 onClick={() => {
                                     handleDropdownToggle(index);
                                  }}
-                                 className={`px-2 py-2 rounded-r border-t border-r border-b border-gray-600 hover:bg-blue-600 ${
+                                 title="Map Skill to Experience"
+                                 className={`p-2 bg-slate-800 text-blue-400 rounded-lg border border-slate-600 hover:bg-slate-700 transition-all duration-200 ${
                                     openDropdown === index
-                                       ? "bg-blue-400"
-                                       : "bg-blue-800"
+                                       ? "bg-blue-600 text-orange-400"
+                                       : ""
                                  }`}
-                                 title="Map to Experiences"
                               >
-                                 <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                 >
-                                    <path
-                                       fillRule="evenodd"
-                                       d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 100-2h-4a1 1 0 100 2h4zm-9 7a1 1 0 011-1h4a1 1 0 110 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 14.414V16a1 1 0 01-2 0v-4zm9 1a1 1 0 100-2h-4a1 1 0 100 2h4z"
-                                       clipRule="evenodd"
-                                    />
-                                 </svg>
+                                 <MapIcon size={16} />
                               </button>
                               <button
                                  onClick={() =>
                                     handleRemoveSkill(index, "technical")
                                  }
-                                 className="text-sm px-2 py-1 bg-red-600 text-white rounded ml-1 hover:bg-red-700"
                                  title="Remove Skill"
+                                 className="p-2 bg-slate-800 text-rose-400 rounded-lg border border-slate-600 hover:bg-slate-700 transition-all duration-200"
                               >
-                                 ✖
+                                 <Trash2 size={16} />
                               </button>
                            </div>
 
                            {openDropdown === index && (
                               <div
+                                 className="absolute left-0 top-[calc(100%+4px)] w-full bg-slate-800 rounded-xl p-3 shadow-xl border border-slate-600 z-20"
                                  ref={dropdownRef}
-                                 className="mt-6 absolute z-10 w-[23%] bg-slate-700 rounded-lg p-2 shadow-lg"
                               >
                                  {userDetails.experience.map(
                                     (exp, expIndex) => {
-                                       const isSelected =
-                                          skillMappings
-                                             .find((m) => m.skill === skill)
-                                             ?.experienceMappings.includes(
-                                                exp.title
-                                             ) || false;
+                                       const isSelected = skillMappings
+                                          .find((m) => m.skill === skill)
+                                          ?.experienceMappings.includes(
+                                             exp.title
+                                          );
                                        const isTitleBased =
                                           exp.responsibilityType ===
                                           "titleBased";
@@ -389,11 +401,11 @@ const ProtectedContent = ({
                                        return (
                                           <label
                                              key={expIndex}
-                                             className={`flex items-center gap-2 p-1 rounded cursor-pointer ${
+                                             className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
                                                 isTitleBased
-                                                   ? "opacity-50 cursor-not-allowed bg-slate-800"
-                                                   : "hover:bg-slate-600"
-                                             }`}
+                                                   ? "opacity-50 cursor-not-allowed bg-slate-700"
+                                                   : "hover:bg-slate-700"
+                                             } transition-all duration-200`}
                                           >
                                              <input
                                                 type="checkbox"
@@ -406,12 +418,15 @@ const ProtectedContent = ({
                                                       e.target.checked
                                                    )
                                                 }
-                                                className="rounded border-gray-400"
+                                                className="rounded border-slate-500 text-blue-500 focus:ring-blue-500"
                                              />
-                                             <span className="text-xs text-white">
+                                             <span className="text-xs text-slate-200">
                                                 {exp.title}
-                                                {isTitleBased &&
-                                                   " (Title-based)"}
+                                                {isTitleBased && (
+                                                   <span className="ml-1 text-slate-400">
+                                                      (Title-based)
+                                                   </span>
+                                                )}
                                              </span>
                                           </label>
                                        );
@@ -422,59 +437,31 @@ const ProtectedContent = ({
                         </div>
                      ))}
                   </div>
-                  <div className="relative group">
-                     <button
-                        onClick={() => handleAddSkill("technical")}
-                        className="flex mt-3 text-sm bg-green-800 px-3 py-1 rounded font-semibold text-green-100 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
-                     >
-                        Add Skill
-                     </button>
-                     <div className="absolute left-0 top-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                        Click to Add new Skill
-                     </div>
-                  </div>
+
+                  <button
+                     onClick={() => handleAddSkill("technical")}
+                     className="flex items-center gap-2 mt-6 px-4 py-2 text-sm font-semibold bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg mb-4"
+                  >
+                     <PlusCircle size={16} />
+                     Add Skill
+                  </button>
                </div>
 
-               {/* Soft Skills */}
-               {/* <div className="mt-6">
-                  <h3 className="text-sm font-bold mb-2 text-blue-300">
-                     Soft Skills
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                     {analysisResult.softSkills.map((skill, index) => (
-                        <span
-                           key={index}
-                           className="px-3 py-1 bg-green-800 text-green-200 rounded text-xs"
-                        >
-                           {skill}
-                        </span>
-                     ))}
-                  </div>
-               </div> */}
+               {userDetails && analysisResult && (
+                  <ResumeGenerator
+                     uid={user.uid}
+                     userDetails={userDetails}
+                     technicalSkills={analysisResult.technicalSkills}
+                     softSkills={analysisResult.softSkills}
+                     yearsOfExperience={analysisResult.yearsOfExperience}
+                     jobDescription={selectedText}
+                     refreshUserQuota={refreshUserQuota}
+                     totalExperience={totalExperience}
+                     skillMappings={skillMappings}
+                  />
+               )}
             </div>
          )}
-         {/* Inside your ProtectedContent component, after the analysis
-      results: */}
-         <div>
-            {/* Render UserDetailsForm if userDetails is not set */}
-            {/* {!userDetails && (
-            <UserDetailsForm onSave={handleSaveUserDetails} />
-         )} */}
-            {/* Render ResumeGenerator only if userDetails is available */}
-            {userDetails && analysisResult && (
-               <ResumeGenerator
-                  uid={user.uid}
-                  userDetails={userDetails}
-                  technicalSkills={analysisResult.technicalSkills}
-                  softSkills={analysisResult.softSkills}
-                  yearsOfExperience={analysisResult.yearsOfExperience}
-                  jobDescription={selectedText}
-                  refreshUserQuota={refreshUserQuota}
-                  totalExperience={totalExperience}
-                  skillMappings={skillMappings}
-               />
-            )}
-         </div>
       </>
    );
 };

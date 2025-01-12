@@ -515,15 +515,15 @@ function App() {
          ) : (
             <>
                {/* Header */}
-               <div className="mb-4 flex items-center justify-between p-4 bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-sm rounded-xl shadow-lg border border-white/5">
+               <div className="mb-4 flex items-center justify-between p-4 bg-gradient-to-r from-purple-600/30 to-blue-600/30 backdrop-blur-sm rounded-xl shadow-lg border border-white/10">
                   <div className="w-[39%]">
                      <h1 className="text-3xl font-extrabold text-white mb-2.5">
                         ResumeOnFly🚀
                      </h1>
                      <p className="text-sm text-gray-300">
-                        Designs resume based on jobDescription, works on any
+                        Designs resume based on job description, works on any
                         website.{" "}
-                        <span className="text-xs text-pink-500">
+                        <span className="text-xs text-pink-600">
                            prod. by CVtoSalary.com
                         </span>
                      </p>
@@ -545,7 +545,7 @@ function App() {
                            <img
                               src={user.picture}
                               alt={user.name}
-                              className="w-8 h-8 rounded-full border-1 border-slate-200 mr-1"
+                              className="w-10 h-10 rounded-full border-2 border-slate-200 shadow-md"
                            />
                            {/* Tooltip */}
                            <div className="absolute left-0 top-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -582,10 +582,6 @@ function App() {
                               >
                                  <LogOutIcon size={16} />
                               </button>
-                              {/* Tooltip for Logout */}
-                              {/* <div className="absolute left-0 bottom-full mt-1 w-max px-2 py-1 bg-gray-700 text-gray-100 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                 LogOut{" "}
-                              </div> */}
                            </div>
                            <div className="relative group">
                               <p className="text-slate-300 px-3 py-1 bg-slate-800 rounded-lg shadow-md">
@@ -602,7 +598,7 @@ function App() {
                      <button
                         onClick={handleGoogleLogin}
                         disabled={loginLoading}
-                        className="bg-blue-600 px-5 py-2 text-sm font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 shadow-md"
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 px-5 py-2 text-sm font-bold rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 shadow-md"
                         title="Sign in with Google"
                      >
                         {loginLoading ? (
@@ -627,7 +623,7 @@ function App() {
 
                {/* Error State */}
                {error && (
-                  <div className="bg-red-50 border-l-4 border-red-400 p-2 mb-4 text-xs text-red-700">
+                  <div className="bg-red-50 border-l-4 border-red-400 p-2 mb-4 text-xs text-red-700 rounded-lg shadow-md">
                      {error}
                   </div>
                )}

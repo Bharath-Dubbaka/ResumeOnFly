@@ -210,7 +210,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
                <div className="flex gap-4">
                   <button
                      onClick={() => setIsEditing(!isEditing)}
-                     className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
+                     className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold text-base bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-700 hover:to-indigo-600 text-white"
                   >
                      {isEditing ? "Save Changes" : "Edit Resume"}
                      <EditIcon size={16} /> {/* Add edit icon here */}
@@ -218,7 +218,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({
 
                   <button
                      onClick={downloadAsWord}
-                     className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-bold text-sm"
+                     className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 px-4 rounded-lg font-bold text-base"
                   >
                      <Download size={16} />
                      Download as Word
