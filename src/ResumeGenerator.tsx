@@ -209,6 +209,13 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
 
    // Generate the Resume using the generated Responsibilities and hardcoded userDetails
    const generateResume = async () => {
+      // Check quota before proceeding
+      const hasQuota = await QuotaService.checkQuota(uid, "generates");
+      if (!hasQuota) {
+         alert("Generate quota exceeded. Please upgrade your plan."); // Alert for user feedback
+         return; // Exit the function if no quota
+      }
+
       setLoading(true);
       try {
          // Generate responsibilities for each experience separately
@@ -274,6 +281,13 @@ const ResumeGenerator: React.FC<ResumeGeneratorProps> = ({
    };
 
    const downloadAsWord = async () => {
+      // Check quota before proceeding
+      const hasQuota = await QuotaService.checkQuota(uid, "downloads");
+      if (!hasQuota) {
+         alert("Download quota exceeded. Please upgrade your plan."); // Alert for user feedback
+         return; // Exit the function if no quota
+      }
+
       // Directly use the resumeContent assuming it is already cleaned
       // console.log(resumeContent, "ResumeContent inside downloadAsWord");
       const resumeData = JSON.parse(resumeContent); // resumeContent is now used directly without cleaning

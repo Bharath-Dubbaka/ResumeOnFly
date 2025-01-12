@@ -140,7 +140,7 @@ function App() {
                      );
                      if (!hasQuota) {
                         throw new Error(
-                           "Parsing quota exceeded. Please upgrade your plan. from UseEffect"
+                           "Parsing quota exceeded. Please upgrade your plan."
                         );
                      }
 
@@ -256,7 +256,7 @@ function App() {
          const hasQuota = await QuotaService.checkQuota(user.uid, "parsing");
          if (!hasQuota) {
             throw new Error(
-               "Parsing quota exceeded. Please upgrade your plan. from analyzeWithGemini"
+               "Parsing quota exceeded. Please upgrade your plan."
             );
          }
 
