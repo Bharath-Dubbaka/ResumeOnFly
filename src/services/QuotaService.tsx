@@ -5,11 +5,11 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 export class QuotaService {
    private static DEFAULT_FREE_QUOTA: UserQuota = {
-      downloads: { used: 0, limit: 5 },
-      generates: { used: 0, limit: 10 },
-      parsing: { used: 0, limit: 15 },
+      downloads: { used: 0, limit: 25 },
+      generates: { used: 0, limit: 25 },
+      parsing: { used: 0, limit: 25 },
       subscription: {
-         type: "free" as const, // explicitly type as "free"
+         type: "free" as const,
          startDate: new Date().toISOString(),
          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       },
@@ -17,14 +17,12 @@ export class QuotaService {
 
    private static DEFAULT_PREMIUM_QUOTA: UserQuota = {
       downloads: { used: 0, limit: 100 },
-      generates: { used: 0, limit: 200 },
-      parsing: { used: 0, limit: 300 },
+      generates: { used: 0, limit: 150 },
+      parsing: { used: 0, limit: 100 },
       subscription: {
-         type: "premium" as const, // explicitly type as "premium"
+         type: "premium" as const,
          startDate: new Date().toISOString(),
-         endDate: new Date(
-            Date.now() + 365 * 24 * 60 * 60 * 1000
-         ).toISOString(),
+         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       },
    };
 
@@ -40,7 +38,6 @@ export class QuotaService {
       }
 
       const data = docSnap.data();
-      // Ensure the data matches our UserQuota type
       const quota: UserQuota = {
          downloads: data.downloads,
          generates: data.generates,
@@ -51,7 +48,61 @@ export class QuotaService {
             endDate: data.subscription.endDate,
          },
       };
+
+      // Check if quota needs to be refreshed
+      if (await this.shouldRefreshQuota(quota)) {
+         return await this.refreshQuota(uid, quota);
+      }
+
       return quota;
+   }
+
+   private static async shouldRefreshQuota(quota: UserQuota): Promise<boolean> {
+      const currentDate = new Date();
+      const endDate = new Date(quota.subscription.endDate);
+
+      // Simply check if current date is past the end date
+      // This works for both free and premium users
+      return currentDate > endDate;
+   }
+
+   private static async refreshQuota(
+      uid: string,
+      currentQuota: UserQuota
+   ): Promise<UserQuota> {
+      const userRef = doc(db, "quotas", uid);
+      const currentDate = new Date();
+
+      // If premium subscription has ended, revert to free
+      const hasExpired =
+         new Date(currentQuota.subscription.endDate) < currentDate;
+      const newQuota: UserQuota = hasExpired
+         ? {
+              ...this.DEFAULT_FREE_QUOTA,
+              subscription: {
+                 type: "free" as const,
+                 startDate: currentDate.toISOString(),
+                 endDate: new Date(
+                    currentDate.getTime() + 30 * 24 * 60 * 60 * 1000
+                 ).toISOString(),
+              },
+           }
+         : {
+              ...currentQuota,
+              downloads: { ...currentQuota.downloads, used: 0 },
+              generates: { ...currentQuota.generates, used: 0 },
+              parsing: { ...currentQuota.parsing, used: 0 },
+              subscription: {
+                 ...currentQuota.subscription,
+                 startDate: currentDate.toISOString(),
+                 endDate: new Date(
+                    currentDate.getTime() + 30 * 24 * 60 * 60 * 1000
+                 ).toISOString(),
+              },
+           };
+
+      await setDoc(userRef, newQuota);
+      return newQuota;
    }
 
    static async checkQuota(
@@ -75,21 +126,21 @@ export class QuotaService {
       });
    }
 
-   static async resetQuota(uid: string): Promise<void> {
+   static async upgradeToPremium(uid: string): Promise<void> {
       const userRef = doc(db, "quotas", uid);
-      const quota = await this.getUserQuota(uid);
-      const defaultQuota =
-         quota.subscription.type === "premium"
-            ? this.DEFAULT_PREMIUM_QUOTA
-            : this.DEFAULT_FREE_QUOTA;
+      const currentDate = new Date();
 
-      await setDoc(userRef, {
-         ...defaultQuota,
-         subscription: quota.subscription, // Preserve existing subscription
-      });
+      const premiumQuota = {
+         ...this.DEFAULT_PREMIUM_QUOTA,
+         subscription: {
+            type: "premium",
+            startDate: currentDate.toISOString(),
+            endDate: new Date(
+               currentDate.getTime() + 30 * 24 * 60 * 60 * 1000
+            ).toISOString(),
+         },
+      };
+
+      await setDoc(userRef, premiumQuota);
    }
 }
-
-
-
-
